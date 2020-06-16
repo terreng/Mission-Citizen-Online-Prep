@@ -2,6 +2,7 @@ var admin = require('firebase-admin');
 const request = require('request');
 const http = require('http');
 const { parse } = require('querystring');
+var fs = require('fs');
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
@@ -36,8 +37,15 @@ req.on('end', function() {
 }
 
 function handleRequest() {
+if (req.url == "/") {
+
 	res.writeHead(200, { 'Content-Type': 'text/html' });
 	res.end('Hello world');
+
+} else {
+	res.writeHead(404, { 'Content-Type': 'text/html' });
+	res.end(fs.readFileSync("404.html", 'utf8'));
+}
 }
 
 }

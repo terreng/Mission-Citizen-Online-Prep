@@ -1,0 +1,21 @@
+{
+  "name": "Mission-Citizen-Online-Prep",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "firebase-admin": "^8.10.0",
+    "http": "0.0.1-security",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2"
+  },
+  "engines": {
+    "node": "8.x",
+    "npm": "*"
+  }
+}

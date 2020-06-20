@@ -37,6 +37,10 @@ req.on('end', function() {
 }
 
 function handleRequest() {
+if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "production") {
+  res.writeHead(302, {"Location": "https://"+req.get("Host")+req.url});
+  res.end();
+} else {
 if (req.url == "/") {
 
 	res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -69,6 +73,7 @@ if (matched_static_file) {
     res.writeHead(404, { 'Content-Type': 'text/html' });
     res.end(data);
   })
+}
 }
 }
 }

@@ -1,0 +1,68 @@
+body {
+    background-color: #ececec;
+    margin: 0;
+    font-size: 18px;
+}
+
+.login_container {
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+    background-color: white;
+    margin-top: 50px;
+    border-radius: 10px;
+    border: 1px solid #adadad;
+}
+
+.login_logo {
+    width: 250px;
+    margin: 0px auto;
+    padding: 20px 0px;
+}
+
+.login_logo img {
+    width: 100%;
+}
+
+@media (max-width: 402px) {
+.login_container {
+    max-width: 100%;
+    border: none;
+    margin-top: 0px;
+    border-radius: 0;
+}
+}
+
+input[type=submit] {
+    padding: 8px;
+    color: white;
+    background: #009ddc;
+    background: linear-gradient(#009ddc, #0095d1);
+    border: none;
+    font-size: 18px;
+    border-radius: 3px;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+}
+
+input[type=submit]:hover, input[type=submit]:focus {
+    background: #008dc6;
+    background: linear-gradient(#008dc6, #0085bb);
+}
+
+input[type=submit]:active {
+    background: #0079aa;
+    background: linear-gradient(#0079aa, #0080b3);
+}
+
+.login_language_buttons {
+    width: 200px;
+    margin: 0 auto;
+    padding-bottom: 10px;
+    padding-top: 20px;
+}
+
+.login_language_buttons input {
+    margin-bottom: 16px;
+}

@@ -11,5 +11,18 @@
 <meta property="og:image" content="/logo.png">
 </head>
 <body>
+<div class="login_container">
+<div class="login_logo"><img src="/logo.png"></img></div>
+<div class="login_language_buttons">
+<form action="/language_submit" method="POST">
+    <input name="language" readonly value="en" style="display: none;">
+    <input type="submit" value="English">
+</form>
+<form action="/language_submit" method="POST">
+    <input name="language" readonly value="es" style="display: none;">
+    <input type="submit" value="Español">
+</form>
+</div>
+</div>
 </body>
 </html>

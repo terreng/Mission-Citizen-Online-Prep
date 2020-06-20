@@ -38,8 +38,17 @@ req.on('end', function() {
 
 function handleRequest() {
 if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "production") {
-  res.writeHead(302, {"Location": "https://"+req.get("Host")+req.url});
+  res.writeHead(302, {"Location": "https://"+req.headers.host+req.url});
   res.end();
+} else {
+if (req.url == "/login_language") {
+  fs.readFile("language.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(data);
+  })
 } else {
 if (req.url == "/") {
 
@@ -51,10 +60,10 @@ var static_files = [
   ["style.css","text/css"],
   ["logo.png","image/png"]
 ]
-matched_static_file = false;
+var matched_static_file = false;
 for (var i = 0; i < static_files.length; i++) {
 if (static_files[i][0] == req.url.substring(1)) {
-  matched_static_file = static_files[i];
+  matched_static_file = JSON.parse(JSON.stringify(static_files[i]));
 }
 }
 if (matched_static_file) {
@@ -73,6 +82,7 @@ if (matched_static_file) {
     res.writeHead(404, { 'Content-Type': 'text/html' });
     res.end(data);
   })
+}
 }
 }
 }

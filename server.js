@@ -43,12 +43,22 @@ if (req.url == "/") {
 	res.end('Hello world');
 
 } else {
-if (req.url == "/style.css") {
-  fs.readFile("style.css", 'utf8', function(error, data) {
+var static_files = [
+  ["style.css","text/css"],
+  ["logo.png","image/png"]
+]
+matched_static_file = false;
+for (var i = 0; i < static_files.length; i++) {
+if (static_files[i][0] == req.url.substring(1)) {
+  matched_static_file = static_files[i];
+}
+}
+if (matched_static_file) {
+  fs.readFile(matched_static_file[0], function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    res.writeHead(200, { 'Content-Type': 'text/css' });
+    res.writeHead(200, { 'Content-Type': matched_static_file[1] });
     res.end(data);
   })
 } else {

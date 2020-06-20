@@ -19,9 +19,19 @@ admin.firestore().settings({timestampsInSnapshots: true});
 
 const requestListener = function (req, res) {
 
+var body;
+
+var url = req.url.split("?")[0];
+var query = parse(req.url.split("?")[1]);
+
 console.log(req.url);
 
-var body;
+var cookies = {},
+rc = req.headers.cookie;
+rc && rc.split(';').forEach(function(cookie) {
+  var parts = cookie.split('=');
+  cookies[parts.shift().trim()] = decodeURI(parts.join('='));
+});
 
 if (req.method === 'POST') {
 body = "";
@@ -38,23 +48,8 @@ req.on('end', function() {
 
 function handleRequest() {
 if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "production") {
-  res.writeHead(302, {"Location": "https://"+req.headers.host+req.url});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+req.url});
   res.end();
-} else {
-if (req.url == "/login_language") {
-  fs.readFile("language.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(data);
-  })
-} else {
-if (req.url == "/") {
-
-	res.writeHead(200, { 'Content-Type': 'text/html' });
-	res.end('Hello world');
-
 } else {
 var static_files = [
   ["style.css","text/css"],
@@ -75,6 +70,36 @@ if (matched_static_file) {
     res.end(data);
   })
 } else {
+if (url == "/login_language") {
+  fs.readFile("language.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    data = data.replace(/{FORM_ACTION}/g,"/language_submit"+(query.continue ? "?continue="+query.continue : ""));
+    res.end(data);
+  })
+} else {
+if (url == "/language_submit") {
+if (["en","es"].indexOf(body.language) > -1) {
+  console.log("Continue: " + query.continue);
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'lang='+body.language});
+  res.end();
+} else {
+  internalServerError();
+}
+} else {
+if (["en","es"].indexOf(cookies.lang) == -1) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_language?continue="+url});
+  res.end();
+} else {
+if (url == "/") {
+
+	res.writeHead(200, { 'Content-Type': 'text/html' });
+	res.end('Hello world');
+
+} else {
+
   fs.readFile("404.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
@@ -82,6 +107,9 @@ if (matched_static_file) {
     res.writeHead(404, { 'Content-Type': 'text/html' });
     res.end(data);
   })
+
+}
+}
 }
 }
 }

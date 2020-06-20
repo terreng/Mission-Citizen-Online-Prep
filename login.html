@@ -1,0 +1,48 @@
+<html lang="{LANGUAGE_CODE}"><head>
+<title>Mission Citizen Online</title>
+<link href="/style.css" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" name="viewport">
+<meta name="title" content="Mission Citizen Online">
+<meta property="og:title" content="Mission Citizen Online">
+<meta name="description" content="Free online citizenship classes by Mission Citizen">
+<meta name="og:description" content="Free online citizenship classes by Mission Citizen">
+<meta property="og:image" content="/logo.png">
+</head>
+<body>
+<div class="login_container">
+<div class="login_logo"><img src="/logo.png"></div>
+<div class="login_form" style="
+    text-align: center;
+    padding-bottom: 20px;
+    padding-top: 6px;
+    width: 304px;
+    margin: 0 auto;
+">
+<div style="
+    padding-bottom: 16px;
+">{login.subtitle}</div>
+<form action="{FORM_ACTION}" method="POST">
+    <input name="code" placeholder="{login.logincode}" style="
+    font-size: 18px;
+    font-size: 19px;
+    border: 2px solid #969696;
+    border-radius: 3px;
+    padding: 6px 7px;
+    width: 207px;
+    margin: 0;
+">
+    <input type="submit" value="{login.submit}" style="
+    width: 92px;
+">
+</form>
+<form action="{FORM_ACTION}" method="POST">
+    <input name="code" readonly value="auto" style="display: none;">
+    <input type="submit" value="{login.nocode}" style="
+    margin-top: 16px;
+    width: 100%;
+">
+</form>
+</div>
+</div>
+
+</body></html>

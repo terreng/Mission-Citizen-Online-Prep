@@ -4,6 +4,8 @@ const http = require('http');
 const { parse } = require('querystring');
 var fs = require('fs');
 
+var localizations = JSON.parse(fs.readFileSync("localizations.json", 'utf8'));
+
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
@@ -93,6 +95,19 @@ if (["en","es"].indexOf(cookies.lang) == -1) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_language?continue="+url});
   res.end();
 } else {
+if (url == "/login") {
+  fs.readFile("login.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")});
+    if (!data) {
+      return internalServerError("Localization error");
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(data);
+  })
+} else {
 if (url == "/") {
 
 	res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -114,6 +129,21 @@ if (url == "/") {
 }
 }
 }
+}
+}
+
+function localize(data,lang,special) {
+haderror = false;
+try {
+data = data.replace(/{(.*)}/g,function(a,b) {if (b == b.toUpperCase()) {if (b == "LANGUAGE_CODE") {return lang} else {if (special[b]) {return special[b]} else {haderror = b;return b;}}} else {if (localizations[lang][b.split(".")[0]][b.split(".")[1]]) {return localizations[lang][b.split(".")[0]][b.split(".")[1]]} else {haderror = b;return b}}});
+} catch(error) {
+console.error(error);
+return false;
+}
+if (haderror) {
+console.error("Something went wrong while parsing: "+haderror);
+}
+return (haderror ? false : data);
 }
 
 function internalServerError(error) {

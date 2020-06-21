@@ -116,7 +116,7 @@ admin.database().ref("users/"+workingcode).once("value").then(function(snapshot)
 if (snapshot.val()) {
   tryCode();
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/welcome?code="+workingcode+(query.continue ? "&continue="+query.continue : "")), 'Set-Cookie': 'code='+workingcode});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/welcome"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'code='+workingcode});
   res.end();
 }
 }).catch(function(error) {
@@ -146,6 +146,19 @@ if (!cookies.code) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login?continue="+url});
   res.end();
 } else {
+if (url == "/welcome") {
+  fs.readFile("newcode.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"FORM_ACTION": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12)});
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(data);
+  })
+} else {
 if (url == "/") {
 
 	res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -161,6 +174,7 @@ if (url == "/") {
     res.end(data);
   })
 
+}
 }
 }
 }

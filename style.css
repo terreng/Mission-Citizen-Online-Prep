@@ -34,6 +34,7 @@ input[type=number] {
     margin: 0px auto;
     padding: 20px 0px;
     height: 83px;
+    padding-top: 18px;
 }
 
 .login_logo img {

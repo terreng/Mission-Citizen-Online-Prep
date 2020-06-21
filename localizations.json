@@ -6,6 +6,11 @@
             "submit": "Submit",
             "nocode": "I don't have a login code",
             "badcode": "The login code you entered was invalid."
+        },
+        "welcome": {
+            "title": "Your login code is:",
+            "subtitle": "Use this code to take your progress with you when signing in to a new device.",
+            "continue": "Continue"
         }
     },
     "es": {

@@ -16,12 +16,18 @@
 <div>
 <img src="/logo.png"></img>
 </div>
+<div onclick="toggleNav()">
+<svg viewBox="0 0 24 24">
+    <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+</svg>
+</div>
 <div>
 Lesson #1: Test Name
 </div>
 </header>
 <nav>
-<div>
+<img src="/logo.png">
+<a>
 <div>
 <svg viewBox="0 0 24 24">
     <path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
@@ -30,12 +36,25 @@ Lesson #1: Test Name
 <div>
 Home
 </div>
-</div>
+</a>
 </nav>
+<div id="nav_background" onclick="hideNav()">
+
+</div>
 <main>
 <div>
     Content
 </div>
 </main>
+<script>
+function toggleNav() {
+document.querySelector("nav").style.display = "block";
+document.getElementById("nav_background").style.display = "block";
+}
+function hideNav() {
+document.querySelector("nav").style.display = "none";
+document.getElementById("nav_background").style.display = "none";
+}
+</script>
 </body>
 </html>

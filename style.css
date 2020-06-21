@@ -93,13 +93,25 @@ header {
     position: fixed;
     right: 0;
     left: 0;
-    z-index: 10px;
+    z-index: 10;
 }
 
 header div:first-child {
     height: 100%;
     width: 220px;
     float: left;
+}
+
+header div:nth-child(2) {
+    float: left;
+    height: 30px;
+    padding: 15px;
+    display: none;
+}
+
+header div:nth-child(2) svg {
+    width: 30px;
+    height: 30px;
 }
 
 header div:first-child img {
@@ -114,6 +126,9 @@ header div:last-child {
     font-size: 20px;
     line-height: 60px;
     padding-left: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 nav {
@@ -126,23 +141,50 @@ nav {
     margin-top: 61px;
     border-right: 1px #d8d8d8 solid;
     overflow-y: auto;
+    z-index: 15;
 }
 
-nav > div {
+#nav_background {
+    z-index: 13;
+    background: black;
+    opacity: 0.5;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: none;
+}
+
+nav > a {
     height: 40px;
+    display: block;
 }
 
-nav > div:first-child {
+nav > a:hover, nav > a:focus, nav > a:active, nav > a.active {
+    color: #364659;
+    cursor: pointer;
+}
+
+nav > a:active, nav > a.active {
+    background: #e0ebf7;
+}
+
+nav > a:hover div:first-child svg path, nav > a:focus div:first-child svg path, nav > a:active div:first-child svg path, nav > a.active div:first-child svg path {
+    fill: #364659;
+}
+
+nav > a:nth-child(2) {
     margin-top: 4px;
 }
 
-nav > div div:first-child {
+nav > a div:first-child {
     float: left;
     height: 40px;
     width: 41px;
 }
 
-nav > div div:first-child svg {
+nav > a div:first-child svg {
     width: 26px;
     height: 26px;
     padding: 7px 7px;
@@ -150,12 +192,22 @@ nav > div div:first-child svg {
     padding-right: 4px;
 }
 
-nav > div div:last-child {
+nav > a div:first-child svg path {
+    fill: #131313;
+}
+
+nav > a div:last-child {
     float: left;
     width: 174px;
     height: 40px;
     line-height: 40px;
     padding-left: 5px;
+}
+
+nav > img {
+    width: 150px;
+    padding: 12px 35px;
+    display: none;
 }
 
 main {
@@ -171,4 +223,41 @@ main > div {
     border-radius: 4px;
     border: 1px #d8d8d8 solid;
     width: calc(100% - 42px);
+}
+
+@media (max-width: 900px) {
+header div:first-child {
+    display: none;
+}
+header div:nth-child(2) {
+    display: block;
+    padding: 12px 15px;
+}
+header div:last-child {
+    width: calc(100% - 62px);
+    padding-left: 2px;
+    line-height: 54px;
+}
+header {
+    height: 54px;
+}
+nav {
+    margin-top: 0px;
+    display: none;
+}
+nav > img {
+    display: block;
+}
+nav > a {
+    padding: 2px 0px;
+}
+main {
+    top: 55px;
+    margin-left: 0px;
+}
+main > div {
+    margin: 5px;
+    padding: 8px;
+    width: calc(100% - 28px);
+}
 }

@@ -116,8 +116,12 @@ admin.database().ref("users/"+workingcode).once("value").then(function(snapshot)
 if (snapshot.val()) {
   tryCode();
 } else {
+admin.database().ref("users/"+workingcode+"/date").set(Date.now()).then(function() {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/welcome"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'code='+workingcode});
   res.end();
+}).catch(function(error) {
+  return internalServerError(error);
+});
 }
 }).catch(function(error) {
   return internalServerError(error);
@@ -162,7 +166,7 @@ if (url == "/welcome") {
 if (url == "/") {
 
 	res.writeHead(200, { 'Content-Type': 'text/html' });
-	res.end('Hello world');
+	res.end('Successful authentication');
 
 } else {
 

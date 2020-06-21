@@ -13,7 +13,9 @@
             "continue": "Continue"
         },
         "general": {
-            
+            "home": "Home",
+            "lesson": "Lesson #",
+            "quiz": "Practice Quiz"
         }
     },
     "es": {

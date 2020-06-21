@@ -174,7 +174,7 @@ if (url == "/") {
     if (!data) {
       return internalServerError();
     }
-    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
+    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'private, max-age=0' });
     res.end(data);
   })
 

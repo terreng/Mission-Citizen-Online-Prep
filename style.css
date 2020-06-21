@@ -147,7 +147,7 @@ nav {
 #nav_background {
     z-index: 13;
     background: black;
-    opacity: 0.5;
+    opacity: 0.6;
     position: fixed;
     left: 0;
     right: 0;
@@ -159,6 +159,8 @@ nav {
 nav > a {
     height: 40px;
     display: block;
+    color: black;
+    padding: 1px 0px;
 }
 
 nav > a:hover, nav > a:focus, nav > a:active, nav > a.active {
@@ -175,7 +177,7 @@ nav > a:hover div:first-child svg path, nav > a:focus div:first-child svg path, 
 }
 
 nav > a:nth-child(2) {
-    margin-top: 4px;
+    margin-top: 5px;
 }
 
 nav > a div:first-child {
@@ -217,12 +219,13 @@ main {
 }
 
 main > div {
-    margin: 10px;
     padding: 10px;
     background: white;
     border-radius: 4px;
     border: 1px #d8d8d8 solid;
     width: calc(100% - 42px);
+    margin: 10px auto;
+    max-width: 800px;
 }
 
 @media (max-width: 900px) {
@@ -259,5 +262,14 @@ main > div {
     margin: 5px;
     padding: 8px;
     width: calc(100% - 28px);
+}
+}
+
+@media (min-width: 901px) {
+nav {
+    display: block !important;
+}
+#nav_background {
+    display: none !important;
 }
 }

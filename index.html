@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="{LANGUAGE_CODE}">
 <head>
 <title>Mission Citizen Online</title>
 <link href="/style.css" rel="stylesheet">
@@ -12,18 +12,30 @@
 <meta name="format-detection" content="telephone=no">
 </head>
 <body>
-<div class="login_container">
-<div class="login_logo"><img src="/logo.png"></img></div>
-<div class="login_language_buttons">
-<form action="{FORM_ACTION}" method="POST">
-    <input name="language" readonly value="en" style="display: none;">
-    <input type="submit" value="English">
-</form>
-<form action="{FORM_ACTION}" method="POST">
-    <input name="language" readonly value="es" style="display: none;">
-    <input type="submit" value="Espa&ntilde;ol">
-</form>
+<header>
+<div>
+<img src="/logo.png"></img>
+</div>
+<div>
+Lesson #1: Test Name
+</div>
+</header>
+<nav>
+<div>
+<div>
+<svg viewBox="0 0 24 24">
+    <path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+</svg>
+</div>
+<div>
+Home
 </div>
 </div>
+</nav>
+<main>
+<div>
+    Content
+</div>
+</main>
 </body>
 </html>

@@ -166,8 +166,17 @@ if (url == "/welcome") {
 } else {
 if (url == "/") {
 
-	res.writeHead(200, { 'Content-Type': 'text/html' });
-	res.end('Successful authentication');
+  fs.readFile("index.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{});
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
+    res.end(data);
+  })
 
 } else {
 

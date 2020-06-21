@@ -84,3 +84,91 @@ input[type=submit]:active {
 .login_language_buttons input {
     margin-bottom: 16px;
 }
+
+header {
+    height: 60px;
+    background: white;
+    border-bottom: 1px solid #b5b5b5;
+    top: 0;
+    position: fixed;
+    right: 0;
+    left: 0;
+    z-index: 10px;
+}
+
+header div:first-child {
+    height: 100%;
+    width: 220px;
+    float: left;
+}
+
+header div:first-child img {
+    width: 150px;
+    padding: 5px 35px;
+}
+
+header div:last-child {
+    height: 100%;
+    width: calc(100% - 228px);
+    float: left;
+    font-size: 20px;
+    line-height: 60px;
+    padding-left: 8px;
+}
+
+nav {
+    width: 220px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: white;
+    margin-top: 61px;
+    border-right: 1px #d8d8d8 solid;
+    overflow-y: auto;
+}
+
+nav > div {
+    height: 40px;
+}
+
+nav > div:first-child {
+    margin-top: 4px;
+}
+
+nav > div div:first-child {
+    float: left;
+    height: 40px;
+    width: 41px;
+}
+
+nav > div div:first-child svg {
+    width: 26px;
+    height: 26px;
+    padding: 7px 7px;
+    padding-left: 11px;
+    padding-right: 4px;
+}
+
+nav > div div:last-child {
+    float: left;
+    width: 174px;
+    height: 40px;
+    line-height: 40px;
+    padding-left: 5px;
+}
+
+main {
+    position: relative;
+    top: 61px;
+    margin-left: 221px;
+}
+
+main > div {
+    margin: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px #d8d8d8 solid;
+    width: calc(100% - 42px);
+}

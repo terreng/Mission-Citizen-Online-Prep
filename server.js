@@ -99,7 +99,7 @@ if (url == "/login") {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "SUBTITLE": (query.error == "badcode" ? '<font color="red">{login.badcode}</font>' : "{login.subtitle}")});
+    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "SUBTITLE": (query.error == "badcode" ? '<font color="red">{login.badcode}</font>' : "{login.subtitle}"), "VALUE": (query.code ? query.code : "")});
     if (!data) {
       return internalServerError();
     }
@@ -108,11 +108,37 @@ if (url == "/login") {
   })
 } else {
 if (url == "/login_submit") {
-if (body.code === true || body.code == "auto") {
+if (body.code && (body.code.replace(/\s/g,'').length == 12 || body.code == "auto")) {
+if (body.code == "auto") {
+function tryCode() {
+var workingcode = generate(12);
+admin.database().ref("users/"+workingcode).once("value").then(function(snapshot) {
+if (snapshot.val()) {
+  tryCode();
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/welcome?code="+workingcode+(query.continue ? "&continue="+query.continue : "")), 'Set-Cookie': 'code='+workingcode});
+  res.end();
+}
+}).catch(function(error) {
+  return internalServerError(error);
+});
+}
+tryCode()
+} else {
+admin.database().ref("users/"+body.code).once("value").then(function(snapshot) {
+if (snapshot.val()) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': 'code='+body.code});
   res.end();
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/login?error=badcode"+(query.continue ? "&continue="+query.continue : ""))});
+  badCode(body.code);
+}
+}).catch(function(error) {
+  return internalServerError(error);
+});
+}
+} else {badCode((body.code ? body.code : undefined))}
+function badCode(badcode) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/login?error=badcode"+(badcode ? "&code="+badcode : "")+(query.continue ? "&continue="+query.continue : ""))});
   res.end();
 }
 } else {
@@ -149,7 +175,7 @@ if (url == "/") {
 function localize(data,lang,special) {
 haderror = false;
 try {
-data = data.replace(/{(.*)}/g,function(a,b) {if (b == b.toUpperCase()) {if (b == "LANGUAGE_CODE") {return lang} else {if (special[b]) {if (special[b].indexOf("{") > -1) {if (localize(special[b],lang,special) !== false) {return localize(special[b],lang,special)} else {haserror = b;return b}} else {return special[b]}} else {haderror = b;return b;}}} else {if (localizations[lang][b.split(".")[0]][b.split(".")[1]]) {return localizations[lang][b.split(".")[0]][b.split(".")[1]]} else {haderror = b;return b}}});
+data = data.replace(/{(.+?)}/g,function(a,b) {if (b == b.toUpperCase()) {if (b == "LANGUAGE_CODE") {return lang} else {if (special[b] !== undefined) {if (special[b].indexOf("{") > -1) {if (localize(special[b],lang,special) !== false) {return localize(special[b],lang,special)} else {haserror = b;return b}} else {return special[b]}} else {haderror = b;return b;}}} else {if (localizations[lang][b.split(".")[0]][b.split(".")[1]] !== undefined) {return localizations[lang][b.split(".")[0]][b.split(".")[1]]} else {haderror = b;return b}}});
 } catch(error) {
 console.error(error);
 return false;
@@ -182,4 +208,18 @@ function shuffle(a) {
       a[j] = x;
   }
   return a;
+}
+
+function generate(n) {
+  var add = 1, max = 12 - add;   // 12 is the min safe number Math.random() can generate without it starting to pad the end with zeros.   
+
+  if ( n > max ) {
+          return generate(max) + generate(n - max);
+  }
+
+  max        = Math.pow(10, n+add);
+  var min    = max/10; // Math.pow(10, n) basically
+  var number = Math.floor( Math.random() * (max - min + 1) ) + min;
+
+  return ("" + number).substring(add); 
 }

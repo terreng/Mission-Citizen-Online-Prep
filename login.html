@@ -22,7 +22,7 @@
     padding-bottom: 16px;
 ">{SUBTITLE}</div>
 <form action="{FORM_ACTION}" method="POST">
-    <input name="code" placeholder="{login.logincode}" style="
+    <input name="code" type="text" value="{VALUE}" placeholder="{login.logincode}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -30,9 +30,11 @@
     padding: 6px 7px;
     width: 207px;
     margin: 0;
+    float:left;
 ">
     <input type="submit" value="{login.submit}" style="
-    width: 92px;
+    width: 92px;float: right;
+margin: 0;
 ">
 </form>
 <form action="{FORM_ACTION}" method="POST">

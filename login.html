@@ -7,6 +7,7 @@
 <meta name="description" content="Free online citizenship classes by Mission Citizen">
 <meta name="og:description" content="Free online citizenship classes by Mission Citizen">
 <meta property="og:image" content="/logo.png">
+<meta name="format-detection" content="telephone=no">
 </head>
 <body>
 <div class="login_container">
@@ -22,7 +23,7 @@
     padding-bottom: 16px;
 ">{SUBTITLE}</div>
 <form action="{FORM_ACTION}" method="POST">
-    <input name="code" type="text" value="{VALUE}" placeholder="{login.logincode}" style="
+    <input name="code" id="code_input" type="text" value="{VALUE}" placeholder="{login.logincode}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -46,5 +47,21 @@ margin: 0;
 </form>
 </div>
 </div>
-
+<script>
+document.getElementById('code_input').addEventListener('input',function() {formatCode(this)});
+document.getElementById('code_input').addEventListener('focusout',function() {formatCode(this,true)});
+function formatCode(thisel,ignorecursor) {
+    var code = document.getElementById('code_input').value.replace(/\D/g,'').substring(0,12);
+    if (code.length > 8) {
+        code = code.substring(0,4)+" "+code.substring(4,8)+" "+code.substring(8,code.length)
+    } else {
+    if (code.length > 4) {
+        code = code.substring(0,4)+" "+code.substring(4,code.length)
+    }
+    }
+    if (ignorecursor || (thisel.selectionStart == thisel.selectionEnd && thisel.selectionEnd == thisel.value.length)) {
+    document.getElementById('code_input').value = code;
+    }
+}
+</script>
 </body></html>

@@ -84,7 +84,6 @@ if (url == "/login_language") {
 } else {
 if (url == "/language_submit") {
 if (["en","es"].indexOf(body.language) > -1) {
-  console.log("Continue: " + query.continue);
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'lang='+body.language});
   res.end();
 } else {
@@ -100,13 +99,26 @@ if (url == "/login") {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")});
+    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "SUBTITLE": (query.error == "badcode" ? '<font color="red">{login.badcode}</font>' : "{login.subtitle}")});
     if (!data) {
-      return internalServerError("Localization error");
+      return internalServerError();
     }
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(data);
   })
+} else {
+if (url == "/login_submit") {
+if (body.code === true || body.code == "auto") {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': 'code='+body.code});
+  res.end();
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/login?error=badcode"+(query.continue ? "&continue="+query.continue : ""))});
+  res.end();
+}
+} else {
+if (!cookies.code) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login?continue="+url});
+  res.end();
 } else {
 if (url == "/") {
 
@@ -131,11 +143,13 @@ if (url == "/") {
 }
 }
 }
+}
+}
 
 function localize(data,lang,special) {
 haderror = false;
 try {
-data = data.replace(/{(.*)}/g,function(a,b) {if (b == b.toUpperCase()) {if (b == "LANGUAGE_CODE") {return lang} else {if (special[b]) {return special[b]} else {haderror = b;return b;}}} else {if (localizations[lang][b.split(".")[0]][b.split(".")[1]]) {return localizations[lang][b.split(".")[0]][b.split(".")[1]]} else {haderror = b;return b}}});
+data = data.replace(/{(.*)}/g,function(a,b) {if (b == b.toUpperCase()) {if (b == "LANGUAGE_CODE") {return lang} else {if (special[b]) {if (special[b].indexOf("{") > -1) {if (localize(special[b],lang,special) !== false) {return localize(special[b],lang,special)} else {haserror = b;return b}} else {return special[b]}} else {haderror = b;return b;}}} else {if (localizations[lang][b.split(".")[0]][b.split(".")[1]]) {return localizations[lang][b.split(".")[0]][b.split(".")[1]]} else {haderror = b;return b}}});
 } catch(error) {
 console.error(error);
 return false;

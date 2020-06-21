@@ -4,7 +4,7 @@
             "subtitle": "If you have a login code, enter it here.",
             "logincode": "Login code",
             "submit": "Submit",
-            "nocode": "I don't have a code",
+            "nocode": "I don't have a login code",
             "badcode": "The login code you entered was invalid."
         }
     },

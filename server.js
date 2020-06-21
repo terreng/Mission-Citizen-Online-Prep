@@ -55,7 +55,8 @@ if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "pro
 } else {
 var static_files = [
   ["style.css","text/css"],
-  ["logo.png","image/png"]
+  ["logo.png","image/png"],
+  ["favicon.ico","image/x-icon"]
 ]
 var matched_static_file = false;
 for (var i = 0; i < static_files.length; i++) {

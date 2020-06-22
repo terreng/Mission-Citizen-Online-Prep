@@ -1,21 +1,23 @@
 {
     "en": {
         "login": {
-            "subtitle": "If you have a login code, enter it here.",
-            "logincode": "Login code",
+            "subtitle": "If you have a sign in code, enter it here.",
+            "logincode": "Sign in code",
             "submit": "Submit",
-            "nocode": "I don't have a login code",
-            "badcode": "The login code you entered was invalid."
+            "nocode": "I don't have a sign in code",
+            "badcode": "The sign in code you entered was invalid."
         },
         "welcome": {
-            "title": "Your login code is:",
+            "title": "Your sign in code is:",
             "subtitle": "Use this code to take your progress with you when signing in to a new device.",
             "continue": "Continue"
         },
         "general": {
             "home": "Home",
             "lesson": "Lesson #",
-            "quiz": "Practice Quiz"
+            "quiz": "Practice Quiz",
+            "logincode": "Your sign in code is:",
+            "logout": "Sign out"
         }
     },
     "es": {

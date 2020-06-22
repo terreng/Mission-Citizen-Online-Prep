@@ -73,6 +73,10 @@ if (matched_static_file) {
     res.end(data);
   })
 } else {
+if (url == "/logout") {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/", 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0']});
+  res.end();
+} else {
 if (url == "/login_language") {
   fs.readFile("language.html", 'utf8', function(error, data) {
     if (error) {
@@ -189,6 +193,7 @@ if (url == "/") {
     res.end(data);
   })
 
+}
 }
 }
 }

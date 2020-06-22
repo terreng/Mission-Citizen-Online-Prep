@@ -171,7 +171,7 @@ if (url == "/") {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{});
+    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies.lang,cookies.code,"home"), "TITLE": "{general.home}", "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12)})
     if (!data) {
       return internalServerError();
     }
@@ -199,6 +199,15 @@ if (url == "/") {
 }
 }
 }
+}
+
+function renderSidebar(lang,code,tab) {
+var pendhtml = '<a href="/"'+(tab == "home" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg></div><div>{general.home}</div></a>';
+for (var i = 1; i < 11; i++) {
+pendhtml += '<a href="/lesson/'+i+'"'+(tab == i ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><div>{general.lesson}'+i+'</div></a>'
+}
+pendhtml += '<a href="/quiz"'+(tab == "quiz" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg></div><div>{general.quiz}</div></a>'
+return pendhtml;
 }
 
 function localize(data,lang,special) {

@@ -9,7 +9,7 @@
         },
         "welcome": {
             "title": "Your sign in code is:",
-            "subtitle": "Use this code to take your progress with you when signing in to a new device.",
+            "subtitle": "Optionally use this code to take your progress with you when signing in to a new device.",
             "continue": "Continue"
         },
         "general": {

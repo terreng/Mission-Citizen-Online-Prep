@@ -5,6 +5,7 @@ const { parse } = require('querystring');
 var fs = require('fs');
 
 var localizations = JSON.parse(fs.readFileSync("localizations.json", 'utf8'));
+var languages = JSON.parse(fs.readFileSync("languages.json", 'utf8'));
 var lessontemplate = fs.readFileSync("lesson_content.html", 'utf8');
 
 if (process.env.NODE_ENV !== 'production') {
@@ -76,8 +77,9 @@ if (matched_static_file) {
     if (error) {
       return internalServerError(error);
     }
-    res.writeHead(200, { 'Content-Type': matched_static_file[1], 'Content-Length': data.length, 'Cache-Control': 'private, max-age=86400' });
-    res.end(data);
+    res.writeHead(200, { 'Content-Type': matched_static_file[1]+'; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'private, max-age=86400' });
+    res.write(data, "utf-8");
+    res.end();
   })
 } else {
 if (url == "/logout") {
@@ -89,20 +91,25 @@ if (url == "/login_language") {
     if (error) {
       return internalServerError(error);
     }
-    data = data.replace(/{FORM_ACTION}/g,"/language_submit"+(query.continue ? "?continue="+query.continue : ""));
-    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
-    res.end(data);
+    var langhtml = "";
+    for (var i = 0; i < Object.keys(languages).length; i++) {
+      langhtml += '<form action="{FORM_ACTION}" method="POST"><input name="language" readonly value="'+Object.keys(languages)[i]+'" style="display: none;"><input type="submit" value="'+languages[Object.keys(languages)[i]].name+'"></form>'
+    }
+    data = localize(data,undefined,{"FORM_ACTION": "/language_submit"+(query.continue ? "?continue="+query.continue : ""), "LANGUAGES": langhtml})
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
   })
 } else {
 if (url == "/language_submit") {
-if (["en","es"].indexOf(body.language) > -1) {
+if (Object.keys(languages).indexOf(body.language) > -1) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'lang='+body.language});
   res.end();
 } else {
   internalServerError();
 }
 } else {
-if (["en","es"].indexOf(cookies.lang) == -1) {
+if (Object.keys(languages).indexOf(cookies.lang) == -1) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_language?continue="+url});
   res.end();
 } else {
@@ -115,8 +122,9 @@ if (url == "/login") {
     if (!data) {
       return internalServerError();
     }
-    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
-    res.end(data);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
   })
 } else {
 if (url == "/login_submit") {
@@ -172,8 +180,9 @@ if (url == "/welcome") {
     if (!data) {
       return internalServerError();
     }
-    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
-    res.end(data);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
   })
 } else {
 if (url == "/") {
@@ -186,8 +195,9 @@ if (url == "/") {
     if (!data) {
       return internalServerError();
     }
-    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'private, max-age=0' });
-    res.end(data);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
   })
 
 } else {
@@ -202,8 +212,9 @@ var lessonnumber = Number(url.split("/lesson/")[1]);
     if (!data) {
       return internalServerError();
     }
-    res.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'private, max-age=0' });
-    res.end(data);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
   })
 
 } else {
@@ -212,8 +223,9 @@ var lessonnumber = Number(url.split("/lesson/")[1]);
     if (error) {
       return internalServerError(error);
     }
-    res.writeHead(404, { 'Content-Type': 'text/html', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
-    res.end(data);
+    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': data.length, 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
   })
 
 }

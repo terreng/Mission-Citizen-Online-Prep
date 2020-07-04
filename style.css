@@ -219,11 +219,11 @@ main {
 }
 
 main > div {
-    padding: 10px;
+    padding: 15px;
     background: white;
     border-radius: 4px;
     border: 1px #d8d8d8 solid;
-    width: calc(100% - 42px);
+    width: calc(100% - 52px);
     margin: 10px auto;
     max-width: 800px;
 }

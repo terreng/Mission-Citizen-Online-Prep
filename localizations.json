@@ -17,7 +17,10 @@
             "lesson": "Lesson #",
             "quiz": "Practice Quiz",
             "logincode": "Your sign in code is:",
-            "logout": "Sign out"
+            "logout": "Sign out",
+            "contact": "Need more help?",
+            "email": "missioncitizen@gmail.com",
+            "phone": "503-765-6867"
         }
     },
     "es": {

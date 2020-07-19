@@ -69,7 +69,8 @@ var static_files = [
   ["admin/style.css","text/css"],
   ["admin/main.js","text/javascript"],
   ["admin/fastclick.js","text/javascript"],
-  ["admin/index.html","text/html","admin/","admin"],
+  ["admin/index.html","text/html","admin/"],
+  ["admin","forward","admin/"],
 ]
 var matched_static_file = false;
 for (var i = 0; i < static_files.length; i++) {
@@ -78,6 +79,10 @@ if (static_files[i][0] == req.url.substring(1) || static_files[i][2] == req.url.
 }
 }
 if (matched_static_file) {
+  if (matched_static_file[1] == "forward") {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"+matched_static_file[2]});
+    res.end();
+  } else {
   fs.readFile(matched_static_file[0], function(error, data) {
     if (error) {
       return internalServerError(error);
@@ -86,6 +91,7 @@ if (matched_static_file) {
     res.write(data, "utf-8");
     res.end();
   })
+}
 } else {
 if (url == "/logout") {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/", 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0']});

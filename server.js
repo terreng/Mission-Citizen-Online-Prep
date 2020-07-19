@@ -74,7 +74,7 @@ var static_files = [
 ]
 var matched_static_file = false;
 for (var i = 0; i < static_files.length; i++) {
-if (static_files[i][0] == req.url.substring(1) || static_files[i][2] == req.url.substring(1) || static_files[i][3] == req.url.substring(1)) {
+if (static_files[i][0] == req.url.substring(1) || (static_files[i][1] !== "forward" && (static_files[i][2] == req.url.substring(1) || static_files[i][3] == req.url.substring(1)))) {
   matched_static_file = JSON.parse(JSON.stringify(static_files[i]));
 }
 }

@@ -1,0 +1,140 @@
+<html>
+    <head>
+        <title>Mission Citizen Online Lesson Manager</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <style>
+body {
+    font-family: sans-serif;
+}
+
+input, select, textarea, button {
+    font-size: 18px;
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 5px;
+    margin-bottom: 10px;
+    resize: none;
+    width: 500px;
+}
+
+.label {
+    font-size: 20px;
+    padding-bottom: 6px;
+}
+        </style>
+    <body>
+
+
+	
+	<script src="https://www.gstatic.com/firebasejs/5.8.6/firebase.js"></script>
+        <script>
+
+var config = {
+    apiKey: "AIzaSyDzNEqhS77I-9hKnCazVdydFj9QXzWciII",
+    authDomain: "missioncitizenonline.firebaseapp.com",
+    databaseURL: "https://missioncitizenonline.firebaseio.com",
+    projectId: "missioncitizenonline",
+    storageBucket: "missioncitizenonline.appspot.com"
+  };
+  firebase.initializeApp(config);
+
+var gid = function(id) {return document.getElementById(id)};
+
+
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if (user) {
+	
+	
+	
+	
+	
+	    } else {
+
+        firebase.auth().signInWithEmailAndPassword("missioncitizen@gmail.com", window.prompt("Please enter the admin password:")).catch(function(error) {
+            window.alert("Error: "+error.message);
+            var needsend = window.confirm("Would you like to reset the admin password? An email will be sent to missioncitizen@gmail.com. Click OK to send a password reset email, or CANCEL to try again.")
+            if (needsend) {
+firebase.auth().sendPasswordResetEmail("missioncitizen@gmail.com").then(function() {
+  window.alert("Password reset email has been sent to missioncitizen@gmail.com")
+  location.reload();
+}).catch(function(error) {
+    window.alert("Uh oh, something went wrong while sending the password reset email: "+error.message);
+    location.reload();
+});
+            } else {
+                location.reload();
+            }
+        });
+
+    }
+
+});
+
+
+var asyncrequest = [];
+
+function asyncLoad(url,done,error,offline,identifier,abort,responseType,progress) {
+	
+	if (!identifier) {
+		identifier = Math.random().toString(36).substring(2, 15);
+	}
+		
+	if (asyncrequest[identifier] == undefined) {
+		asyncrequest[identifier] = new Array();
+	}
+	
+	var newsesh = Math.random()*1000;
+	asyncrequest[identifier]["session"] = newsesh;
+	
+	if (asyncrequest[identifier]["request"] !== undefined && asyncrequest[identifier]["request"].readyState !== 4) {
+		asyncrequest[identifier]["request"].abort();
+		if (asyncrequest[identifier]["abort"]) {
+		asyncrequest[identifier]["abort"]();
+		}
+		delete asyncrequest[identifier];
+		return asyncLoad(url,done,error,offline,identifier,abort,responseType,progress);
+	}
+	
+	asyncrequest[identifier]["abort"] = abort;
+	asyncrequest[identifier]["request"] = new XMLHttpRequest();
+	asyncrequest[identifier]["request"].onreadystatechange = function() {
+		if (this.readyState == 4 && newsesh == asyncrequest[identifier]["session"]) {
+				if (this.status == 200) {
+					if (asyncrequest[identifier]["request"].responseType == "blob") {
+					done(this.response,identifier,this.getResponseHeader('content-type'));
+					} else {
+					done(this.responseText,identifier,this.getResponseHeader('content-type'));
+					}
+					delete asyncrequest[identifier];
+				} else {
+					if (navigator.onLine) {
+						error(this.status,this.responseText);
+					} else {
+						offline();
+					}
+					delete asyncrequest[identifier];
+			}
+		}
+	}
+	if (progress) {
+	asyncrequest[identifier]["request"].onprogress = function (event) {
+		if (event.total > 0) {
+		var percent = event.loaded/event.total;
+		} else {
+		var percent = -1;
+		}
+		progress(percent,event.loaded,event.total);
+	}
+	}
+	if (responseType) {
+	asyncrequest[identifier]["request"].responseType = responseType;
+	}
+	asyncrequest[identifier]["request"].open("GET", url, true);
+	asyncrequest[identifier]["request"].send();
+}
+        </script>
+
+    </body>
+</html>

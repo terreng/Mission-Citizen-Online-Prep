@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Mission Citizen Online Control Panel</title>
+<link rel="shortcut icon" href="favicon.ico">
+<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0' name='viewport' />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="robots" content="noindex">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link href="style.css" rel="stylesheet">
+<script type='application/javascript' src='main.js'></script>
+<script type='application/javascript' src='fastclick.js'></script>
+<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+<style>
+@font-face {
+  font-family: 'materialicons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/materialicons/v30/2fcrYFNaTjcS6g4U3t-Y5RV6cRhDpPC5P4GCEJpqGoc.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/roboto/v18/CrYjSnGjrRCn0pd9VQsnFOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+}
+</style>
+</head>
+<body>
+<div class="everything" id="everything" style="display: none;">
+
+<div id="login" style="display: none">
+<div class="login_box" id="login_enter">
+<div style="height: 100px; padding-top: 10px; color: #303030;">
+<h1><center id="ra_title">Mission Citizen Online Admin</center></h1>
+</div>
+<div>
+<input type="text" id="username" placeholder="Username" autocomplete="off" style="display: none;" onkeypress="if(event.keyCode==13) {gid('password').focus()}"></input>
+<input type="password" id="password" placeholder="Password" autocomplete="off" onkeypress="if(event.keyCode==13) {logIn()}"></input>
+</div>
+<div id="login_error">
+
+</div>
+<a onclick="logIn()">
+<div class="login_button" id="log_text">
+Log In
+</div>
+</a>
+</div>
+<div class="login_box" id="login_load" style="display: none">
+<div style="height: 100px; padding-top: 10px; color: #303030;">
+<h1><center id="ra_title_2">Mission Citizen Online Admin</center></h1>
+</div>
+<div class="login_spinner">
+<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
+</div>
+</div>
+<div class="new_account_button" id="create_account" onclick="resetPassword()">Reset password</div>
+</div>
+
+<div class="panel_bk" id="prompt" style="display: none;">
+<div class="panel_container">
+<div id="panel_m">
+<div class="panel">
+<div class="panel-titleA" id="panel-title">
+
+</div>
+<div class="panel-contentA" id="panel-content">
+
+</div>
+<div class="panel-bottomA" id="panel-bottomA">
+<a id="p_ok_link">
+<div class="button" id="p_ok" style="float: right;">
+OK
+</div>
+</a>
+<a onclick="hideAlert()">
+<div class="button gray" id="p_cancel" style="display: none; float: right;">
+CANCEL
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="controlpanel" style="display: none">
+
+<div class="top_title float_top" id="toptitle" style="display: none;">
+<a onclick="toggleSidebar()">
+<div class="page_left_icon">
+<i class="material-icons" style="font-size: 43px; padding-right: 8px;">menu</i>
+</div>
+</a>
+<div class="page_title" id="navtitle">
+Mission Citizen Online Admin
+</div>
+</div>
+
+<div class="overlay-m" id="dk_bk" style="display: none;" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+<div class="title">
+        Mission Citizen Online Admin
+</div>
+<div class="shr" style="margin-bottom: 6px;">
+</div>
+<div class="so">
+<div class="side-scroll">
+<a href="#lessons">
+<div class="option active" id="lessons_button" onclick="switchSection('lessons')">
+<i class="material-icons sidebar-icons">home</i>Lessons
+</div>
+</a>
+<a href="#feedback">
+<div class="option" id="feedback_button" onclick="switchSection('feedback')">
+<i class="material-icons sidebar-icons">feedback</i>Feedback
+</div>
+</a>
+<a href="#settings">
+<div class="option" id="settings_button" onclick="switchSection('settings')">
+<i class="material-icons sidebar-icons">settings</i>Settings
+</div>
+</a>
+</div>
+</div>
+<div class="shr" style="position: absolute; bottom: 79px; width: 260px;"></div>
+<a  onclick="logOut();">
+<div class="account">
+<i class="material-icons" style="font-size: 60px; float: left; padding-right: 10px;">account_circle</i>
+<div class="logout" style="width: 175px; padding-top: 1px;    overflow: hidden;" id="c_username">
+Username
+</div>
+<div class="logout" style="padding-top: 3px;">
+Logout<i class="material-icons" style="padding-left: 8px;">exit_to_app</i>
+</div>
+</div>
+</a>
+</div>
+
+<div class="content_title" id="content_title">Title</div>
+
+<div id="content">
+
+<div id="control">
+
+<div class="tabcontent" id="lessons_content" style="display: none;">
+
+</div>
+
+<div class="tabcontent" id="feedback_content" style="display: none;">
+
+<div class="container" id="feedback_list">
+<div id="feedback_loader">
+<div class="real_spinner">
+<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
+</div>
+</div>
+<div id="feedback_content2" style="margin-bottom: -10px">
+<div class="buttons">
+<a onclick="loadFeedback()">
+<div class="button">
+Refresh
+</div>
+</a>
+<a onclick="viewResolvedFeedback()">
+<div class="button darkgray" style="float: right; margin-right: 0">
+View Resolved
+</div>
+</a>
+</div>
+<div class="padding"></div>
+<div style="font-size: 25px;">Support Requests</div>
+<div class="padding"></div>
+<div id="supportr">
+
+</div>
+<div style="font-size: 25px;">Feedback</div>
+<div class="padding"></div>
+<div id="feedbackr">
+
+</div>
+</div>
+<div id="feedback_content3" style="margin-bottom: -10px">
+<div class="buttons">
+<a onclick="backFeedback()">
+<div class="button" style="float: right; margin-right: 0">
+View Unresolved
+</div>
+</a>
+</div>
+<div class="padding"></div>
+<div style="font-size: 25px;">Resolved Support & Feedback</div>
+<div class="padding"></div>
+<div id="resolvedr">
+
+</div>
+</div>
+<div id="feedback_content4" style="margin-bottom: -15px">
+<div id="fc_1">
+</diV>
+<div id='unres_fed'>
+<div class="padding"></div>
+<div class="buttons">
+<a onclick="unresolveFeedback(currentfeedback)">
+<div class="button">
+Mark as Unresolved
+</div>
+</a>
+</div>
+</div>
+<div class="padding"></div>
+<div class="buttons">
+<a onclick="backFeedback()">
+<div class="button gray">
+Back
+</div>
+</a>
+<a onclick="resolveFeedback(currentfeedback)" id="res_fed">
+<div class="button" style="float: right; margin-right: 0">
+Mark as Resolved
+</div>
+</a>
+<a onclick="deleteFeedback(currentfeedback)" id="del_fed">
+<div class="button red" style="float: right; margin-right: 0">
+Delete
+</div>
+</a>
+</div>
+<div class="padding"></div>
+</div>
+</div>
+
+</div>
+<div class="tabcontent" id="settings_content" style="display: none;">
+
+<div id="settings_main">
+
+<div class="container" id="account_settings">
+<div style="font-size: 25px;">Account Settings</div>
+<div class="padding"></div>
+<div style="font-size: 20px;" id="ac_username"></div>
+<div style="font-size: 20px;" id="ac_uid"></div>
+<div class="padding"></div>
+<div class="buttons">
+<a onclick="changePassword()">
+<div class="button" id="aefe">
+Change Password
+</div>
+</a>
+<a onclick="closeAccount()">
+<div class="button red" style="margin-right: 0" id="fjpo">
+Delete Account
+</div>
+</a>
+</div>
+</div>
+
+<div class="container" style="
+    padding-left: 17px;
+    background: transparent;
+    box-shadow: none;
+    line-height: 22px;
+">&copy; 2020 Terren Gurule & Mission Citizen</div>
+
+</div>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/5.8.6/firebase.js"></script>
+<script>
+if ('addEventListener' in document) {
+	document.addEventListener('DOMContentLoaded', function() {
+		FastClick.attach(document.body);
+	}, false);
+}
+
+webappsafari = (window.navigator.standalone == true);
+webappchrome = (window.matchMedia('(display-mode: standalone)').matches);
+isandroid = /(android)/i.test(navigator.userAgent);
+isios = /(iPad|iPhone|iPod)/i.test(navigator.userAgent);
+ischrome = !!window.chrome;
+if (!!navigator.userAgent.match(/SamsungBrowser/i)) {
+    ischrome = false
+}
+issafari = /iP(ad|od|hone)/i.test(window.navigator.userAgent) && /WebKit/i.test(window.navigator.userAgent) && !(/(CriOS|FxiOS|OPiOS|mercury)/i.test(window.navigator.userAgent));
+if (isios) {
+iosversion = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/)[1]
+}
+if (isandroid) {
+androidversion = (navigator.userAgent).toLowerCase().match(/android\s([0-9\.]*)/)[1].charAt(0)
+}
+if (ischrome && isandroid) {
+chromeversion = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]
+}
+
+var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if (isMobile) {
+document.getElementById("sidebar").style.display = "none";
+document.getElementById("content_title").style.display = "none";
+document.getElementById("toptitle").style.display = "block";
+gid("content").classList.add("content_mobile");
+} else {
+gid("content").classList.add("content_desktop");
+}
+
+   WebFont.load( {
+       custom: {
+           families: [ 'materialicons', 'roboto' ]
+       },
+       active: function() {
+           initFunction()
+       },
+   } );
+   
+</script>
+</body>
+</html>

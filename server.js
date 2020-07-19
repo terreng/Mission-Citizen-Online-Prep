@@ -65,11 +65,15 @@ if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "pro
 var static_files = [
   ["style.css","text/css"],
   ["logo.png","image/png"],
-  ["favicon.ico","image/x-icon"]
+  ["favicon.ico","image/x-icon"],
+  ["admin/style.css","text/css"],
+  ["admin/main.js","text/javascript"],
+  ["admin/fastclick.js","text/javascript"],
+  ["admin/index.html","text/html","admin/","admin"],
 ]
 var matched_static_file = false;
 for (var i = 0; i < static_files.length; i++) {
-if (static_files[i][0] == req.url.substring(1)) {
+if (static_files[i][0] == req.url.substring(1) || static_files[i][2] == req.url.substring(1) || static_files[i][3] == req.url.substring(1)) {
   matched_static_file = JSON.parse(JSON.stringify(static_files[i]));
 }
 }

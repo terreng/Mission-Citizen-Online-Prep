@@ -7,6 +7,11 @@ var secretsignup = false;
 var sactive = false;
 var inanim = false;
 
+var langs = {
+  "en": "English",
+  "es": "Spanish"
+}
+
 function initFunction() {
   var config = {
     apiKey: "AIzaSyDzNEqhS77I-9hKnCazVdydFj9QXzWciII",
@@ -210,6 +215,11 @@ history.replaceState(undefined, undefined, "#"+tab);
 if (tab == "lessons") {
 gid("navtitle").innerHTML = "Lessons"
 gid("content_title").innerHTML = "Lessons"
+loadLessons();
+}
+if (tab == "users") {
+gid("navtitle").innerHTML = "Users"
+gid("content_title").innerHTML = "Users"
 }
 if (tab == "feedback") {
 loadFeedback();
@@ -224,6 +234,103 @@ gid("content_title").innerHTML = "Settings"
 gid("content").scrollTop = 0;
 }
 
+var lessons;
+
+function loadLessons() {
+gid("lessons_main").style.display = "block";
+gid("lessons_edit").style.display = "none";
+
+gid("no_lessons").style.display = "none";
+gid("lesson_list_loader").style.display = "block";
+gid("lesson_list").style.display = "none";
+
+firebase.database().ref("lessons").once("value").then(function(snapshot) {
+
+var pendhtml = "";
+gid("lesson_list_loader").style.display = "none";
+
+lessons = snapshot.val();
+
+if (snapshot.val() && snapshot.val().length > 0) {
+
+  pendhtml += '<div class="buttons"><a onclick="editLesson('+snapshot.val().length+')"><div class="button" id="new_lesson" style="float: right; margin-right: 0; margin-bottom: 15px;">New Lesson</div></a></div>'
+
+  for (var i = 0; i < snapshot.val().length; i++) {
+  pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>Lesson "+(i+1)+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape(snapshot.val()[i].title.en)+"</div></div><div class='rem_right'><a title='Reorder' onclick='reorderLesson("+i+")'><div class='item_icon'><i class='material-icons'>reorder</i></div></a><a title='Edit' onclick='editLesson("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteLesson("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></div></a></div>";
+  }
+  gid("lesson_list").style.display = "block";
+  
+  gid("inner_lesson_list").innerHTML = pendhtml;
+
+} else {
+
+  gid("no_lessons").style.display = "block";
+
+}
+
+}).catch(function(error) {
+  showAlert("Error",error.message);
+});
+}
+
+var openlessonindex = false;
+
+function editLesson(lessonindex) {
+  openlessonindex = lessonindex;
+  gid("editlessontitle").innerHTML = "Edit Lesson "+(lessonindex+1);
+  gid("lessons_main").style.display = "none";
+  gid("lessons_edit").style.display = "block";
+  gid("lesson_title").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title">';
+  }
+  gid("lesson_video").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA">';
+  }
+  gid("lesson_text").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("lesson_text").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Text/Description ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Optional text that shows below video"></textarea>';
+  }
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value = ((lessons[lessonindex] && lessons[lessonindex].title) ? lessons[lessonindex].title[Object.keys(langs)[i]] || "" : "")
+    gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = ((lessons[lessonindex] && lessons[lessonindex].video) ? lessons[lessonindex].video[Object.keys(langs)[i]] || "" : "")
+    gid("lesson_text").querySelector(".lang_"+Object.keys(langs)[i]).value = ((lessons[lessonindex] && lessons[lessonindex].text) ? lessons[lessonindex].text[Object.keys(langs)[i]] || "" : "")
+  }
+}
+
+function updateLesson() {
+var updatedata = {
+  "title": {},
+  "text": {},
+  "video": {}
+}
+for (var i = 0; i < Object.keys(langs).length; i++) {
+  updatedata.title[Object.keys(langs)[i]] = gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
+  updatedata.video[Object.keys(langs)[i]] = gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value || null;
+  updatedata.text[Object.keys(langs)[i]] = gid("lesson_text").querySelector(".lang_"+Object.keys(langs)[i]).value || null;
+}
+createPostProgress("Saving lesson")
+firebase.database().ref("lessons/"+openlessonindex).update(updatedata).then(function() {
+  hideAlert();
+  loadLessons();
+}).catch(function(error) {
+  showAlert("Error",error.message);
+});
+}
+
+function deleteLesson(index) {
+  showAlert("Are you sure you want to delete this lesson?","This action cannot be undone.<div style='margin-top: 10px'></div>WARNING: DO NOT PERFORM THIS OPERATION UNLESS YOU ARE THE ONLY ONE LOGGED IN TO THE MISSION CITIZEN ONLINE ADMIN SYSTEM.","confirm",function() {
+    lessons.splice(index,1);
+    createPostProgress("Deleting lesson")
+firebase.database().ref("lessons").set(lessons).then(function() {
+  hideAlert();
+  loadLessons();
+}).catch(function(error) {
+  showAlert("Error",error.message);
+});
+  })	
+}
 
 
 function getScrollbarWidth() {
@@ -372,7 +479,6 @@ gid("feedback_loader").style.display = "block";
 gid("feedback_content2").style.display = "none";
 gid("feedback_content3").style.display = "none";
 gid("feedback_content4").style.display = "none";
-gid("supportr").innerHTML = "";
 gid("feedbackr").innerHTML = "";
 gid("resolvedr").innerHTML = "";
 
@@ -384,7 +490,6 @@ firebase.database().ref('/feedback/').once('value').then(function(snapshot) {
 }
 
 function displayFeed() {
-gid("supportr").innerHTML = "";
 gid("feedbackr").innerHTML = "";
 gid("resolvedr").innerHTML = "";
 gid("feedback_loader").style.display = "none";
@@ -392,11 +497,7 @@ gid("feedback_content2").style.display = "block";
 if (feedbackjson !== null) {
 for (var i = 0; i < Object.keys(feedbackjson).length; i++) {
 if (feedbackjson[Object.keys(feedbackjson)[i]]["status"] !== "Resolved") {
-if (feedbackjson[Object.keys(feedbackjson)[i]]["request_type"] == "Support Request") {
-gid("supportr").innerHTML += "<div class='post_item' id='feedback_"+i+"'><div class='item_left'><div style='font-size: 25px;' class='ell'>Support Request</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+toTimeString(feedbackjson[Object.keys(feedbackjson)[i]]["timestamp"])+"</div></div><div class='item_right'><a title='View' onclick='viewFeedback("+i+")'><div class='item_icon'><i class='material-icons'>remove_red_eye</i></div></a><a title='Mark as resolved' onclick='resolveFeedback("+i+")'><div class='item_icon'><i class='material-icons'>check</i></div></a></div></div>";
-} else {
 gid("feedbackr").innerHTML += "<div class='post_item' id='feedback_"+i+"'><div class='item_left'><div style='font-size: 25px;' class='ell'>"+feedbackjson[Object.keys(feedbackjson)[i]]["request_type"]+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape(feedbackjson[Object.keys(feedbackjson)[i]]["message"])+"</div></div><div class='item_right'><a title='View' onclick='viewFeedback("+i+")'><div class='item_icon'><i class='material-icons'>remove_red_eye</i></div></a><a title='Mark as resolved' onclick='resolveFeedback("+i+")'><div class='item_icon'><i class='material-icons'>check</i></div></a></div></div>";
-}
 } else {
 if (feedbackjson[Object.keys(feedbackjson)[i]]["request_type"] == "Support Request") {
 gid("resolvedr").innerHTML += "<div class='post_item' id='feedback_"+i+"'><div class='item_left'><div style='font-size: 25px;' class='ell'>Support Request</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+toTimeString(feedbackjson[Object.keys(feedbackjson)[i]]["timestamp"])+"</div></div><div class='item_right'><a title='View' onclick='viewFeedback("+i+")'><div class='item_icon'><i class='material-icons'>remove_red_eye</i></div></a><a title='Delete' onclick='deleteFeedback("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></a></div></div>";
@@ -413,11 +514,8 @@ function shownmsgfdbck() {
 if (gid("feedbackr").innerHTML == "") {
 gid("feedbackr").innerHTML = "<center>No unresolved feedback</center><div class='padding'></div>"
 }
-if (gid("supportr").innerHTML == "") {
-gid("supportr").innerHTML = "<center>No unresolved support requests</center><div class='padding'></div>"
-}
 if (gid("resolvedr").innerHTML == "") {
-gid("resolvedr").innerHTML = "<center>No resolved feedback or support requests</center><div class='padding'></div>"
+gid("resolvedr").innerHTML = "<center>No resolved feedback</center><div class='padding'></div>"
 }
 }
 

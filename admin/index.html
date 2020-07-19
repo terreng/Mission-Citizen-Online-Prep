@@ -18,7 +18,7 @@
   font-family: 'materialicons';
   font-style: normal;
   font-weight: 400;
-  src: url(https://fonts.gstatic.com/s/materialicons/v30/2fcrYFNaTjcS6g4U3t-Y5RV6cRhDpPC5P4GCEJpqGoc.woff) format('woff');
+  src: url(https://fonts.gstatic.com/s/materialicons/v53/flUhRq6tzZclQEJ-Vdg-IuiaDsNaIhQ8tQ.woff) format('woff');
 }
 
 @font-face {
@@ -113,7 +113,12 @@ Mission Citizen Online Admin
 <div class="side-scroll">
 <a href="#lessons">
 <div class="option active" id="lessons_button" onclick="switchSection('lessons')">
-<i class="material-icons sidebar-icons">home</i>Lessons
+<i class="material-icons sidebar-icons">article</i>Lessons
+</div>
+</a>
+<a href="#users">
+<div class="option active" id="users_button" onclick="switchSection('users')">
+<i class="material-icons sidebar-icons">group</i>Users
 </div>
 </a>
 <a href="#feedback">
@@ -150,6 +155,80 @@ Logout<i class="material-icons" style="padding-left: 8px;">exit_to_app</i>
 
 <div class="tabcontent" id="lessons_content" style="display: none;">
 
+<div id="lessons_main" class="container">
+
+<div id="lesson_list">
+<div id="inner_lesson_list">
+
+</div>
+</div>
+
+<div id="lesson_list_loader">
+<div class="real_spinner">
+<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
+</div>
+</div>
+
+<div id="no_lessons" style="display: none">
+<div class="buttons">
+<a onclick="editLesson(0)">
+<div class="button" id="new_lesson" style="float: right; margin-right: 0; margin-bottom: 15px;">
+New Lesson
+</div>
+</a>
+</div>
+<div style="
+    text-align: -webkit-center;
+    font-size: 76px;
+    color: black;
+"><i class="material-icons">error_outline</i></div>
+<div style="
+    text-align: -webkit-center;
+    font-size: 22px;
+">No lessons found</div>
+<div class="padding"></div>
+</div>
+</div>
+
+<div id="lessons_edit" class="container">
+<div style="font-size: 25px;" id="editlessontitle">Edit Lesson</div>
+<div class="padding"></div>
+<div id="lesson_title">
+
+</div>
+<div id="lesson_video">
+    
+</div>
+<div id="lesson_text">
+    
+</div>
+<div class="padding"></div>
+<div class="buttons">
+<a onclick="editLessonQuestions()" style="display: block;">
+<div class="button">
+Edit Lesson Quiz Questions
+</div>
+</a>
+</div>
+<div class="padding"></div>
+<div class="buttons">
+<a onclick="loadLessons()">
+<div class="button gray">
+Cancel
+</div>
+</a>
+<a onclick="updateLesson()" style="display: block;">
+<div class="button" style="float: right; margin-right: 0">
+Save Changes
+</div>
+</a>
+</div>
+</div>
+
+</div>
+
+<div class="tabcontent" id="users_content" style="display: none;">
+
 </div>
 
 <div class="tabcontent" id="feedback_content" style="display: none;">
@@ -174,11 +253,6 @@ View Resolved
 </a>
 </div>
 <div class="padding"></div>
-<div style="font-size: 25px;">Support Requests</div>
-<div class="padding"></div>
-<div id="supportr">
-
-</div>
 <div style="font-size: 25px;">Feedback</div>
 <div class="padding"></div>
 <div id="feedbackr">
@@ -194,7 +268,7 @@ View Unresolved
 </a>
 </div>
 <div class="padding"></div>
-<div style="font-size: 25px;">Resolved Support & Feedback</div>
+<div style="font-size: 25px;">Resolved Feedback</div>
 <div class="padding"></div>
 <div id="resolvedr">
 

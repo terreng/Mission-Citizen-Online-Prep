@@ -258,7 +258,7 @@ if (snapshot.val() && snapshot.val().length > 0) {
   pendhtml += '<div class="buttons"><a onclick="editLesson('+snapshot.val().length+')"><div class="button" id="new_lesson" style="float: right; margin-right: 0; margin-bottom: 15px;">New Lesson</div></a></div>'
 
   for (var i = 0; i < snapshot.val().length; i++) {
-  pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>Lesson "+(i+1)+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape(snapshot.val()[i].title.en)+"</div></div><div class='rem_right'><a title='Reorder' onclick='reorderLesson("+i+")'><div class='item_icon'><i class='material-icons'>height</i></div></a><a title='Edit' onclick='editLesson("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteLesson("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></div></a></div>";
+  pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>Lesson "+(i+1)+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape((snapshot.val()[i] && snapshot.val()[i].title && snapshot.val()[i].title.en) ? snapshot.val()[i].title.en : "")+"</div></div><div class='rem_right'><a title='Reorder' onclick='reorderLesson("+i+")'><div class='item_icon'><i class='material-icons'>height</i></div></a><a title='Edit' onclick='editLesson("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteLesson("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></div></a></div>";
   }
   gid("lesson_list").style.display = "block";
   
@@ -278,6 +278,9 @@ if (snapshot.val() && snapshot.val().length > 0) {
 var openlessonindex = false;
 
 function editLesson(lessonindex) {
+  if (!lessons) {
+    lessons = [];
+  }
   openlessonindex = lessonindex;
   gid("editlessontitle").innerHTML = "Edit Lesson "+(lessonindex+1);
   gid("editlessontitle2").innerHTML = "Edit Lesson "+(lessonindex+1)+" Quiz Questions";
@@ -325,7 +328,7 @@ firebase.database().ref("lessons/"+openlessonindex).update(updatedata).then(func
 var questions = [];
 
 function editLessonQuestions() {
-  questions = JSON.parse(JSON.stringify(lessons[openlessonindex].questions || "[]"));
+  questions = JSON.parse(JSON.stringify(lessons[openlessonindex] ? lessons[openlessonindex].questions || [] : []));
   renderQuizQuestions();
 }
 
@@ -334,6 +337,14 @@ function renderQuizQuestions() {
   gid("lessons_edit_quiz").style.display = "block";
 
   var pendhtml = "";
+
+  var tempquestions = [];
+  if (Object.keys(questions).length > 0) {
+    for (var i = 0; i < Object.keys(questions).length; i++) {
+      tempquestions.push(questions[Object.keys(questions)[i]]);
+    }
+  }
+  questions = tempquestions;
 
   if (questions.length > 0) {
   for (var i = 0; i < questions.length; i++) {
@@ -360,7 +371,7 @@ function editQuestion(index) {
   questionindex = index;
   gid("lessons_edit_question").style.display = "block";
   gid("lessons_edit_quiz").style.display = "none";
-  answers = ((questions && questions[questionindex] && questions[questionindex].answers) ? questions[questionindex].answers : []);
+  answers = JSON.parse(JSON.stringify(((questions && questions[questionindex] && questions[questionindex].answers) ? questions[questionindex].answers : [])));
 
   gid("question_question").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -383,7 +394,7 @@ function renderQuestionOptions() {
   var pendhtml = "";
 
   if (answers.length > 0) {
-    for (var i = 0; i < questions[questionindex].answers.length; i++) {
+    for (var i = 0; i < answers.length; i++) {
       pendhtml += "<div class='post_item option_item'><div class='item_left'><div style='font-size: 25px;' class='ell ell_title'>"+answers[i].answer.en+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+(answers[i].correct ? "Correct" : "Incorrect")+"</div></div><div class='item_right'><a title='Edit' onclick='editOption("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteOption("+i+")'><div class='item_icon'><i class='material-icons'>close</i></div></div></a></div>";
     }
   } else {
@@ -391,6 +402,53 @@ function renderQuestionOptions() {
   }
 
   gid("question_options").innerHTML = pendhtml;
+}
+
+function editOption(index) {
+
+var pendhtml = "";
+
+for (var i = 0; i < Object.keys(langs).length; i++) {
+  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option">';
+}
+
+pendhtml += '<select style="border-width: 2px;margin-top: 16px;font-size: 20px;"><option value="true">Correct</option><option value="false">Incorrect</option></select>'
+
+showAlert("Question Option",pendhtml,"submit",function() {
+
+  if (!answers[index]) {
+    answers[index] = {"answer":{}};
+  }
+
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    answers[index].answer[Object.keys(langs)[i]] = gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
+  }
+
+  answers[index].correct = gid("panel-content").querySelector("select").value == "true";
+
+  hideAlert();
+  renderQuestionOptions();
+  
+})
+
+for (var i = 0; i < Object.keys(langs).length; i++) {
+  gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value = ((answers[index] && answers[index].answer) ? answers[index].answer[Object.keys(langs)[i]] || "" : "")
+}
+gid("panel-content").querySelector("select").value = ((answers[index] && answers[index].correct) ? "true" : "false");
+
+}
+
+function addOption() {
+
+  editOption(answers.length)
+
+}
+
+function deleteOption(index) {
+
+  answers.splice(index,1);
+  renderQuestionOptions();
+
 }
 
 function deleteQuestion(index) {
@@ -431,6 +489,12 @@ function saveQuestionChanges() {
   firebase.database().ref("lessons/"+openlessonindex+"/questions/"+questionindex).update(updatedata).then(function() {
     hideAlert();
     backQuestion();
+    if (!lessons[openlessonindex]) {
+      lessons[openlessonindex] = {};
+    }
+    if (!lessons[openlessonindex].questions) {
+      lessons[openlessonindex].questions = {};
+    }
     lessons[openlessonindex].questions[questionindex] = updatedata;
     editLessonQuestions();
   }).catch(function(error) {

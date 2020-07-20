@@ -241,10 +241,10 @@ New Question
 <div class="buttons">
 <a onclick="goBackEditQuiz()">
 <div class="button gray">
-Cancel
+Back
 </div>
 </a>
-<a onclick="updateLessonQuiz()" style="display: block;">
+<a onclick="updateLessonQuiz()" style="display: none;">
 <div class="button" style="float: right; margin-right: 0">
 Save Changes
 </div>
@@ -259,6 +259,10 @@ Save Changes
 
 </div>
 <div class="padding"></div>
+<div class="padding"></div>
+<div id="question_options">
+    
+</div>
 <div class="buttons">
 <a onclick="addOption()">
 <div class="button" style="float: right; margin-right: 0; margin-bottom: 15px;">
@@ -266,10 +270,6 @@ Add Option
 </div>
 </a>
 </div>
-<div id="question_options">
-    
-</div>
-<div class="padding"></div>
 <div id="question_reasoning">
 
 </div>
@@ -279,7 +279,7 @@ Add Option
 <div class="buttons">
 <a onclick="backQuestion()">
 <div class="button gray">
-Back
+Cancel
 </div>
 </a>
 <a onclick="saveQuestionChanges()" style="display: block;">

@@ -783,6 +783,31 @@ height: 65px;
 color: white;
 border-radius: 3px;
 margin-bottom: 15px;
+margin-bottom: 6px;
+}
+
+.post_item.option_item {
+    height: 48px;
+}
+
+.post_item.option_item .item_icon {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.post_item.option_item .item_left {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.post_item.option_item .item_left div:nth-child(1) {
+    font-size: 23px !important;
+    line-height: 32px !important;
+}
+.post_item.option_item .item_left div:nth-child(2) {
+font-size: 16px !important;
+padding-top: 0px !important;
+margin-top: -2px !important;
 }
 
 .item_left {

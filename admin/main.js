@@ -240,6 +240,7 @@ function loadLessons() {
 gid("lessons_main").style.display = "block";
 gid("lessons_edit").style.display = "none";
 gid("lessons_edit_quiz").style.display = "none";
+gid("lessons_edit_question").style.display = "none";
 
 gid("no_lessons").style.display = "none";
 gid("lesson_list_loader").style.display = "block";
@@ -325,6 +326,10 @@ var questions = [];
 
 function editLessonQuestions() {
   questions = JSON.parse(JSON.stringify(lessons[openlessonindex].questions || "[]"));
+  renderQuizQuestions();
+}
+
+function renderQuizQuestions() {
   gid("lessons_edit").style.display = "none";
   gid("lessons_edit_quiz").style.display = "block";
 
@@ -332,13 +337,47 @@ function editLessonQuestions() {
 
   if (questions.length > 0) {
   for (var i = 0; i < questions.length; i++) {
-    pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>"+questions[i].question.en+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+questions[i].answers.length+" answers ("+questions[i].answers.filter(function(item) {return item.correct}).length+" correct, "+questions[i].answers.filter(function(item) {return !item.correct}).length+" incorrect)</div></div><div class='rem_right'><a title='Reorder' onclick='reorderQuestion("+i+")'><div class='item_icon'><i class='material-icons'>height</i></div></a><a title='Edit' onclick='editQuestion("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteQuestion("+i+")'><div class='item_icon'><i class='material-icons'>close</i></div></div></a></div>";
+    pendhtml += "<div class='post_item'><div class='item_left'><div style='font-size: 25px;' class='ell ell_title'>"+questions[i].question.en+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+questions[i].answers.length+" answers ("+questions[i].answers.filter(function(item) {return item.correct}).length+" correct, "+questions[i].answers.filter(function(item) {return !item.correct}).length+" incorrect)</div></div><div class='item_right'><a title='Edit' onclick='editQuestion("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteQuestion("+i+")'><div class='item_icon'><i class='material-icons'>close</i></div></div></a></div>";
   }
 } else {
-  pendhtml = "No questions yet"
+  pendhtml = '<div style="font-size: 18px;padding-bottom: 10px;">No questions yet</div>'
 }
 
   gid("quiz_questions").innerHTML = pendhtml;
+}
+
+function newQuizQuestion() {
+editQuestion(questions.length)
+}
+
+var questionindex;
+
+function editQuestion(index) {
+  questionindex = index;
+  gid("lessons_edit_question").style.display = "block";
+  gid("lessons_edit_quiz").style.display = "none";
+
+  gid("question_question").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?">';
+  }
+  gid("question_reasoning").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("question_reasoning").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Correct answers justification"></textarea>';
+  }
+
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].question) ? questions[questionindex].question[Object.keys(langs)[i]] || "" : "")
+    gid("question_reasoning").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].reasoning) ? questions[questionindex].reasoning[Object.keys(langs)[i]] || "" : "")
+  }
+}
+
+function deleteQuestion(index) {
+showAlert("Remove quiz question?","","confirm",function() {
+  questions.splice(index,1);
+  hideAlert();
+  renderQuizQuestions();
+})
 }
 
 function goBackEditQuiz() {

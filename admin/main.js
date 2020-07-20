@@ -239,6 +239,7 @@ var lessons;
 function loadLessons() {
 gid("lessons_main").style.display = "block";
 gid("lessons_edit").style.display = "none";
+gid("lessons_edit_quiz").style.display = "none";
 
 gid("no_lessons").style.display = "none";
 gid("lesson_list_loader").style.display = "block";
@@ -256,7 +257,7 @@ if (snapshot.val() && snapshot.val().length > 0) {
   pendhtml += '<div class="buttons"><a onclick="editLesson('+snapshot.val().length+')"><div class="button" id="new_lesson" style="float: right; margin-right: 0; margin-bottom: 15px;">New Lesson</div></a></div>'
 
   for (var i = 0; i < snapshot.val().length; i++) {
-  pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>Lesson "+(i+1)+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape(snapshot.val()[i].title.en)+"</div></div><div class='rem_right'><a title='Reorder' onclick='reorderLesson("+i+")'><div class='item_icon'><i class='material-icons'>reorder</i></div></a><a title='Edit' onclick='editLesson("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteLesson("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></div></a></div>";
+  pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>Lesson "+(i+1)+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape(snapshot.val()[i].title.en)+"</div></div><div class='rem_right'><a title='Reorder' onclick='reorderLesson("+i+")'><div class='item_icon'><i class='material-icons'>height</i></div></a><a title='Edit' onclick='editLesson("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteLesson("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></div></a></div>";
   }
   gid("lesson_list").style.display = "block";
   
@@ -278,6 +279,7 @@ var openlessonindex = false;
 function editLesson(lessonindex) {
   openlessonindex = lessonindex;
   gid("editlessontitle").innerHTML = "Edit Lesson "+(lessonindex+1);
+  gid("editlessontitle2").innerHTML = "Edit Lesson "+(lessonindex+1)+" Quiz Questions";
   gid("lessons_main").style.display = "none";
   gid("lessons_edit").style.display = "block";
   gid("lesson_title").innerHTML = "";
@@ -317,6 +319,31 @@ firebase.database().ref("lessons/"+openlessonindex).update(updatedata).then(func
 }).catch(function(error) {
   showAlert("Error",error.message);
 });
+}
+
+var questions = [];
+
+function editLessonQuestions() {
+  questions = JSON.parse(JSON.stringify(lessons[openlessonindex].questions || "[]"));
+  gid("lessons_edit").style.display = "none";
+  gid("lessons_edit_quiz").style.display = "block";
+
+  var pendhtml = "";
+
+  if (questions.length > 0) {
+  for (var i = 0; i < questions.length; i++) {
+    pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>"+questions[i].question.en+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+questions[i].answers.length+" answers ("+questions[i].answers.filter(function(item) {return item.correct}).length+" correct, "+questions[i].answers.filter(function(item) {return !item.correct}).length+" incorrect)</div></div><div class='rem_right'><a title='Reorder' onclick='reorderQuestion("+i+")'><div class='item_icon'><i class='material-icons'>height</i></div></a><a title='Edit' onclick='editQuestion("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteQuestion("+i+")'><div class='item_icon'><i class='material-icons'>close</i></div></div></a></div>";
+  }
+} else {
+  pendhtml = "No questions yet"
+}
+
+  gid("quiz_questions").innerHTML = pendhtml;
+}
+
+function goBackEditQuiz() {
+  gid("lessons_edit").style.display = "block";
+  gid("lessons_edit_quiz").style.display = "none";
 }
 
 function deleteLesson(index) {

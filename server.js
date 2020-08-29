@@ -125,6 +125,17 @@ if (Object.keys(languages).indexOf(cookies.lang) == -1) {
   res.end();
 } else {
 if (url == "/login") {
+  fs.readFile("login_type.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+} else {
+if (url == "/login_code") {
   fs.readFile("login.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
@@ -174,7 +185,7 @@ if (snapshot.val()) {
 }
 } else {badCode((body.code ? body.code : undefined))}
 function badCode(badcode) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/login?error=badcode"+(badcode ? "&code="+badcode : "")+(query.continue ? "&continue="+query.continue : ""))});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/login_code?error=badcode"+(badcode ? "&code="+badcode : "")+(query.continue ? "&continue="+query.continue : ""))});
   res.end();
 }
 } else {
@@ -202,7 +213,7 @@ if (url == "/") {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies.lang,cookies.code,"home"), "TITLE": "{general.home}", "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12), "CONTENT": ""})
+    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,"home"), "TITLE": "{general.home}", "CONTENT": ""})
     if (!data) {
       return internalServerError();
     }
@@ -220,7 +231,7 @@ var lessondata = lessons[Number(url.split("/lesson/")[1])-1];
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies.lang,cookies.code,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(lessonnumber)}), "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12), "CONTENT": localize(lessontemplate,cookies.lang,{"TITLE": lessondata.title[cookies.lang], "VIDEO": ((lessondata.video && lessondata.video[cookies.lang]) ? '<div style="width: 100%;padding-top: 56.28%;position: relative;margin-top: 14px;background:black;"><iframe frameborder="0" allowfullscreen="1" allow="autoplay; picture-in-picture" title="'+lessondata.title[cookies.lang]+'" src="https://www.youtube.com/embed/'+lessondata.video[cookies.lang]+'?playsinline=1&amp;rel=0&amp;enablejsapi=1&amp;origin=https%3A%2F%2Fonline.missioncitizen.org&amp;widgetid=1" style="width: 100%;height: 100%;position: absolute;top: 0;"></iframe></div>' : ''), "TEXT": ((lessondata.text && lessondata.text[cookies.lang]) ? '<div style="white-space: pre-wrap;margin-top: 12px;">'+lessondata.text[cookies.lang]+'</div>' : ''), "FORM_ACTION": "/lesson/"+lessonnumber+"/quiz"})})
+    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": localize(lessontemplate,cookies.lang,{"TITLE": lessondata.title[cookies.lang], "VIDEO": ((lessondata.video && lessondata.video[cookies.lang]) ? '<div style="width: 100%;padding-top: 56.28%;position: relative;margin-top: 14px;background:black;"><iframe frameborder="0" allowfullscreen="1" allow="autoplay; picture-in-picture" title="'+lessondata.title[cookies.lang]+'" src="https://www.youtube.com/embed/'+lessondata.video[cookies.lang]+'?playsinline=1&amp;rel=0&amp;enablejsapi=1&amp;origin=https%3A%2F%2Fonline.missioncitizen.org&amp;widgetid=1" style="width: 100%;height: 100%;position: absolute;top: 0;"></iframe></div>' : ''), "TEXT": ((lessondata.text && lessondata.text[cookies.lang]) ? '<div style="white-space: pre-wrap;margin-top: 12px;">'+lessondata.text[cookies.lang]+'</div>' : ''), "FORM_ACTION": "/lesson/"+lessonnumber+"/quiz"})})
     if (!data) {
       return internalServerError();
     }
@@ -238,7 +249,7 @@ var lessondata = lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1];
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies.lang,cookies.code,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12), "CONTENT": localize(quiztemplate,cookies.lang,{})})
+    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": localize(quiztemplate,cookies.lang,{})})
     if (!data) {
       return internalServerError();
     }
@@ -272,13 +283,19 @@ var lessondata = lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1];
 }
 }
 }
+}
 
-function renderSidebar(lang,code,tab) {
+function renderSidebar(cookies,tab) {
+var lang = cookies.lang;
+var code = cookies.code;
 var pendhtml = '<a href="/"'+(tab == "home" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg></div><div>{general.home}</div></a>';
 for (var i = 1; i < lessons.length+1; i++) {
 pendhtml += '<a href="/lesson/'+i+'"'+(tab == i ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><div>'+localize(localizations[lang].general.lesson,lang,{"NUM":String(i)})+'</div></a>'
 }
 pendhtml += '<a href="/quiz"'+(tab == "quiz" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg></div><div>{general.fullquiz}</div></a>'
+
+pendhtml += '<div style="margin: 6px;border: 1px solid #c1c1c1;border-radius: 8px;padding: 6px;margin-top: 8px;"><div style="padding-bottom: 3px;">'+localizations[lang].general.logincode+'</div><div style="font-size: 24px;">'+String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12)+'</div><a href="/logout" style="color: black;text-decoration: none;height: 24px;width: 100%;display: block;margin-top: 4px;"><div style="float: left;"><svg style="width:24px;height:24px;transform: rotate(180deg);" viewBox="0 0 24 24"><path fill="currentColor" d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z"></path></svg></div><div style="float: left;padding-left: 3px;font-size: 18px;">'+localizations[lang].general.logout+'</div></a></div>'
+
 return pendhtml;
 }
 

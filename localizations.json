@@ -5,7 +5,9 @@
             "logincode": "Sign in code",
             "submit": "Submit",
             "nocode": "I don't have a sign in code",
-            "badcode": "The sign in code you entered was invalid."
+            "badcode": "The sign in code you entered was invalid.",
+            "login_account": "Student sign in",
+            "login_code": "Sign in anonymously"
         },
         "welcome": {
             "title": "Your sign in code is:",

@@ -1,0 +1,53 @@
+<html lang="{LANGUAGE_CODE}"><head>
+<title>Mission Citizen Online</title>
+<link href="/style.css" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" name="viewport">
+<meta name="title" content="Mission Citizen Online">
+<meta property="og:title" content="Mission Citizen Online">
+<meta name="description" content="Free online citizenship classes by Mission Citizen">
+<meta name="og:description" content="Free online citizenship classes by Mission Citizen">
+<meta property="og:image" content="/logo.png">
+<meta name="format-detection" content="telephone=no">
+</head>
+<body>
+<div class="login_container">
+<a href="/"><div class="login_logo"><img src="/logo.png"></div></a>
+<div class="login_form" style="
+    text-align: center;
+    padding-bottom: 20px;
+    width: 304px;
+    margin: 0 auto;
+">
+<form action="/login_create{FORM_ACTION_QUERY}" method="GET">
+    <input style="display: none;">
+    <input type="submit" value="{login.login_signup}" style="
+    margin-top: 16px;
+    width: 100%;
+">
+</form>
+<div style="padding-top: 30px;"></div>
+<form action="{FORM_ACTION}" method="POST">
+    <input name="email" type="email" autocomplete="email" placeholder="{login.email}" style="
+    font-size: 18px;
+    font-size: 19px;
+    border: 2px solid #969696;
+    border-radius: 3px;
+    padding: 6px 7px;
+    width: 100%;
+    margin: 0;
+    margin-bottom: 7px;
+">
+    <input name="password" type="password" autocomplete="current-password" placeholder="{login.password}" style="
+    font-size: 18px;
+    font-size: 19px;
+    border: 2px solid #969696;
+    border-radius: 3px;
+    padding: 6px 7px;
+    width: 100%;
+    margin: 0;
+">
+    <input type="submit" value="{login.login}" style="margin-top: 12px;">
+</form>
+</div>
+</div>
+</body></html>

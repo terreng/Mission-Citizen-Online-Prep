@@ -7,7 +7,12 @@
             "nocode": "I don't have a sign in code",
             "badcode": "The sign in code you entered was invalid.",
             "login_account": "Student sign in",
-            "login_code": "Sign in anonymously"
+            "login_code": "Sign in anonymously",
+            "login_signup": "Create a new account",
+            "login": "Sign in",
+            "email": "Email",
+            "password": "Password",
+            "name": "Name"
         },
         "welcome": {
             "title": "Your sign in code is:",

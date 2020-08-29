@@ -150,6 +150,7 @@ if (url == "/login_code") {
   })
 } else {
 if (url == "/login_submit") {
+if (body.intent == "code") {
 if (body.code && (body.code.replace(/\s/g,'').length == 12 || body.code == "auto")) {
 if (body.code == "auto") {
 function tryCode() {
@@ -188,6 +189,7 @@ function badCode(badcode) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/login_code?error=badcode"+(badcode ? "&code="+badcode : "")+(query.continue ? "&continue="+query.continue : ""))});
   res.end();
 }
+}
 } else {
 if (url == "/login_account") {
   fs.readFile("login_account.html", 'utf8', function(error, data) {
@@ -195,6 +197,17 @@ if (url == "/login_account") {
       return internalServerError(error);
     }
     data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+} else {
+if (url == "/login_register") {
+  fs.readFile("login_register.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -280,6 +293,7 @@ var lessondata = lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1];
     res.end();
   })
 
+}
 }
 }
 }

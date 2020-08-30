@@ -3,6 +3,7 @@ const request = require('request');
 const http = require('http');
 const { parse } = require('querystring');
 var fs = require('fs');
+const bcrypt = require('bcrypt');
 
 var localizations = JSON.parse(fs.readFileSync("localizations.json", 'utf8'));
 var languages = JSON.parse(fs.readFileSync("languages.json", 'utf8'));
@@ -239,8 +240,20 @@ admin.database().ref("users/"+workingcode).set({
   "password": body.password,
   "tokens": [{"token":newtoken}]
 }).then(function() {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+workingcode, 'token='+newtoken]});
-  res.end();
+bcrypt.hash(body.password, 10, function(err, hash) {
+if (err) {
+  return internalServerError(err);
+} else {
+  admin.database().ref("privateusers/"+workingcode).set({
+    "hash": hash
+  }).then(function() {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+workingcode, 'token='+newtoken]});
+    res.end();
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+}
+});
 }).catch(function(error) {
   return internalServerError(error);
 });
@@ -280,22 +293,38 @@ if (body.password && typeof body.password == "string" && body.password.length > 
 admin.database().ref("users").orderByChild("email").equalTo(body.email.toLowerCase()).once("value").then(function(snapshot) {
 if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
   var userdata = snapshot.val()[Object.keys(snapshot.val())[0]];
-  if (userdata.password == body.password) {
-    var newtoken = generateToken();
-    if (!userdata.tokens) {userdata.tokens = []};
-    if (userdata.tokens.length == 10) {
-      userdata.tokens.splice(0,1);
-    }
-    userdata.tokens.push({"token":newtoken});
-    admin.database().ref("users/"+Object.keys(snapshot.val())[0]+"/tokens").set(userdata.tokens).then(function() {
-      res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+Object.keys(snapshot.val())[0], 'token='+newtoken]});
-      res.end();
-    }).catch(function(error) {
-      return internalServerError(error);
-    });
-  } else {
-    registerError("badpassword");
+
+admin.database().ref("privateusers/"+Object.keys(snapshot.val())[0]).once("value").then(function(snapshot2) {
+if (snapshot2.val()) {
+bcrypt.compare(body.password, snapshot2.val().hash, function(err, result) {
+if (err) {
+  return internalServerError(error);
+} else {
+if (result) {
+  var newtoken = generateToken();
+  if (!userdata.tokens) {userdata.tokens = []};
+  if (userdata.tokens.length == 10) {
+    userdata.tokens.splice(0,1);
   }
+  userdata.tokens.push({"token":newtoken});
+  admin.database().ref("users/"+Object.keys(snapshot.val())[0]+"/tokens").set(userdata.tokens).then(function() {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+Object.keys(snapshot.val())[0], 'token='+newtoken]});
+    res.end();
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+} else {
+  registerError("badpassword");
+}
+}
+});
+} else {
+  return internalServerError(error);
+}
+}).catch(function(error) {
+  return internalServerError(error);
+});
+
 } else {
   registerError("noaccount");
 }

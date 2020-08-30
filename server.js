@@ -213,6 +213,43 @@ if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
 if (body.password && typeof body.password == "string" && validatePassword(body.password)) {
 if (body.password == body.password2) {
 
+admin.database().ref("users").orderByChild("email").equalTo(body.email).once("value").then(function(snapshot) {
+
+if (snapshot.val()) {
+  return registerError("alreadyaccount");
+}
+
+function tryCode() {
+var workingcode = generate(12);
+admin.database().ref("users/"+workingcode).once("value").then(function(snapshot) {
+if (snapshot.val()) {
+  tryCode();
+} else {
+var newtoken = generateToken();
+admin.database().ref("users/"+workingcode).set({
+  "date": Date.now(),
+  "name": body.name,
+  "email": body.email,
+  "password": body.password,
+  "tokens": [{"token":newtoken}]
+}).then(function() {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+workingcode, 'token='+newtoken]});
+  res.end();
+}).catch(function(error) {
+  return internalServerError(error);
+});
+}
+}).catch(function(error) {
+  return internalServerError(error);
+});
+}
+tryCode()
+
+}).catch(function(error) {
+  return internalServerError(error);
+});
+
+
 } else {
   registerError("mismatchpassword");
 }
@@ -240,7 +277,8 @@ if (url == "/login_account") {
       mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
       weakpassword: localizations[cookies.lang].login.weakpassword,
       bademail: localizations[cookies.lang].login.bademail,
-      badname: localizations[cookies.lang].login.badname
+      badname: localizations[cookies.lang].login.badname,
+      alreadyaccount: localizations[cookies.lang].login.alreadyaccount
     }
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
@@ -257,7 +295,8 @@ if (url == "/login_register") {
       mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
       weakpassword: localizations[cookies.lang].login.weakpassword,
       bademail: localizations[cookies.lang].login.bademail,
-      badname: localizations[cookies.lang].login.badname
+      badname: localizations[cookies.lang].login.badname,
+      alreadyaccount: localizations[cookies.lang].login.alreadyaccount
     }
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
@@ -437,4 +476,14 @@ function validateEmail(email) {
 
 function validatePassword(password) {
   return String(password || "").length > 3;
+}
+
+function generateToken() {
+  var d = Date.now();
+  var uniqueid = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (d + Math.random()*16)%16 | 0;
+      d = Math.floor(d/16);
+      return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+  });
+  return uniqueid;
 }

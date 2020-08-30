@@ -282,3 +282,31 @@ nav {
     color: red;
     display: none;
 }
+
+.login_header {
+    text-align: center;
+    padding-bottom: 12px;
+    font-weight: bold;
+    width: 300px;
+    margin: 0 auto;
+    line-height: 26px;
+}
+
+.login_header span {
+    margin-right: 36px;
+    width: 220px;
+    display: inline-block;
+}
+
+.login_header a {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.login_header svg {
+    width: 26px;
+    height: 26px;
+    display: inline-block;
+    vertical-align: middle;
+    color: #444444;
+}

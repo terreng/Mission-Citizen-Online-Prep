@@ -8,6 +8,7 @@
             "badcode": "The sign in code you entered was invalid.",
             "bademail": "Please enter a valid email address",
             "badpassword": "Incorrect password",
+            "nopassword": "Please enter your password",
             "noaccount": "Account does not exist",
             "alreadyaccount": "Account with this email address already exists",
             "badname": "Please enter your name",

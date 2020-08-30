@@ -269,6 +269,7 @@ function registerError(code) {
 }
 if (body.intent == "login") {
 if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
+if (body.password && typeof body.password == "string" && body.password.length > 0) {
 
 admin.database().ref("users").orderByChild("email").equalTo(body.email.toLowerCase()).once("value").then(function(snapshot) {
 if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
@@ -293,6 +294,9 @@ if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
 });
 
 } else {
+  registerError("nopassword");
+}
+} else {
   registerError("bademail");
 }
 function registerError(code) {
@@ -313,7 +317,8 @@ if (url == "/login_account") {
       badname: localizations[cookies.lang].login.badname,
       alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
       noaccount: localizations[cookies.lang].login.noaccount,
-      badpassword: localizations[cookies.lang].login.badpassword
+      badpassword: localizations[cookies.lang].login.badpassword,
+      nopassword: localizations[cookies.lang].login.nopassword
     }
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
@@ -333,7 +338,8 @@ if (url == "/login_register") {
       badname: localizations[cookies.lang].login.badname,
       alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
       noaccount: localizations[cookies.lang].login.noaccount,
-      badpassword: localizations[cookies.lang].login.badpassword
+      badpassword: localizations[cookies.lang].login.badpassword,
+      nopassword: localizations[cookies.lang].login.nopassword
     }
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });

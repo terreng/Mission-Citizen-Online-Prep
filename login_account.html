@@ -12,6 +12,7 @@
 <body>
 <div class="login_container">
 <a href="/"><div class="login_logo"><img src="/logo.png"></div></a>
+<div class="login_header"><a href="/login"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"></path></svg></a><span>{login.login_account}</span></div>
 <div class="login_form" style="
     text-align: center;
     padding-bottom: 20px;
@@ -53,6 +54,8 @@
 </div>
 </div>
 <script>
+window.history.replaceState(undefined,undefined,"/login_account")
+
 var error_messages = {ERROR_MESSAGES};
 
 function validateEmail(email) {
@@ -64,6 +67,13 @@ function beforeSubmit() {
 if (!validateEmail(document.getElementById("email").value)) {
     document.getElementById("login_error").innerHTML = error_messages.bademail;
     document.getElementById("login_error").style.display = "block";
+    document.getElementById("email").focus();
+    return false;
+}
+if (document.getElementById("password").value.length == 0) {
+    document.getElementById("login_error").innerHTML = error_messages.nopassword;
+    document.getElementById("login_error").style.display = "block";
+    document.getElementById("password").focus();
     return false;
 }
 }

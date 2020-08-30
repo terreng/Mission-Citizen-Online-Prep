@@ -14,7 +14,8 @@
 <body>
 <div class="login_container">
 <div class="login_logo"><img src="/logo.png"></img></div>
-<div class="login_language_buttons" style="width: 304px;">
+<div class="login_header"><a href="/login_language"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"></path></svg></a><span>{login.login}</span></div>
+<div class="login_language_buttons" style="width: 304px;padding-bottom: 4px;padding-top: 10px;">
     <form action="/login_account{FORM_ACTION_QUERY}" method="GET"><input style="display: none;"><input type="submit" value="{login.login_account}"></form>
     <form action="/login_code{FORM_ACTION_QUERY}" method="GET"><input style="display: none;"><input type="submit" value="{login.login_code}"></form>
 </div>

@@ -12,6 +12,7 @@
 <body>
 <div class="login_container">
 <a href="/"><div class="login_logo"><img src="/logo.png"></div></a>
+<div class="login_header"><a href="/login"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"></path></svg></a><span>{login.login_code}</span></div>
 <div style="
     text-align: center;
     padding: 0px 14px;
@@ -51,6 +52,7 @@ margin: 0;
 </div>
 </div>
 <script>
+window.history.replaceState(undefined,undefined,"/login_code")
 document.getElementById('code_input').addEventListener('input',function() {formatCode(this)});
 document.getElementById('code_input').addEventListener('focusout',function() {formatCode(this,true)});
 function formatCode(thisel,ignorecursor) {

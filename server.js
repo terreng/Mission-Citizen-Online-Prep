@@ -130,11 +130,12 @@ if (url == "/login_language") {
   })
 } else {
 if (url == "/language_submit") {
-if (Object.keys(languages).indexOf(body.language) > -1) {
+if (body.language && Object.keys(languages).indexOf(body.language) > -1) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'lang='+body.language});
   res.end();
 } else {
-  internalServerError();
+  res.writeHead(400);
+  res.end();
 }
 } else {
 if (Object.keys(languages).indexOf(cookies.lang) == -1) {
@@ -167,6 +168,11 @@ if (url == "/login_code") {
   })
 } else {
 if (url == "/login_submit") {
+if (body.intent !== "code" && body.intent !== "login" && body.intent !== "register") {
+  res.writeHead(400);
+  res.end();
+  return;
+}
 if (body.intent == "code") {
 if (body.code && (body.code.replace(/\s/g,'').length == 12 || body.code == "auto")) {
 if (body.code == "auto") {
@@ -276,6 +282,10 @@ if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
   var userdata = snapshot.val()[Object.keys(snapshot.val())[0]];
   if (userdata.password == body.password) {
     var newtoken = generateToken();
+    if (!userdata.tokens) {userdata.tokens = []};
+    if (userdata.tokens.length == 10) {
+      userdata.tokens.splice(0,1);
+    }
     userdata.tokens.push({"token":newtoken});
     admin.database().ref("users/"+Object.keys(snapshot.val())[0]+"/tokens").set(userdata.tokens).then(function() {
       res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+Object.keys(snapshot.val())[0], 'token='+newtoken]});

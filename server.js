@@ -263,7 +263,7 @@ tryCode()
   registerError("badname");
 }
 function registerError(code) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_register?error="+code+(query.continue ? "&continue="+query.continue : "")});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_register?error="+code+((body.email && typeof body.email == "string" && body.email.length < 128) ? "&email="+encodeURIComponent(body.email) : "")+((body.name && typeof body.name == "string" && body.name.length < 128) ? "&name="+encodeURIComponent(body.name) : "")+(query.continue ? "&continue="+query.continue : "")});
   res.end();
 }
 }
@@ -300,7 +300,7 @@ if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
   registerError("bademail");
 }
 function registerError(code) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_account?error="+code+(query.continue ? "&continue="+query.continue : "")});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_account?error="+code+((body.email && typeof body.email == "string" && body.email.length < 128) ? "&email="+encodeURIComponent(body.email) : "")+(query.continue ? "&continue="+query.continue : "")});
   res.end();
 }
 }
@@ -320,7 +320,7 @@ if (url == "/login_account") {
       badpassword: localizations[cookies.lang].login.badpassword,
       nopassword: localizations[cookies.lang].login.nopassword
     }
-    data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
+    data = localize(data,cookies.lang,{"EMAIL_VALUE": query.email ? urlescape(query.email) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -341,7 +341,7 @@ if (url == "/login_register") {
       badpassword: localizations[cookies.lang].login.badpassword,
       nopassword: localizations[cookies.lang].login.nopassword
     }
-    data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
+    data = localize(data,cookies.lang,{"EMAIL_VALUE": query.email ? urlescape(query.email) : "", "NAME_VALUE": query.name ? urlescape(query.name) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -529,4 +529,28 @@ function generateToken() {
       return (c=='x' ? r : (r&0x3|0x8)).toString(16);
   });
   return uniqueid;
+}
+
+function htmlescape(str) {
+if (str == undefined) {
+return str;
+}
+str = String(str);
+return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function urlescape(str) {
+if (str == undefined) {
+return str;
+}
+str = String(str);
+return str.replace(/"/g, "&quot;");
+}
+
+function unhtmlescape(str) {
+if (str == undefined) {
+return str;
+}
+str = String(str);
+return str.split("&lt;").join("<").split("&gt;").join(">").split('&quot;').join('"').split("&#039;").join("'").split("&amp;").join("&");
 }

@@ -111,7 +111,7 @@ if (matched_static_file) {
 }
 } else {
 if (url == "/logout") {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/", 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0']});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/", 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0', 'token=; Expires=0']});
   res.end();
 } else {
 if (url == "/login_language") {
@@ -229,7 +229,7 @@ var newtoken = generateToken();
 admin.database().ref("users/"+workingcode).set({
   "date": Date.now(),
   "name": body.name,
-  "email": body.email,
+  "email": body.email.toLowerCase(),
   "password": body.password,
   "tokens": [{"token":newtoken}]
 }).then(function() {
@@ -267,6 +267,39 @@ function registerError(code) {
   res.end();
 }
 }
+if (body.intent == "login") {
+if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
+
+admin.database().ref("users").orderByChild("email").equalTo(body.email.toLowerCase()).once("value").then(function(snapshot) {
+if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
+  var userdata = snapshot.val()[Object.keys(snapshot.val())[0]];
+  if (userdata.password == body.password) {
+    var newtoken = generateToken();
+    userdata.tokens.push({"token":newtoken});
+    admin.database().ref("users/"+Object.keys(snapshot.val())[0]+"/tokens").set(userdata.tokens).then(function() {
+      res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+Object.keys(snapshot.val())[0], 'token='+newtoken]});
+      res.end();
+    }).catch(function(error) {
+      return internalServerError(error);
+    });
+  } else {
+    registerError("badpassword");
+  }
+} else {
+  registerError("noaccount");
+}
+}).catch(function(error) {
+  return internalServerError(error);
+});
+
+} else {
+  registerError("bademail");
+}
+function registerError(code) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_account?error="+code+(query.continue ? "&continue="+query.continue : "")});
+  res.end();
+}
+}
 } else {
 if (url == "/login_account") {
   fs.readFile("login_account.html", 'utf8', function(error, data) {
@@ -278,7 +311,9 @@ if (url == "/login_account") {
       weakpassword: localizations[cookies.lang].login.weakpassword,
       bademail: localizations[cookies.lang].login.bademail,
       badname: localizations[cookies.lang].login.badname,
-      alreadyaccount: localizations[cookies.lang].login.alreadyaccount
+      alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
+      noaccount: localizations[cookies.lang].login.noaccount,
+      badpassword: localizations[cookies.lang].login.badpassword
     }
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
@@ -296,7 +331,9 @@ if (url == "/login_register") {
       weakpassword: localizations[cookies.lang].login.weakpassword,
       bademail: localizations[cookies.lang].login.bademail,
       badname: localizations[cookies.lang].login.badname,
-      alreadyaccount: localizations[cookies.lang].login.alreadyaccount
+      alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
+      noaccount: localizations[cookies.lang].login.noaccount,
+      badpassword: localizations[cookies.lang].login.badpassword
     }
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });

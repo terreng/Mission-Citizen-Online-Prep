@@ -19,9 +19,9 @@
     margin: 0 auto;
     padding-top: 10px;
 ">
-<form action="{FORM_ACTION}" method="POST">
+<form action="{FORM_ACTION}" method="POST" onsubmit="return beforeSubmit()">
     <input name="intent" value="register" style="display: none;">
-    <input name="name" type="text" autocomplete="name" placeholder="{login.name}" style="
+    <input id="name" name="name" type="text" autocomplete="name" placeholder="{login.name}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -31,7 +31,7 @@
     margin: 0;
     margin-bottom: 7px;
 ">
-    <input name="email" type="email" autocomplete="email" placeholder="{login.email}" style="
+    <input id="email" name="email" type="email" autocomplete="email" placeholder="{login.email}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -41,7 +41,7 @@
     margin: 0;
     margin-bottom: 7px;
 ">
-    <input name="password" type="password" autocomplete="current-password" placeholder="{login.password}" style="
+    <input id="password" name="password" type="password" autocomplete="current-password" placeholder="{login.password}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -51,7 +51,7 @@
     margin: 0;
     margin-bottom: 7px;
 ">
-    <input name="password" type="password" autocomplete="current-password" placeholder="{login.password_confirm}" style="
+    <input id="password2" name="password2" type="password" autocomplete="current-password" placeholder="{login.password_confirm}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -60,9 +60,45 @@
     width: 100%;
     margin: 0;
 ">
+<div id="login_error" class="login_error"{ERROR_STYLE}>{ERROR_VALUE}</div>
     <input type="submit" value="{login.signup}" style="margin-top: 12px;">
 </form>
 </div>
 </div>
 </div>
+<script>
+var error_messages = {ERROR_MESSAGES};
+
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+function validatePassword(password) {
+  return String(password || "").length > 3;
+}
+
+function beforeSubmit() {
+if (document.getElementById("name").value.length == 0) {
+    document.getElementById("login_error").innerHTML = error_messages.badname;
+    document.getElementById("login_error").style.display = "block";
+    return false;
+}
+if (!validateEmail(document.getElementById("email").value)) {
+    document.getElementById("login_error").innerHTML = error_messages.bademail;
+    document.getElementById("login_error").style.display = "block";
+    return false;
+}
+if (!validatePassword(document.getElementById("password").value)) {
+    document.getElementById("login_error").innerHTML = error_messages.weakpassword;
+    document.getElementById("login_error").style.display = "block";
+    return false;
+}
+if (document.getElementById("password").value !== document.getElementById("password2").value) {
+    document.getElementById("login_error").innerHTML = error_messages.mismatchpassword;
+    document.getElementById("login_error").style.display = "block";
+    return false;
+}
+}
+</script>
 </body></html>

@@ -273,3 +273,12 @@ nav {
     display: none !important;
 }
 }
+
+.login_error {
+    text-align: center;
+    padding: 0px 14px;
+    padding-top: 12px;
+    padding-bottom: 4px;
+    color: red;
+    display: none;
+}

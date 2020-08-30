@@ -24,11 +24,28 @@ admin.firestore().settings({timestampsInSnapshots: true});
 var lessons;
 admin.database().ref("lessons").on("value",function(snapshot) {
   lessons = snapshot.val();
+	if (request_queue.length > 0) {
+		for (var r = 0; r < request_queue.length; r++) {
+			handleRequest(request_queue[r][0],request_queue[r][1])
+		}
+	}
+	request_queue = [];
 },function(error) {
+  console.error(error);
   lessons = undefined;
 });
 
+var request_queue = [];
+
 const requestListener = function (req, res) {
+if (lessons !== undefined) {
+	handleRequest(req, res);
+} else {
+	request_queue.push([req,res])
+}
+}
+
+function handleRequest(req, res) {
 
 var body;
 
@@ -51,13 +68,13 @@ req.on('data', function(chunk) {
 });
 req.on('end', function() {
 	body = parse(body);
-	handleRequest()
+	handleRequest2()
 });
 } else {
-	handleRequest()
+	handleRequest2()
 }
 
-function handleRequest() {
+function handleRequest2() {
 if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "production") {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+req.url});
   res.end();
@@ -190,13 +207,42 @@ function badCode(badcode) {
   res.end();
 }
 }
+if (body.intent == "register") {
+if (body.name && typeof body.name == "string" && body.name.length > 0 && body.name.length < 127) {
+if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
+if (body.password && typeof body.password == "string" && validatePassword(body.password)) {
+if (body.password == body.password2) {
+
+} else {
+  registerError("mismatchpassword");
+}
+} else {
+  registerError("weakpassword");
+}
+} else {
+  registerError("bademail");
+}
+} else {
+  registerError("badname");
+}
+function registerError(code) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_register?error="+code+(query.continue ? "&continue="+query.continue : "")});
+  res.end();
+}
+}
 } else {
 if (url == "/login_account") {
   fs.readFile("login_account.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
+    var error_text = {
+      mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
+      weakpassword: localizations[cookies.lang].login.weakpassword,
+      bademail: localizations[cookies.lang].login.bademail,
+      badname: localizations[cookies.lang].login.badname
+    }
+    data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -207,7 +253,13 @@ if (url == "/login_register") {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
+    var error_text = {
+      mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
+      weakpassword: localizations[cookies.lang].login.weakpassword,
+      bademail: localizations[cookies.lang].login.bademail,
+      badname: localizations[cookies.lang].login.badname
+    }
+    data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -376,4 +428,13 @@ function generate(n) {
   var number = Math.floor( Math.random() * (max - min + 1) ) + min;
 
   return ("" + number).substring(add); 
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+function validatePassword(password) {
+  return String(password || "").length > 3;
 }

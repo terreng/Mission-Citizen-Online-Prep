@@ -20,7 +20,7 @@
     margin: 0 auto;
     padding-top: 10px;
 ">
-<form action="{FORM_ACTION}" method="POST" onsubmit="return beforeSubmit()">
+<form action="{FORM_ACTION}" method="POST" onsubmit="return beforeSubmit()" class="pmf-registration">
     <input name="intent" value="register" style="display: none;">
     <input id="name" name="name" type="text" autocomplete="name" value="{NAME_VALUE}" placeholder="{login.name}" style="
     font-size: 18px;
@@ -42,7 +42,7 @@
     margin: 0;
     margin-bottom: 7px;
 ">
-    <input id="password" name="password" type="password" autocomplete="current-password" placeholder="{login.password}" style="
+    <input id="password" name="password" type="password" autocomplete="new-password" placeholder="{login.password}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;
@@ -52,7 +52,7 @@
     margin: 0;
     margin-bottom: 7px;
 ">
-    <input id="password2" name="password2" type="password" autocomplete="current-password" placeholder="{login.password_confirm}" style="
+    <input id="password2" name="password2" type="password" autocomplete="new-password" placeholder="{login.password_confirm}" style="
     font-size: 18px;
     font-size: 19px;
     border: 2px solid #969696;

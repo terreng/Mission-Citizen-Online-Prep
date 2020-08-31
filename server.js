@@ -405,6 +405,22 @@ if (url == "/welcome") {
   })
 } else {
 
+if (url == "/account") {
+doAuthentication(cookies,function(userdata) {
+  fs.readFile("account.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"NAME": htmlescape(userdata.name), "EMAIL": htmlescape(userdata.email)})
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+});
+} else {
 
 if (url == "/") {
 doAuthentication(cookies,function(userdata) {
@@ -472,6 +488,7 @@ doAuthentication(cookies,function(userdata) {
 }
 }
 
+}
 
 }
 }

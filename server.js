@@ -397,11 +397,17 @@ if (url == "/welcome") {
 
 if (url == "/account") {
 doAuthentication(cookies,function(userdata) {
+if (userdata.email) {
   fs.readFile("account.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"NAME": htmlescape(userdata.name), "EMAIL": htmlescape(userdata.email)})
+    var successes = {
+      namechanged: localizations[cookies.lang].account.namechanged,
+      emailchanged: localizations[cookies.lang].account.emailchanged,
+      passwordchanged: localizations[cookies.lang].account.passwordchanged
+    }
+    data = localize(data,cookies.lang,{"UPDATE_BANNER": (query.success && successes[query.success]) ? '<div class="update_banner">'+successes[query.success]+'</div>' : "", "NAME": htmlescape(userdata.name), "EMAIL": htmlescape(userdata.email)})
     if (!data) {
       return internalServerError();
     }
@@ -409,6 +415,10 @@ doAuthentication(cookies,function(userdata) {
     res.write(data, "utf-8");
     res.end();
   })
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"});
+  res.end();
+}
 });
 } else {
 if (url == "/account_submit") {
@@ -593,7 +603,7 @@ pendhtml += '<a href="/lesson/'+i+'"'+(tab == i ? ' class="active"' : '')+'><div
 pendhtml += '<a href="/quiz"'+(tab == "quiz" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg></div><div>{general.fullquiz}</div></a>'
 
 if (userdata.email) {
-pendhtml += '<div style="margin: 6px;border: 1px solid #c1c1c1;border-radius: 8px;padding: 6px;margin-top: 8px;"><div style="padding-bottom: 3px;">'+localizations[cookies.lang].account.knownuser+'</div><div style="font-size: 20px;padding: 2px 0px;">'+htmlescape(userdata.name)+'</div><a href="/account" style="color: black;text-decoration: none;height: 24px;width: 100%;display: block;margin-top: 4px;"><div style="float: left;"><svg style="width:24px;height:24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z""></path></svg></div><div style="float: left;padding-left: 3px;font-size: 18px;">'+localizations[cookies.lang].account.settings+'</div></a><a href="/logout" style="color: black;text-decoration: none;height: 24px;width: 100%;display: block;margin-top: 4px;"><div style="float: left;"><svg style="width:24px;height:24px;transform: rotate(180deg);" viewBox="0 0 24 24"><path fill="currentColor" d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z"></path></svg></div><div style="float: left;padding-left: 3px;font-size: 18px;">'+localizations[cookies.lang].account.logout+'</div></a></div>'
+pendhtml += '<div style="margin: 6px;border: 1px solid #c1c1c1;border-radius: 8px;padding: 6px;margin-top: 8px;"><div style="padding-bottom: 3px;">'+localizations[cookies.lang].account.knownuser+'</div><div style="font-size: 20px;padding: 2px 0px;word-break: break-word;">'+htmlescape(userdata.name)+'</div><a href="/account" style="color: black;text-decoration: none;height: 24px;width: 100%;display: block;margin-top: 4px;"><div style="float: left;"><svg style="width:24px;height:24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z""></path></svg></div><div style="float: left;padding-left: 3px;font-size: 18px;">'+localizations[cookies.lang].account.settings+'</div></a><a href="/logout" style="color: black;text-decoration: none;height: 24px;width: 100%;display: block;margin-top: 4px;"><div style="float: left;"><svg style="width:24px;height:24px;transform: rotate(180deg);" viewBox="0 0 24 24"><path fill="currentColor" d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z"></path></svg></div><div style="float: left;padding-left: 3px;font-size: 18px;">'+localizations[cookies.lang].account.logout+'</div></a></div>'
 } else {
 pendhtml += '<div style="margin: 6px;border: 1px solid #c1c1c1;border-radius: 8px;padding: 6px;margin-top: 8px;"><div style="padding-bottom: 3px;">'+localizations[cookies.lang].account.logincode+'</div><div style="font-size: 24px;">'+String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12)+'</div><a href="/logout" style="color: black;text-decoration: none;height: 24px;width: 100%;display: block;margin-top: 4px;"><div style="float: left;"><svg style="width:24px;height:24px;transform: rotate(180deg);" viewBox="0 0 24 24"><path fill="currentColor" d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z"></path></svg></div><div style="float: left;padding-left: 3px;font-size: 18px;">'+localizations[cookies.lang].account.logout+'</div></a></div>'
 }

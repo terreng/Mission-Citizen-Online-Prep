@@ -310,3 +310,13 @@ nav {
     vertical-align: middle;
     color: #444444;
 }
+
+.update_banner {
+    padding: 7px;
+    font-size: 18px;
+    margin-bottom: 10px;
+    background-color: #c5e1a5;
+    color: #003d00;
+    border-radius: 10px;
+    border: 1px solid #7cb342;
+}

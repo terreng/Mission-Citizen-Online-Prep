@@ -447,6 +447,88 @@ if (userdata.email) {
   res.end();
 }
 }
+if (body.intent == "changeemail") {
+if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
+if (body.password && typeof body.password == "string" && body.password.length > 0) {
+doAuthentication(cookies,function(userdata,passwordhash) {
+if (userdata.email) {
+
+bcrypt.compare(body.password, passwordhash, function(err, result) {
+if (err) {
+  return internalServerError(err);
+} else {
+if (result) {
+  admin.database().ref("users/"+cookies.code+"/email").set(body.email).then(function() {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account?success=emailchanged"});
+    res.end();
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=badpassword"});
+  res.end();
+}
+}
+});
+
+} else {
+  res.writeHead(400);
+  res.end();
+}
+});
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=nopassword"});
+  res.end();
+}
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=bademail"});
+  res.end();
+}
+}
+if (body.intent == "changepassword") {
+if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
+if (body.password && typeof body.password == "string" && body.password.length > 0) {
+doAuthentication(cookies,function(userdata,passwordhash) {
+if (userdata.email) {
+
+bcrypt.compare(body.password, passwordhash, function(err, result) {
+if (err) {
+  return internalServerError(err);
+} else {
+if (result) {
+bcrypt.hash(body.password, 10, function(err, hash) {
+if (err) {
+  return internalServerError(err);
+} else {
+  admin.database().ref("privateusers/"+cookies.code+"/hash").set(hash).then(function() {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account?success=emailchanged"});
+    res.end();
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+}
+});
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=badpassword"});
+  res.end();
+}
+}
+});
+
+} else {
+  res.writeHead(400);
+  res.end();
+}
+});
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=nopassword"});
+  res.end();
+}
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=bademail"});
+  res.end();
+}
+}
 } else {
 if (url == "/account_name") {
 doAuthentication(cookies,function(userdata) {
@@ -455,6 +537,22 @@ doAuthentication(cookies,function(userdata) {
       return internalServerError(error);
     }
     data = localize(data,cookies.lang,{"NAME_VALUE": htmlescape(userdata.name), "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+});
+} else {
+if (url == "/account_email") {
+doAuthentication(cookies,function(userdata) {
+  fs.readFile("account_email.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"EMAIL_VALUE": htmlescape(userdata.email), "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
     if (!data) {
       return internalServerError();
     }
@@ -534,6 +632,7 @@ doAuthentication(cookies,function(userdata) {
 }
 }
 }
+}
 
 }
 }
@@ -573,7 +672,7 @@ authhasdone++;
 if (authhasdone == (cookies.token ? 2 : 1)) {
 
 if ((cookies.token ? (userdata && userdata.email && privateuserdata && validToken()) : (userdata && !userdata.email))) {
-  callback(userdata);
+  callback(userdata,privateuserdata.hash);
 } else {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/logout?continue="+url});
   res.end();

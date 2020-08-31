@@ -208,7 +208,7 @@ tryCode()
 } else {
 body.code = body.code.replace(/\s/g,'');
 admin.database().ref("users/"+body.code).once("value").then(function(snapshot) {
-if (snapshot.val()) {
+if (snapshot.val() && !snapshot.val().email) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': 'code='+body.code});
   res.end();
 } else {
@@ -486,12 +486,13 @@ if (result) {
 }
 }
 if (body.intent == "changepassword") {
-if (body.email && typeof body.email == "string" && validateEmail(body.email)) {
-if (body.password && typeof body.password == "string" && body.password.length > 0) {
+if (body.password0 && typeof body.password0 == "string" && body.password0.length > 0) {
+if (body.password && typeof body.password == "string" && validatePassword(body.password)) {
+if (body.password == body.password2) {
 doAuthentication(cookies,function(userdata,passwordhash) {
 if (userdata.email) {
 
-bcrypt.compare(body.password, passwordhash, function(err, result) {
+bcrypt.compare(body.password0, passwordhash, function(err, result) {
 if (err) {
   return internalServerError(err);
 } else {
@@ -501,7 +502,7 @@ if (err) {
   return internalServerError(err);
 } else {
   admin.database().ref("privateusers/"+cookies.code+"/hash").set(hash).then(function() {
-    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account?success=emailchanged"});
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account?success=passwordchanged"});
     res.end();
   }).catch(function(error) {
     return internalServerError(error);
@@ -509,7 +510,7 @@ if (err) {
 }
 });
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=badpassword"});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_password?error=badpassword"});
   res.end();
 }
 }
@@ -521,11 +522,15 @@ if (err) {
 }
 });
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=nopassword"});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_password?error=mismatchpassword"});
   res.end();
 }
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_email?error=bademail"});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_password?error=weakpassword"});
+  res.end();
+}
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_password?error=nopassword"});
   res.end();
 }
 }
@@ -553,6 +558,22 @@ doAuthentication(cookies,function(userdata) {
       return internalServerError(error);
     }
     data = localize(data,cookies.lang,{"EMAIL_VALUE": htmlescape(userdata.email), "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+});
+} else {
+if (url == "/account_password") {
+doAuthentication(cookies,function(userdata) {
+  fs.readFile("account_password.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
     if (!data) {
       return internalServerError();
     }
@@ -629,6 +650,7 @@ doAuthentication(cookies,function(userdata) {
 }
 }
 
+}
 }
 }
 }

@@ -43,6 +43,7 @@
             "changepassword": "Change password",
             "oldpassword": "Old password",
             "newpassword": "New password",
+            "newpassword_verify": "Confirm new password",
             "passwordchanged": "Password updated successfully",
             "changename": "Change profile name",
             "newname": "New name",

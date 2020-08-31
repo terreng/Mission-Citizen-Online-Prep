@@ -143,6 +143,16 @@ if (Object.keys(languages).indexOf(cookies.lang) == -1) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_language?continue="+url});
   res.end();
 } else {
+var error_text = {
+  mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
+  weakpassword: localizations[cookies.lang].login.weakpassword,
+  bademail: localizations[cookies.lang].login.bademail,
+  badname: localizations[cookies.lang].login.badname,
+  alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
+  noaccount: localizations[cookies.lang].login.noaccount,
+  badpassword: localizations[cookies.lang].login.badpassword,
+  nopassword: localizations[cookies.lang].login.nopassword
+}
 if (url == "/login") {
   fs.readFile("login_type.html", 'utf8', function(error, data) {
     if (error) {
@@ -281,7 +291,7 @@ tryCode()
   registerError("badname");
 }
 function registerError(code) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_register?error="+code+((body.email && typeof body.email == "string" && body.email.length < 128) ? "&email="+encodeURIComponent(body.email) : "")+((body.name && typeof body.name == "string" && body.name.length < 128) ? "&name="+encodeURIComponent(body.name) : "")+(query.continue ? "&continue="+query.continue : "")});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_register?error="+code+((body.email && typeof body.email == "string" && body.email.length < 127) ? "&email="+encodeURIComponent(body.email) : "")+((body.name && typeof body.name == "string" && body.name.length < 127) ? "&name="+encodeURIComponent(body.name) : "")+(query.continue ? "&continue="+query.continue : "")});
   res.end();
 }
 }
@@ -339,7 +349,7 @@ if (result) {
   registerError("bademail");
 }
 function registerError(code) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_account?error="+code+((body.email && typeof body.email == "string" && body.email.length < 128) ? "&email="+encodeURIComponent(body.email) : "")+(query.continue ? "&continue="+query.continue : "")});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_account?error="+code+((body.email && typeof body.email == "string" && body.email.length < 127) ? "&email="+encodeURIComponent(body.email) : "")+(query.continue ? "&continue="+query.continue : "")});
   res.end();
 }
 }
@@ -348,16 +358,6 @@ if (url == "/login_account") {
   fs.readFile("login_account.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
-    }
-    var error_text = {
-      mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
-      weakpassword: localizations[cookies.lang].login.weakpassword,
-      bademail: localizations[cookies.lang].login.bademail,
-      badname: localizations[cookies.lang].login.badname,
-      alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
-      noaccount: localizations[cookies.lang].login.noaccount,
-      badpassword: localizations[cookies.lang].login.badpassword,
-      nopassword: localizations[cookies.lang].login.nopassword
     }
     data = localize(data,cookies.lang,{"EMAIL_VALUE": query.email ? urlescape(query.email) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
@@ -369,16 +369,6 @@ if (url == "/login_register") {
   fs.readFile("login_register.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
-    }
-    var error_text = {
-      mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
-      weakpassword: localizations[cookies.lang].login.weakpassword,
-      bademail: localizations[cookies.lang].login.bademail,
-      badname: localizations[cookies.lang].login.badname,
-      alreadyaccount: localizations[cookies.lang].login.alreadyaccount,
-      noaccount: localizations[cookies.lang].login.noaccount,
-      badpassword: localizations[cookies.lang].login.badpassword,
-      nopassword: localizations[cookies.lang].login.nopassword
     }
     data = localize(data,cookies.lang,{"EMAIL_VALUE": query.email ? urlescape(query.email) : "", "NAME_VALUE": query.name ? urlescape(query.name) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
@@ -412,6 +402,49 @@ doAuthentication(cookies,function(userdata) {
       return internalServerError(error);
     }
     data = localize(data,cookies.lang,{"NAME": htmlescape(userdata.name), "EMAIL": htmlescape(userdata.email)})
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+});
+} else {
+if (url == "/account_submit") {
+if (body.intent !== "changename" && body.intent !== "changeemail" && body.intent !== "changepassword") {
+  res.writeHead(400);
+  res.end();
+  return;
+}
+if (body.intent == "changename") {
+if (body.name && body.name.length > 0 && body.name.length < 127) {
+doAuthentication(cookies,function(userdata) {
+if (userdata.email) {
+  admin.database().ref("users/"+cookies.code+"/name").set(body.name).then(function() {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account?success=namechanged"});
+    res.end();
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+} else {
+  res.writeHead(400);
+  res.end();
+}
+});
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/account_name?error=badname"});
+  res.end();
+}
+}
+} else {
+if (url == "/account_name") {
+doAuthentication(cookies,function(userdata) {
+  fs.readFile("account_name.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"NAME_VALUE": htmlescape(userdata.name), "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
     if (!data) {
       return internalServerError();
     }
@@ -488,6 +521,8 @@ doAuthentication(cookies,function(userdata) {
 }
 }
 
+}
+}
 }
 
 }

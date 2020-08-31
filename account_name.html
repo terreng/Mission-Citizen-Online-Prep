@@ -1,0 +1,55 @@
+<html lang="{LANGUAGE_CODE}"><head>
+<title>Mission: Citizen Online</title>
+<link href="/style.css" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" name="viewport">
+<meta name="title" content="Mission: Citizen Online">
+<meta property="og:title" content="Mission: Citizen Online">
+<meta name="description" content="Free online citizenship classes by Mission: Citizen">
+<meta name="og:description" content="Free online citizenship classes by Mission: Citizen">
+<meta property="og:image" content="/logo.png">
+<meta name="format-detection" content="telephone=no">
+</head>
+<body>
+<div class="login_container">
+<a href="/"><div class="login_logo"><img src="/logo.png"></div></a>
+<div class="login_header"><a href="/account"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"></path></svg></a><span>{account.changename}</span></div>
+<div class="login_form" style="
+    text-align: center;
+    padding-bottom: 20px;
+    width: 304px;
+    margin: 0 auto;
+    padding-top: 10px;
+">
+<form action="/account_submit" method="POST" onsubmit="return beforeSubmit()">
+    <input name="intent" value="changename" style="display: none;">
+    <input id="name" name="name" type="text" autocomplete="name" value="{NAME_VALUE}" placeholder="{account.newname}" style="
+    font-size: 18px;
+    font-size: 19px;
+    border: 2px solid #969696;
+    border-radius: 3px;
+    padding: 6px 7px;
+    width: 100%;
+    margin: 0;
+    margin-bottom: 7px;
+">
+<div id="login_error" class="login_error"{ERROR_STYLE}>{ERROR_VALUE}</div>
+    <input type="submit" value="{account.submit}" style="margin-top: 12px;">
+</form>
+</div>
+</div>
+</div>
+<script>
+window.history.replaceState(undefined,undefined,"/account_name")
+
+var error_messages = {ERROR_MESSAGES};
+
+function beforeSubmit() {
+if (document.getElementById("name").value.length == 0) {
+    document.getElementById("login_error").innerHTML = error_messages.badname;
+    document.getElementById("login_error").style.display = "block";
+    document.getElementById("name").focus();
+    return false;
+}
+}
+</script>
+</body></html>

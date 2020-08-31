@@ -12,7 +12,7 @@
             "noaccount": "Account does not exist",
             "alreadyaccount": "Account with this email address already exists",
             "badname": "Please enter your name",
-            "weakpassword": "Password is too weak",
+            "weakpassword": "Password is too short",
             "mismatchpassword": "Passwords don't match",
             "login_account": "Student sign in",
             "login_code": "Sign in anonymously",
@@ -45,7 +45,8 @@
             "newpassword": "New password",
             "passwordchanged": "Password updated successfully",
             "changename": "Change profile name",
-            "newname": "Name",
+            "newname": "New name",
+            "namechanged": "Name updated successfully",
             "submit": "Submit"
         },
         "general": {

@@ -43,8 +43,8 @@ afterLogin();
     gid("controlpanel").style.display = "none";
   gid("login_enter").style.display = "block";
 gid("login_load").style.display = "none";
-gid("ra_title").innerHTML = "Mission Citizen Online Admin";
-gid("ra_title_2").innerHTML = "Mission Citizen Online Admin";
+gid("ra_title").innerHTML = "Mission: Citizen Online Admin";
+gid("ra_title_2").innerHTML = "Mission: Citizen Online Admin";
 gid("log_text").innerHTML = "Log In";
 
 if (location.hash == "#register") {
@@ -101,8 +101,8 @@ toggleSidebar();
 
 function signUp() {
 secretsignup = true;
-gid("ra_title").innerHTML = "Mission Citizen Online Admin";
-gid("ra_title_2").innerHTML = "Mission Citizen Online Admin";
+gid("ra_title").innerHTML = "Mission: Citizen Online Admin";
+gid("ra_title_2").innerHTML = "Mission: Citizen Online Admin";
 gid("login_error").innerHTML = "";
 gid("username").value = "";
 gid("password").value = "";
@@ -503,7 +503,7 @@ function saveQuestionChanges() {
 }
 
 function deleteLesson(index) {
-  showAlert("Are you sure you want to delete this lesson?","This action cannot be undone.<div style='margin-top: 10px'></div><div style='color: red;'>WARNING: DO NOT PERFORM THIS OPERATION UNLESS YOU ARE THE ONLY ONE LOGGED IN TO THE MISSION CITIZEN ONLINE ADMIN SYSTEM.</div>","confirm",function() {
+  showAlert("Are you sure you want to delete this lesson?","This action cannot be undone.<div style='margin-top: 10px'></div><div style='color: red;'>WARNING: DO NOT PERFORM THIS OPERATION UNLESS YOU ARE THE ONLY ONE LOGGED IN TO THE MISSION: CITIZEN ONLINE ADMIN SYSTEM.</div>","confirm",function() {
     lessons.splice(index,1);
     createPostProgress("Deleting lesson")
 firebase.database().ref("lessons").set(lessons).then(function() {
@@ -516,7 +516,7 @@ firebase.database().ref("lessons").set(lessons).then(function() {
 }
 
 function reorderLesson(index) {
-  showAlert("Reorder lesson","This lesson is currently in position "+String(index+1)+" of "+lessons.length+"<div style='margin-top: 10px'></div>New position:<div style='margin-top: 10px'></div><input onkeypress='if(event.keyCode==13) {saveOrderS("+index+");}' type='tel' class='c_text' id='order_text' placeholder='"+String(index+1)+"'><div style='margin-top: 10px'></div><div style='color: red;'>WARNING: DO NOT PERFORM THIS OPERATION UNLESS YOU ARE THE ONLY ONE LOGGED IN TO THE MISSION CITIZEN ONLINE ADMIN SYSTEM.</div>","submit",function() {saveOrderS(index)});
+  showAlert("Reorder lesson","This lesson is currently in position "+String(index+1)+" of "+lessons.length+"<div style='margin-top: 10px'></div>New position:<div style='margin-top: 10px'></div><input onkeypress='if(event.keyCode==13) {saveOrderS("+index+");}' type='tel' class='c_text' id='order_text' placeholder='"+String(index+1)+"'><div style='margin-top: 10px'></div><div style='color: red;'>WARNING: DO NOT PERFORM THIS OPERATION UNLESS YOU ARE THE ONLY ONE LOGGED IN TO THE MISSION: CITIZEN ONLINE ADMIN SYSTEM.</div>","submit",function() {saveOrderS(index)});
   gid("order_text").focus();
   }
   

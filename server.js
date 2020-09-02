@@ -694,7 +694,7 @@ authhasdone++;
 if (authhasdone == (cookies.token ? 2 : 1)) {
 
 if ((cookies.token ? (userdata && userdata.email && privateuserdata && validToken()) : (userdata && !userdata.email))) {
-  callback(userdata,privateuserdata.hash);
+  callback(userdata,privateuserdata ? privateuserdata.hash : undefined);
 } else {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/logout?continue="+url});
   res.end();

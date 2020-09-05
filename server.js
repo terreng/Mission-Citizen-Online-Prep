@@ -827,3 +827,40 @@ return str;
 str = String(str);
 return str.split("&lt;").join("<").split("&gt;").join(">").split('&quot;').join('"').split("&#039;").join("'").split("&amp;").join("&");
 }
+
+checkLessonChanges();
+setInterval(function() {
+  checkLessonChanges()
+},1000*60*60*1);
+
+function checkLessonChanges() {
+admin.database().ref("lessons").once("value").then(function(snapshot) {
+
+var currentlessons = snapshot.val();
+
+admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1).once("value").then(function(snapshot2) {
+
+var lastlessons = snapshot2.val();
+
+if (lastlessons && Object.keys(lastlessons).length == 1) {
+  lastlessons = lastlessons[Object.keys(lastlessons)[0]];
+}
+
+if (JSON.stringify(currentlessons) !== JSON.stringify(lastlessons ? lastlessons.lessons : undefined)) {
+
+admin.database().ref("lessonhistory/lessons/"+admin.database().ref("lessonhistory/lessons").push().key).set({lessons: currentlessons, date: Date.now()}).then(function() {
+
+}).catch(function(error) {
+  console.error(error);
+})
+
+}
+
+}).catch(function(error) {
+  console.error(error);
+})
+
+}).catch(function(error) {
+  console.error(error);
+})
+}

@@ -350,12 +350,14 @@ nav {
 .question_options > div > div:nth-child(2) > label {
     display: block;
     width: 100%;
+    cursor: pointer;
 }
 
 .question_options > div input[type=radio] {
     height: 18px;
     width: 18px;
     margin: 6px;
+    cursor: pointer;
 }
 
 .question_subtitle {

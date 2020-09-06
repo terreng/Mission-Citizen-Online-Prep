@@ -118,7 +118,7 @@ gid("login_load").style.display = "block";
 gid("login_error").innerHTML = "";
 gid('username').blur();
 gid('password').blur();
-gid("create_account").style.display = "none"
+//gid("create_account").style.display = "none"
 
 if (secretsignup == true) {
 	
@@ -255,7 +255,7 @@ lessons = snapshot.val();
 
 if (snapshot.val() && snapshot.val().length > 0) {
 
-  pendhtml += '<div class="buttons"><a onclick="editLesson('+snapshot.val().length+')"><div class="button" id="new_lesson" style="float: right; margin-right: 0; margin-bottom: 15px;">New Lesson</div></a></div>'
+  pendhtml += '<div class="buttons"><a onclick="editLesson('+snapshot.val().length+',true)"><div class="button" id="new_lesson" style="float: right; margin-right: 0; margin-bottom: 15px;">New Lesson</div></a></div>'
 
   for (var i = 0; i < snapshot.val().length; i++) {
   pendhtml += "<div class='post_item'><div class='rem_left'><div style='font-size: 25px;' class='ell ell_title'>Lesson "+(i+1)+"</div><div style='font-size: 17px; padding-top: 3px;' class='ell'>"+htmlescape((snapshot.val()[i] && snapshot.val()[i].title && snapshot.val()[i].title.en) ? snapshot.val()[i].title.en : "")+"</div></div><div class='rem_right'><a title='Reorder' onclick='reorderLesson("+i+")'><div class='item_icon'><i class='material-icons'>height</i></div></a><a title='Edit' onclick='editLesson("+i+")'><div class='item_icon'><i class='material-icons'>edit</i></div></a><a title='Delete' onclick='deleteLesson("+i+")'><div class='item_icon'><i class='material-icons'>delete</i></div></div></a></div>";
@@ -276,12 +276,14 @@ if (snapshot.val() && snapshot.val().length > 0) {
 }
 
 var openlessonindex = false;
+var isnewlesson = false;
 
-function editLesson(lessonindex) {
+function editLesson(lessonindex,newlesson) {
   if (!lessons) {
     lessons = [];
   }
   openlessonindex = lessonindex;
+  isnewlesson = newlesson ? true : false;
   gid("editlessontitle").innerHTML = "Edit Lesson "+(lessonindex+1);
   gid("editlessontitle2").innerHTML = "Edit Lesson "+(lessonindex+1)+" Quiz Questions";
   gid("lessons_main").style.display = "none";
@@ -315,6 +317,9 @@ for (var i = 0; i < Object.keys(langs).length; i++) {
   updatedata.title[Object.keys(langs)[i]] = gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
   updatedata.video[Object.keys(langs)[i]] = gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value || null;
   updatedata.text[Object.keys(langs)[i]] = gid("lesson_text").querySelector(".lang_"+Object.keys(langs)[i]).value || null;
+}
+if (isnewlesson) {
+  updatedata.id = Date.now();
 }
 createPostProgress("Saving lesson")
 firebase.database().ref("lessons/"+openlessonindex).update(updatedata).then(function() {

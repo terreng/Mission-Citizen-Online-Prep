@@ -320,3 +320,41 @@ nav {
     border-radius: 10px;
     border: 1px solid #7cb342;
 }
+
+.question_question {
+    font-size: 22px;
+}
+
+.question_options {
+    margin: 15px 0px;
+    font-size: 20px;
+}
+
+.question_options > div {
+    margin: 8px 0px;
+    overflow: hidden;
+}
+
+.question_options > div > div:nth-child(1) {
+    float: left;
+}
+
+.question_options > div > div:nth-child(2) {
+    width: calc(100% - 36px);
+    float: left;
+    min-height: 30px;
+    padding-top: 3px;
+    padding-left: 6px;
+}
+
+.question_options > div input[type=radio] {
+    height: 18px;
+    width: 18px;
+    margin: 6px;
+}
+
+.question_subtitle {
+    color: #545454;
+    padding-bottom: 6px;
+    font-size: 17px;
+}

@@ -624,9 +624,81 @@ var lessondata = lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1];
 doAuthentication(cookies,function(userdata) {
 if (query.id) {
 
+if (query.step && query.step !== "NaN" && String(Number(query.step)) == query.step) {
+  query.step = Number(query.step);
+} else {
+  query.step = 0;
+}
+
 admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id).once("value").then(function(snapshot) {
 
-if (snapshot.val()) {
+if (snapshot.val() && !((query.step || 0) > snapshot.val().length*2) && ((snapshot.val().choices || []).length*2 == query.step || ((snapshot.val().choices || []).length*2 == query.step+1 && query.step > 0))) {
+
+  admin.database().ref("lessonhistory/lessons/"+snapshot.val().lessonhistoryid+"/lessons/"+snapshot.val().lessonindex).once("value").then(function(snapshot2) {
+
+  if (snapshot2.val() && snapshot2.val().id == snapshot.val().lessonid && snapshot2.val().questions && snapshot2.val().questions.length > 0) {
+
+    var questions_shuffled = shuffleArray(snapshot2.val().questions,snapshot.val().date);
+    var question_index = Math.floor(query.step/2)*2;
+
+    var pendhtml = "";
+
+    pendhtml += '<main><div><div class="question_subtitle">'+localize(localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length)})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div><form action="/quiz_submit?id='+query.id+'" method="POST"><div class="question_options">';
+
+    if (!questions_shuffled[question_index].answers || !(questions_shuffled[question_index].answers.length > 0)) {
+      return internalServerError(undefined,true);
+    }
+
+    var options_shuffled = shuffleArray(questions_shuffled[question_index].answers,snapshot.val().date+question_index);
+
+    var selected_options = [];
+    var hasrightanswer = false;
+
+    for (var i = 0; i < options_shuffled.length; i++) {
+      if (options_shuffled[i].correct) {
+        if (hasrightanswer == false) {
+          hasrightanswer = true;
+        } else {
+          continue;
+        }
+      } else {
+        if (selected_options.length == 3 && !hasrightanswer) {
+          continue;
+        }
+      }
+      selected_options.push(options_shuffled[i]);
+    }
+
+    if (!hasrightanswer) {
+      return internalServerError(undefined,true);
+    }
+
+    for (var i = 0; i < selected_options.length; i++) {
+      pendhtml += '<div><div><input type="radio" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label></div></div>'
+    }
+
+    pendhtml += '</div>'+(query.error == "nooption" ? '<div class="question_error">'+localizations[cookies.lang].general.nooption+'</div>' : '')+'<div style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.submit+'" style="width: 200px;float:right;"></div></form></div></main>'
+
+    fs.readFile("index.html", 'utf8', function(error, data) {
+      if (error) {
+        return internalServerError(error);
+      }
+      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+      if (!data) {
+        return internalServerError();
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
+      res.write(data, "utf-8");
+      res.end();
+    })
+
+  } else {
+    return internalServerError(undefined,true);
+  }
+
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
 
 } else {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz"});
@@ -636,19 +708,6 @@ if (snapshot.val()) {
 }).catch(function(error) {
   return internalServerError(error);
 });
-
-  fs.readFile("index.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": localize(quiztemplate,cookies.lang,{})})
-    if (!data) {
-      return internalServerError();
-    }
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
-    res.write(data, "utf-8");
-    res.end();
-  })
 } else {
 admin.database().ref("users/"+cookies.code+"/quizzes").orderByChild("lessonid").equalTo(lessondata.id).limitToLast(1).once("value").then(function(snapshot) {
 if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
@@ -917,4 +976,28 @@ admin.database().ref("lessonhistory/lessons/"+admin.database().ref("lessonhistor
 }).catch(function(error) {
   console.error(error);
 })
+}
+
+function randomFromSeed(seed) {
+  var x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function shuffleArray(a,seed) {
+
+var calls = 0;
+
+var randy = function() {return Math.random()};
+if (seed) {
+randy = function() {calls += 1; return randomFromSeed(seed+calls || 1)};
+}
+
+  var j, x, i;
+  for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(randy() * (i + 1));
+      x = a[i];
+      a[i] = a[j];
+      a[j] = x;
+  }
+return a;
 }

@@ -622,6 +622,21 @@ if (url.indexOf("/lesson/") == 0 && url.split("/lesson/")[1].indexOf("/quiz") > 
 var lessonnumber = Number(url.split("/lesson/")[1].split("/quiz")[0]);
 var lessondata = lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1];
 doAuthentication(cookies,function(userdata) {
+if (query.id) {
+
+admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id).once("value").then(function(snapshot) {
+
+if (snapshot.val()) {
+
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz"});
+  res.end();
+}
+
+}).catch(function(error) {
+  return internalServerError(error);
+});
+
   fs.readFile("index.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
@@ -634,6 +649,41 @@ doAuthentication(cookies,function(userdata) {
     res.write(data, "utf-8");
     res.end();
   })
+} else {
+admin.database().ref("users/"+cookies.code+"/quizzes").orderByChild("lessonid").equalTo(lessondata.id).limitToLast(1).once("value").then(function(snapshot) {
+if (snapshot.val() && Object.keys(snapshot.val()).length == 1) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz?id="+Object.keys(snapshot.val())[0]+"&step="+((snapshot.val()[Object.keys(snapshot.val())].choices || []).length*2)});
+  res.end();
+} else {
+
+admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1).once("value").then(function(snapshot2) {
+
+  var lastlessons = snapshot2.val();
+    
+  if (lastlessons && Object.keys(lastlessons).length == 1) {
+    var lessonhistoryid = Object.keys(lastlessons)[0];
+    lastlessons = lastlessons[Object.keys(lastlessons)[0]];
+  } else {
+    return internalServerError(error);
+  }
+
+  var newquizid = admin.database().ref("users/"+cookies.code+"/quizzes").push().key;
+  admin.database().ref("users/"+cookies.code+"/quizzes/"+newquizid).set({date: Date.now(), lessondate: lastlessons.date, lessonhistoryid: lessonhistoryid, lessonid: lessondata.id, lessonindex: lessonnumber-1}).then(function() {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz?id="+newquizid+"&step=0"});
+    res.end();
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+
+}).catch(function(error) {
+  return internalServerError(error);
+});
+
+}
+}).catch(function(error) {
+  return internalServerError(error);
+});
+}
 });
 } else {
 

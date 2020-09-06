@@ -57,11 +57,12 @@
             "fullquiz": "Practice Quiz",
             "contact": "Need more help?",
             "email": "missioncitizen@gmail.com",
+            "phone_numbersonly": "5037656867",
             "phone": "503-765-6867",
             "startquiz": "Continue to quiz",
             "resumequiz": "Resume quiz",
             "question_label": "Question {NUM} of {TOTAL_NUM}",
-            "noquestion": "Please choose an option",
+            "nooption": "Please select an option",
             "submit": "Submit",
             "continue": "Continue"
         }

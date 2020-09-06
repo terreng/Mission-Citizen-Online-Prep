@@ -347,6 +347,11 @@ nav {
     padding-left: 6px;
 }
 
+.question_options > div > div:nth-child(2) > label {
+    display: block;
+    width: 100%;
+}
+
 .question_options > div input[type=radio] {
     height: 18px;
     width: 18px;
@@ -357,4 +362,8 @@ nav {
     color: #545454;
     padding-bottom: 6px;
     font-size: 17px;
+}
+
+.question_error {
+    color: red;
 }

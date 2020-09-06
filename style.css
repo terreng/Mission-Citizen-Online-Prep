@@ -331,7 +331,7 @@ nav {
 }
 
 .question_options > div {
-    margin: 8px 0px;
+    margin: 9px 0px;
     overflow: hidden;
 }
 
@@ -356,7 +356,7 @@ nav {
 .question_options > div > div:nth-child(2) {
     width: calc(100% - 36px);
     float: left;
-    min-height: 30px;
+    min-height: 26px;
     padding-top: 3px;
     padding-left: 6px;
 }
@@ -396,4 +396,14 @@ nav {
 
 .question_error {
     color: red;
+}
+
+.quiz_results_title {
+    font-size: 20px;
+    padding-bottom: 18px;
+}
+
+.quiz_results_results {
+    font-size: 28px;
+    padding-bottom: 6px;
 }

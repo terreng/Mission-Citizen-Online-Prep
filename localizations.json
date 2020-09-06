@@ -67,7 +67,14 @@
             "incorrect": "Incorrect",
             "nooption": "Please select an option",
             "submit": "Submit",
-            "continue": "Continue"
+            "continue": "Continue",
+            "lessonquizresults": "Lesson #{NUM} Quiz Results",
+            "review": "Review your answers",
+            "backtolesson": "Back to lesson",
+            "continuelesson": "Continue to next lesson",
+            "continuequiz": "Continue to practice quiz",
+            "correctamount": "{NUM} out of {TOTAL_NUM} correct",
+            "improvedamount": "+{NUM} higher than last time"
         }
     },
     "es": {

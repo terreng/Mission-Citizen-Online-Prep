@@ -639,11 +639,11 @@ if (snapshot.val() && !((query.step || 0) > snapshot.val().length*2) && ((snapsh
   if (snapshot2.val() && snapshot2.val().id == snapshot.val().lessonid && snapshot2.val().questions && snapshot2.val().questions.length > 0) {
 
     var questions_shuffled = shuffleArray(snapshot2.val().questions,snapshot.val().date);
-    var question_index = Math.floor(query.step/2)*2;
-
-    var pendhtml = "";
-
-    pendhtml += '<main><div><div class="question_subtitle">'+localize(localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length)})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div><form action="/quiz_submit?id='+query.id+'" method="POST"><div class="question_options">';
+    var question_index = Math.floor(query.step/2);
+    var reasoning = false;
+    if (question_index*2 !== query.step) {
+      reasoning = true;
+    }
 
     if (!questions_shuffled[question_index].answers || !(questions_shuffled[question_index].answers.length > 0)) {
       return internalServerError(undefined,true);
@@ -673,11 +673,15 @@ if (snapshot.val() && !((query.step || 0) > snapshot.val().length*2) && ((snapsh
       return internalServerError(undefined,true);
     }
 
+    var pendhtml = "";
+
+    pendhtml += '<main><div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (selected_options[snapshot.val().choices[snapshot.val().choices.length-1][0]].correct ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div><form action="/quiz_submit?id='+query.id+'" method="POST"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
+
     for (var i = 0; i < selected_options.length; i++) {
-      pendhtml += '<div><div><input type="radio" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label></div></div>'
+      pendhtml += '<div'+(reasoning ? (selected_options[i].correct ? ' class="correct"' : (snapshot.val().choices[snapshot.val().choices.length-1][0] == i ? ' class="incorrect"' : '')) : '')+'><div><input'+(reasoning ? (snapshot.val().choices[snapshot.val().choices.length-1][0] == i ? ' checked disabled' : ' disabled') : '')+' type="radio" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && reasoning) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
     }
 
-    pendhtml += '</div>'+(query.error == "nooption" ? '<div class="question_error">'+localizations[cookies.lang].general.nooption+'</div>' : '')+'<div style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.submit+'" style="width: 200px;float:right;"></div></form></div></main>'
+    pendhtml += '</div>'+(reasoning ? "</form>" : "")+(query.error == "nooption" ? '<div class="question_error">'+localizations[cookies.lang].general.nooption+'</div>' : '')+'<div style="overflow:hidden;margin-top:12px;">'+(reasoning ? '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step+1)+'" method="GET">' : '')+'<input type="submit" value="'+(reasoning ? localizations[cookies.lang].general.continue : localizations[cookies.lang].general.submit)+'" style="width: 200px;float:right;">'+(reasoning ? '</form>' : '')+'</div>'+(reasoning ? '' : '</form>')+'</div></main>'
 
     fs.readFile("index.html", 'utf8', function(error, data) {
       if (error) {

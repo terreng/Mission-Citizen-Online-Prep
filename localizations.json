@@ -62,6 +62,9 @@
             "startquiz": "Continue to quiz",
             "resumequiz": "Resume quiz",
             "question_label": "Question {NUM} of {TOTAL_NUM}",
+            "question_result_label": "Question {NUM} of {TOTAL_NUM}: {RESULT}",
+            "correct": "Correct",
+            "incorrect": "Incorrect",
             "nooption": "Please select an option",
             "submit": "Submit",
             "continue": "Continue"

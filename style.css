@@ -335,6 +335,20 @@ nav {
     overflow: hidden;
 }
 
+.question_options > div.correct {
+    background: #dcedc8;
+    padding: 5px 0px;
+    border-radius: 12px;
+    border: 1px solid #9ccc65;
+}
+
+.question_options > div.incorrect {
+    background: #ffcdd2;
+    padding: 5px 0px;
+    border-radius: 12px;
+    border: 1px solid #e57373;
+}
+
 .question_options > div > div:nth-child(1) {
     float: left;
 }
@@ -350,13 +364,26 @@ nav {
 .question_options > div > div:nth-child(2) > label {
     display: block;
     width: 100%;
+}
+
+.question_options:not(.reasoning) > div > div:nth-child(2) > label {
     cursor: pointer;
+}
+
+.question_options > div > div:nth-child(2) > div:nth-child(2) {
+    font-size: 18px;
+    color: #5d5d5d;
+    padding-top: 7px;
+    padding-bottom: 4px;
 }
 
 .question_options > div input[type=radio] {
     height: 18px;
     width: 18px;
     margin: 6px;
+}
+
+.question_options:not(.reasoning) > div input[type=radio] {
     cursor: pointer;
 }
 

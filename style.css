@@ -363,7 +363,7 @@ nav {
 
 .question_options > div > div:nth-child(2) > label {
     display: block;
-    width: 100%;
+    width: calc(100% - 10px);
 }
 
 .question_options:not(.reasoning) > div > div:nth-child(2) > label {
@@ -375,6 +375,7 @@ nav {
     color: #5d5d5d;
     padding-top: 7px;
     padding-bottom: 4px;
+    width: calc(100% - 10px);
 }
 
 .question_options > div input[type=radio] {

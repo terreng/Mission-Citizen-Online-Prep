@@ -131,7 +131,7 @@ if (url == "/login_language") {
   })
 } else {
 if (url == "/language_submit") {
-if (body.language && Object.keys(languages).indexOf(body.language) > -1) {
+if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'lang='+body.language});
   res.end();
 } else {
@@ -179,7 +179,7 @@ if (url == "/login_code") {
   })
 } else {
 if (url == "/login_submit") {
-if (body.intent !== "code" && body.intent !== "login" && body.intent !== "register") {
+if (!(body && (body.intent !== "code" || body.intent == "login" || body.intent == "register"))) {
   res.writeHead(400);
   res.end();
   return;
@@ -422,7 +422,7 @@ if (userdata.email) {
 });
 } else {
 if (url == "/account_submit") {
-if (body.intent !== "changename" && body.intent !== "changeemail" && body.intent !== "changepassword") {
+if (!(body && (body.intent == "changename" || body.intent == "changeemail" || body.intent == "changepassword"))) {
   res.writeHead(400);
   res.end();
   return;
@@ -618,6 +618,90 @@ doAuthentication(cookies,function(userdata) {
   })
 });
 } else {
+if (url == "/quiz_submit") {
+if (body && query.id && body.option != null && query.index != null) {
+if (body.option !== "NaN" && String(Number(body.option)) == body.option && query.index !== "NaN" && String(Number(query.index)) == query.index) {
+  body.option = Number(body.option);
+  query.index = Number(query.index);
+} else {
+  res.writeHead(400);
+  res.end();
+  return;
+}
+doAuthentication(cookies,function(userdata) {
+
+admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id).once("value").then(function(snapshot) {
+
+if (snapshot.val() && (snapshot.val().choices || []).length == query.index) {
+
+  admin.database().ref("lessonhistory/lessons/"+snapshot.val().lessonhistoryid+"/lessons/"+snapshot.val().lessonindex).once("value").then(function(snapshot2) {
+
+    if (snapshot2.val() && snapshot2.val().id == snapshot.val().lessonid && snapshot2.val().questions && snapshot2.val().questions.length > 0) {
+
+      var questions_shuffled = shuffleArray(snapshot2.val().questions,snapshot.val().date);
+      var question_index = query.index;
+
+      if (!questions_shuffled[question_index].answers || !(questions_shuffled[question_index].answers.length > 0)) {
+        return internalServerError(undefined,true);
+      }
+  
+      var options_shuffled = shuffleArray(questions_shuffled[question_index].answers,snapshot.val().date+question_index);
+  
+      var selected_options = [];
+      var hasrightanswer = false;
+  
+      for (var i = 0; i < options_shuffled.length; i++) {
+        if (options_shuffled[i].correct) {
+          if (hasrightanswer == false) {
+            hasrightanswer = true;
+          } else {
+            continue;
+          }
+        } else {
+          if (selected_options.length == 3 && !hasrightanswer) {
+            continue;
+          }
+        }
+        selected_options.push(options_shuffled[i]);
+      }
+  
+      if (!hasrightanswer) {
+        return internalServerError(undefined,true);
+      }
+
+      admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/choices/"+query.index).set([body.option,selected_options[body.option].correct ? 1 : 0]).then(function() {
+
+        res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+(snapshot.val().lessonindex+1)+"/quiz?id="+query.id+"&step="+((query.index*2)+1)});
+        res.end();
+
+      }).catch(function(error) {
+        return internalServerError(error);
+      });
+
+    } else {
+      res.writeHead(400);
+      res.end();
+    }
+
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+
+} else {
+  res.writeHead(400);
+  res.end();
+}
+
+}).catch(function(error) {
+  return internalServerError(error);
+});
+
+});
+} else {
+  res.writeHead(400);
+  res.end();
+}
+} else {
 if (url.indexOf("/lesson/") == 0 && url.split("/lesson/")[1].indexOf("/quiz") > -1 && url.split("/lesson/")[1].indexOf("/quiz") == url.split("/lesson/")[1].indexOf("/") && lessons && lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1]) {
 var lessonnumber = Number(url.split("/lesson/")[1].split("/quiz")[0]);
 var lessondata = lessons[Number(url.split("/lesson/")[1].split("/quiz")[0])-1];
@@ -675,7 +759,7 @@ if (snapshot.val() && !((query.step || 0) > snapshot.val().length*2) && ((snapsh
 
     var pendhtml = "";
 
-    pendhtml += '<main><div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (selected_options[snapshot.val().choices[snapshot.val().choices.length-1][0]].correct ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div><form action="/quiz_submit?id='+query.id+'" method="POST"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
+    pendhtml += '<main><div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (selected_options[snapshot.val().choices[snapshot.val().choices.length-1][0]].correct ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div><form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
 
     for (var i = 0; i < selected_options.length; i++) {
       pendhtml += '<div'+(reasoning ? (selected_options[i].correct ? ' class="correct"' : (snapshot.val().choices[snapshot.val().choices.length-1][0] == i ? ' class="incorrect"' : '')) : '')+'><div><input'+(reasoning ? (snapshot.val().choices[snapshot.val().choices.length-1][0] == i ? ' checked disabled' : ' disabled') : '')+' type="radio" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && reasoning) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
@@ -763,6 +847,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
     res.end();
   })
 
+}
 }
 }
 }

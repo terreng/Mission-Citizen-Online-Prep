@@ -178,7 +178,7 @@ if (url == "/login_code") {
   })
 } else {
 if (url == "/login_submit") {
-if (!(body && (body.intent !== "code" || body.intent == "login" || body.intent == "register"))) {
+if (!(body && (body.intent == "code" || body.intent == "login" || body.intent == "register"))) {
   res.writeHead(400);
   res.end();
   return;
@@ -745,7 +745,40 @@ if (userquizdata && !((query.step || 0) > userquizdata.length*2) && ((userquizda
 
     pendhtml += '<main><div>';
 
-    pendhtml += '<div class="quiz_results_title">'+localize(localizations[cookies.lang].general.lessonquizresults,cookies.lang,{"NUM":String(lessonnumber)})+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(userquizdata.choices.filter(function(a) {return a[1] == 1}).length),"TOTAL_NUM":String(snapshot2.val().questions.length)})+'</div>';
+    var correct = userquizdata.choices.filter(function(a) {return a[1] == 1}).length;
+    pendhtml += '<div class="quiz_results_title">'+localize(localizations[cookies.lang].general.lessonquizresults,cookies.lang,{"NUM":String(lessonnumber)})+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(correct),"TOTAL_NUM":String(snapshot2.val().questions.length)})+'</div>';
+
+    if (correct == snapshot2.val().questions.length || correct == snapshot2.val().questions.length-1) {
+      pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_done+'</div>';
+    } else {
+      if (correct/snapshot2.val().questions.length < 0.6) {
+        pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_poor+'</div>';
+      } else {
+
+        var foundlastquiz = false;
+        for (var i = 0; i < Object.keys(userdata.quizzes).length; i++) {
+          if (Object.keys(userdata.quizzes)[i] !== query.id && userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid == userquizdata.lessonid && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices) {
+            foundlastquiz = userdata.quizzes[Object.keys(userdata.quizzes)[i]];
+          }
+        }
+        if (foundlastquiz && correct > foundlastquiz.choices.filter(function(a) {return a[1] == 1}).length) {
+          pendhtml += '<div class="quiz_results_subtitle">'+localize(localizations[cookies.lang].general.feedback_improvement,cookies.lang,{"NUM":String(correct-foundlastquiz.choices.filter(function(a) {return a[1] == 1}).length)})+'</div>';
+        } else {
+          pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_generic+'</div>';
+        }
+
+      }
+    }
+
+    if (correct == snapshot2.val().questions.length || correct == snapshot2.val().questions.length-1) {
+    if (lessons[lessonnumber]) {
+      pendhtml += '<form action="/lesson/'+(lessonnumber+1)+'" method="GET" style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.continuelesson+'" style="width: 250px;float:right;"></form>'
+    } else {
+      pendhtml += '<form action="/lesson/'+(lessonnumber+1)+'" method="GET" style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.continuequiz+'" style="width: 250px;float:right;"></form>'
+    }
+    } else {
+      pendhtml += '<form action="/lesson/'+lessonnumber+'" method="GET" style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.backtolesson+'" style="width: 200px;float:left;"></form>'
+    }
 
     pendhtml += '</div></main>';
 

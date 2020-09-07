@@ -404,6 +404,11 @@ nav {
 }
 
 .quiz_results_results {
-    font-size: 28px;
-    padding-bottom: 6px;
+    font-size: 32px;
+    padding-bottom: 10px;
+}
+
+.quiz_results_subtitle {
+    font-size: 20px;
+    padding-bottom: 18px;
 }

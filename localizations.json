@@ -74,7 +74,10 @@
             "continuelesson": "Continue to next lesson",
             "continuequiz": "Continue to practice quiz",
             "correctamount": "{NUM} out of {TOTAL_NUM} correct",
-            "improvedamount": "+{NUM} higher than last time"
+            "feedback_poor": "You might want to go back and study the lesson again.",
+            "feedback_generic": "Keep up the good work!",
+            "feedback_improvement": "Great job! You scored {NUM} higher than last time.",
+            "feedback_done": "Great work! You're ready to move on."
         }
     },
     "es": {

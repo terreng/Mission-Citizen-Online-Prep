@@ -825,6 +825,9 @@ if (userquizdata && !((query.step || 0) > userquizdata.length*2) && ((userquizda
           continue;
         }
       }
+      if (selected_options.length == 4) {
+        continue;
+      }
       selected_options.push(options_shuffled[i]);
     }
 

@@ -618,14 +618,18 @@ doAuthentication(cookies,function(userdata) {
 });
 } else {
 if (url == "/quiz_submit") {
-if (body && query.id && body.option != null && query.index != null) {
-if (body.option !== "NaN" && String(Number(body.option)) == body.option && query.index !== "NaN" && String(Number(query.index)) == query.index) {
-  body.option = Number(body.option);
+if (body && query.id && query.index != null) {
+if (query.index !== "NaN" && String(Number(query.index)) == query.index) {
   query.index = Number(query.index);
 } else {
   res.writeHead(400);
   res.end();
   return;
+}
+if (body.option != null && body.option !== "NaN" && String(Number(body.option)) == body.option) {
+  body.option = Number(body.option);
+} else {
+  body.option = false;
 }
 doAuthentication(cookies,function(userdata) {
 
@@ -670,6 +674,8 @@ if (userquizdata && (userquizdata.choices || []).length == query.index) {
         return internalServerError(undefined,true);
       }
 
+      if (body.option !== false) {
+
       admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/choices/"+query.index).set([body.option,selected_options[body.option].correct ? 1 : 0]).then(function() {
 
         res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+(userquizdata.lessonindex+1)+"/quiz?id="+query.id+"&step="+((query.index*2)+1)});
@@ -678,6 +684,13 @@ if (userquizdata && (userquizdata.choices || []).length == query.index) {
       }).catch(function(error) {
         return internalServerError(error);
       });
+
+      } else {
+
+        res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+(userquizdata.lessonindex+1)+"/quiz?id="+query.id+"&step="+((query.index*2)+"&error=nooption")});
+        res.end();
+
+      }
 
     } else {
       res.writeHead(400);
@@ -689,7 +702,7 @@ if (userquizdata && (userquizdata.choices || []).length == query.index) {
   });
 
 } else {
-  res.writeHead(400);
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+(userquizdata.lessonindex+1)+"/quiz?id="+query.id});
   res.end();
 }
 

@@ -1007,7 +1007,19 @@ return foundmatch;
 function renderSidebar(cookies,userdata,tab) {
 var pendhtml = '<a href="/"'+(tab == "home" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" /></svg></div><div>{general.home}</div></a>';
 for (var i = 1; i < lessons.length+1; i++) {
-pendhtml += '<a href="/lesson/'+i+'"'+(tab == i ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><div>'+localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(i)})+'</div></a>'
+var earned_star = false;
+var earned_completion = false;
+if (userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
+for (var e = 0; e < Object.keys(userdata.quizzes).length; e++) {
+  if (userdata.quizzes[Object.keys(userdata.quizzes)[e]].lessonid == lessons[i-1].id && userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices && userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length) {
+    earned_completion = true;
+    if (userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.filter(function(a) {return a[1] == 1}).length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length || userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.filter(function(a) {return a[1] == 1}).length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length-1) {
+      earned_star = true;
+    }
+  }
+}
+}
+pendhtml += '<a href="/lesson/'+i+'"'+(tab == i ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><div>'+localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(i)})+(earned_star ? '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"></path></svg>' : (earned_completion? '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>' : ''))+'</div></a>'
 }
 pendhtml += '<a href="/quiz"'+(tab == "quiz" ? ' class="active"' : '')+'><div><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3Z" /></svg></div><div>{general.fullquiz}</div></a>'
 

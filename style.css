@@ -172,7 +172,7 @@ nav > a:active, nav > a.active {
     background: #e0ebf7;
 }
 
-nav > a:hover div:first-child svg path, nav > a:focus div:first-child svg path, nav > a:active div:first-child svg path, nav > a.active div:first-child svg path {
+nav > a:hover svg path, nav > a:focus svg path, nav > a:active svg path, nav > a.active svg path {
     fill: #364659;
 }
 
@@ -204,6 +204,14 @@ nav > a div:last-child {
     height: 40px;
     line-height: 40px;
     padding-left: 5px;
+}
+
+nav > a div:last-child > svg {
+    float: right;
+    padding: 8px;
+    width: 24px;
+    height: 24px;
+    padding-right: 10px;
 }
 
 nav > img {

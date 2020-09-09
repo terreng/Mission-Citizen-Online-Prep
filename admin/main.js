@@ -391,6 +391,8 @@ function editQuestion(index) {
     gid("question_reasoning").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Correct answers justification"></textarea>';
   }
 
+  gid("question_type").value = String(questions[questionindex].type || 1)
+
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].question) ? questions[questionindex].question[Object.keys(langs)[i]] || "" : "")
     gid("question_subtitle").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].subtitle) ? questions[questionindex].subtitle[Object.keys(langs)[i]] || "" : "")
@@ -496,6 +498,7 @@ function saveQuestionChanges() {
     updatedata.question[Object.keys(langs)[i]] = gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
     updatedata.subtitle[Object.keys(langs)[i]] = gid("question_subtitle").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
     updatedata.reasoning[Object.keys(langs)[i]] = gid("question_reasoning").querySelector(".lang_"+Object.keys(langs)[i]).value || null;
+    updatedata.type = Number(gid("question_type").value);
   }
   createPostProgress("Saving question")
   firebase.database().ref("lessons/"+openlessonindex+"/questions/"+questionindex).update(updatedata).then(function() {

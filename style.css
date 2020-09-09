@@ -333,6 +333,12 @@ nav {
     font-size: 22px;
 }
 
+.question_question_subtitle {
+    padding-top: 4px;
+    font-size: 19px;
+    color: #484848;
+}
+
 .question_options {
     margin: 15px 0px;
     font-size: 20px;

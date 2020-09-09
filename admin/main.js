@@ -382,6 +382,10 @@ function editQuestion(index) {
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?">';
   }
+  gid("question_subtitle").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("question_subtitle").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Subtitle ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Optional question subtitle">';
+  }
   gid("question_reasoning").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("question_reasoning").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Correct answers justification"></textarea>';
@@ -389,6 +393,7 @@ function editQuestion(index) {
 
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].question) ? questions[questionindex].question[Object.keys(langs)[i]] || "" : "")
+    gid("question_subtitle").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].subtitle) ? questions[questionindex].subtitle[Object.keys(langs)[i]] || "" : "")
     gid("question_reasoning").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].reasoning) ? questions[questionindex].reasoning[Object.keys(langs)[i]] || "" : "")
   }
 
@@ -484,10 +489,12 @@ function saveQuestionChanges() {
   var updatedata = {
     "answers": answers,
     "question": {},
-    "reasoning": {}
+    "reasoning": {},
+    "subtitle": {}
   }
   for (var i = 0; i < Object.keys(langs).length; i++) {
     updatedata.question[Object.keys(langs)[i]] = gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
+    updatedata.subtitle[Object.keys(langs)[i]] = gid("question_subtitle").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
     updatedata.reasoning[Object.keys(langs)[i]] = gid("question_reasoning").querySelector(".lang_"+Object.keys(langs)[i]).value || null;
   }
   createPostProgress("Saving question")

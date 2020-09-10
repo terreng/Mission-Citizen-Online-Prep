@@ -694,7 +694,6 @@ if (userquizdata && (userquizdata.choices || []).length == query.index) {
       if (body.option !== false && ((typeof body.option == "number" && !multiple) || (typeof body.option == "object" && body.option.length == (multiple || 1)))) {
 
       var iscorrect = false;
-      if (body.option) {
       if (typeof body.option == "number") {
         iscorrect = selected_options[body.option].correct || false;
       } else {
@@ -706,7 +705,6 @@ if (userquizdata && (userquizdata.choices || []).length == query.index) {
           }
         }
         }
-      }
       }
 
       admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/choices/"+query.index).set([body.option,iscorrect ? 1 : 0]).then(function() {

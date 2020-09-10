@@ -66,6 +66,7 @@
             "correct": "Correct",
             "incorrect": "Incorrect",
             "nooption": "Please select an option",
+            "nooption_multiple": "Please select {NUM} options",
             "submit": "Submit",
             "continue": "Continue",
             "lessonquizresults": "Lesson #{NUM} Quiz Results",

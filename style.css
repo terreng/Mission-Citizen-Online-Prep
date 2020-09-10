@@ -392,13 +392,13 @@ nav {
     width: calc(100% - 10px);
 }
 
-.question_options > div input[type=radio] {
+.question_options > div input[type=radio], .question_options > div input[type=checkbox] {
     height: 18px;
     width: 18px;
     margin: 6px;
 }
 
-.question_options:not(.reasoning) > div input[type=radio] {
+.question_options:not(.reasoning) > div input[type=radio], .question_options:not(.reasoning) > div input[type=checkbox] {
     cursor: pointer;
 }
 

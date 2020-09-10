@@ -19,7 +19,7 @@
     width: 304px;
     margin: 0 auto;
 ">
-<form action="/login_register{FORM_ACTION_QUERY}" method="GET">
+<form action="/login_register{FORM_ACTION_QUERY}" method="POST">
     <input style="display: none;">
     <input type="submit" value="{login.login_signup}" style="
     margin-top: 10px;
@@ -54,7 +54,7 @@
 </div>
 </div>
 <script>
-window.history.replaceState(undefined,undefined,"/login_account")
+window.history.replaceState(undefined,undefined,"/login_account{CONTINUE_QUERY}")
 
 var error_messages = {ERROR_MESSAGES};
 

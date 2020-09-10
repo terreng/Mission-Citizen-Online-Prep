@@ -153,6 +153,11 @@ var error_text = {
   nopassword: localizations[cookies.lang].login.nopassword
 }
 if (url == "/login") {
+if (cookies.code) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"});
+  res.end();
+  return;
+}
   fs.readFile("login_type.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
@@ -164,11 +169,16 @@ if (url == "/login") {
   })
 } else {
 if (url == "/login_code") {
+if (cookies.code) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"});
+  res.end();
+  return;
+}
   fs.readFile("login.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "SUBTITLE": (query.error == "badcode" ? '<font color="red">{login.badcode}</font>' : "{login.subtitle}"), "VALUE": ((query.code && query.code.replace(/\s/g,'')) ? String(query.code).replace(/\s/g,'').substring(0,4)+(String(query.code).replace(/\s/g,'').length > 4 ? " "+String(query.code).replace(/\s/g,'').substring(4,8)+(String(query.code).replace(/\s/g,'').length > 8 ? " "+String(query.code).replace(/\s/g,'').substring(8,12) : "") : "") : "")});
+    data = localize(data,cookies.lang,{"CONTINUE_QUERY": (query.continue ? "?continue="+query.continue : ""), "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "SUBTITLE": (query.error == "badcode" ? '<font color="red">{login.badcode}</font>' : "{login.subtitle}"), "VALUE": ((query.code && query.code.replace(/\s/g,'')) ? String(query.code).replace(/\s/g,'').substring(0,4)+(String(query.code).replace(/\s/g,'').length > 4 ? " "+String(query.code).replace(/\s/g,'').substring(4,8)+(String(query.code).replace(/\s/g,'').length > 8 ? " "+String(query.code).replace(/\s/g,'').substring(8,12) : "") : "") : "")});
     if (!data) {
       return internalServerError();
     }
@@ -354,22 +364,32 @@ function registerError(code) {
 }
 } else {
 if (url == "/login_account") {
+  if (cookies.code) {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"});
+    res.end();
+    return;
+  }
   fs.readFile("login_account.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"EMAIL_VALUE": query.email ? urlescape(query.email) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
+    data = localize(data,cookies.lang,{"CONTINUE_QUERY": (query.continue ? "?continue="+query.continue : ""), "EMAIL_VALUE": query.email ? urlescape(query.email) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
   })
 } else {
 if (url == "/login_register") {
+  if (cookies.code) {
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"});
+    res.end();
+    return;
+  }
   fs.readFile("login_register.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"EMAIL_VALUE": query.email ? urlescape(query.email) : "", "NAME_VALUE": query.name ? urlescape(query.name) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
+    data = localize(data,cookies.lang,{"CONTINUE_QUERY": (query.continue ? "?continue="+query.continue : ""), "EMAIL_VALUE": query.email ? urlescape(query.email) : "", "NAME_VALUE": query.name ? urlescape(query.name) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();

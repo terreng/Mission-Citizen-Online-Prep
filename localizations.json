@@ -70,6 +70,7 @@
             "submit": "Submit",
             "continue": "Continue",
             "lessonquizresults": "Lesson #{NUM} Quiz Results",
+            "fullquizresults": "Practice Quiz Results",
             "review": "Review your answers",
             "backtoresults": "Back to results",
             "backtolesson": "Back to lesson",
@@ -80,8 +81,10 @@
             "feedback_generic": "Keep up the good work!",
             "feedback_improvement": "Great job! You scored {NUM} higher than last time.",
             "feedback_done": "Great work! You're ready to move on.",
+            "feedback_pass": "feedback_pass",
+            "feedback_fail": "feedback_fail",
             "startfullquiz": "Start practice quiz",
-            "quizsubtitle": "Prepare for the test with a 10 question practice test. Answer at least 6 questions right to pass. You have up to 60 seconds to answer each question."
+            "quizsubtitle": "Prepare for the test with a 10 question practice test. Answer at least 6 questions correctly to pass. You have up to 60 seconds to answer each question."
         }
     },
     "es": {

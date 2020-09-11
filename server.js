@@ -662,7 +662,7 @@ if (body.option !== "NaN" && String(Number(body.option)) == body.option) {
 }
 doAuthentication(cookies,function(userdata) {
 
-if (userdata && userdata.quizzes && userdata.quizzes[query.id]) {
+if (userdata && userdata.quizzes && userdata.quizzes[query.id] && userdata.quizzes[query.id].type !== 0) {
 
 var userquizdata = userdata.quizzes[query.id];
 
@@ -784,7 +784,7 @@ if (userdata && userdata.quizzes && userdata.quizzes[query.id]) {
 
 var userquizdata = userdata.quizzes[query.id];
 
-if (userquizdata && !((query.step || 0) > (userquizdata.length*2)+1) && ((userquizdata.choices || []).length*2 == query.step || ((userquizdata.choices || []).length*2 == query.step+1 && query.step > 0) || (query.step == (userquizdata.length*2)+1))) {
+if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizdata.length*2)+1) && ((userquizdata.choices || []).length*2 == query.step || ((userquizdata.choices || []).length*2 == query.step+1 && query.step > 0) || (query.step == (userquizdata.length*2)+1))) {
 
   admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons/"+userquizdata.lessonindex).once("value").then(function(snapshot2) {
 
@@ -1050,6 +1050,149 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 });
 } else {
+if (url == "/quiz_submit_0") {
+if (body && query.id && query.index != null) {
+if (query.index !== "NaN" && String(Number(query.index)) == query.index) {
+  query.index = Number(query.index);
+} else {
+  res.writeHead(400);
+  res.end();
+  return;
+}
+if (body.option != null) {
+if (typeof body.option == "object" && body.option.length > 0) {
+  body.option = body.option.filter(function(a) {return (a !== "NaN" && String(Number(a)) == a)}).map(function(a) {return Number(a)})
+  if (body.option.length == 0) {
+    body.option = false;
+  }
+} else {
+if (body.option !== "NaN" && String(Number(body.option)) == body.option) {
+  body.option = Number(body.option);
+} else {
+  body.option = false;
+}
+}
+}
+doAuthentication(cookies,function(userdata) {
+
+if (userdata && userdata.quizzes && userdata.quizzes[query.id] && userdata.quizzes[query.id].type == 0) {
+
+var userquizdata = userdata.quizzes[query.id];
+
+if (userquizdata && (userquizdata.choices || []).length == query.index) {
+
+  admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons").once("value").then(function(snapshot2) {
+
+    var all_questions = [];
+    if (snapshot2.val() && snapshot2.val().length > 0) {
+      for (var i = 0; i < snapshot2.val().length; i++) {
+        if (snapshot2.val()[i].questions && snapshot2.val()[i].questions.length > 0) {
+          for (var e = 0; e < snapshot2.val()[i].questions.length; e++) {
+            all_questions.push(snapshot2.val()[i].questions[e]);
+          }
+        }
+      }
+    }
+
+    if (all_questions.length >= 10) {
+
+      var questions_shuffled = shuffleArray(all_questions,userquizdata.date);
+      questions_shuffled = questions_shuffled.splice(0,10);
+      var question_index = query.index;
+
+      if (!questions_shuffled[question_index].answers || !(questions_shuffled[question_index].answers.length > 0)) {
+        return internalServerError(undefined,true);
+      }
+
+      var multiple = questions_shuffled[question_index].type || false;
+      if (multiple == 1) {
+        multiple = false;
+      }
+  
+      var options_shuffled = shuffleArray(questions_shuffled[question_index].answers,userquizdata.date+question_index);
+  
+      var selected_options = [];
+      var hasrightanswer = 0;
+
+      for (var i = 0; i < options_shuffled.length; i++) {
+        if (options_shuffled[i].correct) {
+          if (hasrightanswer !== (multiple || 1)) {
+            hasrightanswer++;
+          } else {
+            continue;
+          }
+        } else {
+          if (selected_options.length == (((multiple || 1)*4)-(multiple || 1)) && hasrightanswer !== (multiple || 1)) {
+            continue;
+          }
+        }
+        if (selected_options.length == (multiple || 1)*4) {
+          continue;
+        }
+        selected_options.push(options_shuffled[i]);
+      }
+  
+      if (hasrightanswer !== (multiple || 1)) {
+        return internalServerError(undefined,true);
+      }
+
+      if (body.option !== false && ((typeof body.option == "number" && !multiple) || (typeof body.option == "object" && body.option.length == (multiple || 1)))) {
+
+      var iscorrect = false;
+      if (typeof body.option == "number") {
+        iscorrect = selected_options[body.option].correct || false;
+      } else {
+        if (body.option.length == multiple) {
+        iscorrect = true;
+        for (var i = 0; i < body.option.length; i++) {
+          if (selected_options[body.option[i]].correct !== true) {
+            iscorrect = false;
+          }
+        }
+        }
+      }
+
+      admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/choices/"+query.index).set([body.option,iscorrect ? 1 : 0]).then(function() {
+
+        res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+query.id+"&step="+((query.index)+1)});
+        res.end();
+
+      }).catch(function(error) {
+        return internalServerError(error);
+      });
+
+      } else {
+
+        res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+query.id+"&step="+((query.index)+"&error=nooption")});
+        res.end();
+
+      }
+
+    } else {
+      res.writeHead(400);
+      res.end();
+    }
+
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+
+} else {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+query.id});
+  res.end();
+}
+
+} else {
+  res.writeHead(400);
+  res.end();
+}
+
+});
+} else {
+  res.writeHead(400);
+  res.end();
+}
+} else {
 if (url.indexOf("/quiz") == 0) {
 
 doAuthentication(cookies,function(userdata) {
@@ -1068,66 +1211,52 @@ if (userdata && userdata.quizzes && userdata.quizzes[query.id]) {
 
 var userquizdata = userdata.quizzes[query.id];
 
-if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquizdata.choices || []).length == query.step || (query.step == (userquizdata.length)+1))) {
+if (userquizdata && userquizdata.type == 0 && !((query.step || 0) > (userquizdata.length)+1) && ((userquizdata.choices || []).length == query.step || (query.step == (userquizdata.length)+1))) {
 
   admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons").once("value").then(function(snapshot2) {
 
+  var all_questions = [];
   if (snapshot2.val() && snapshot2.val().length > 0) {
+    for (var i = 0; i < snapshot2.val().length; i++) {
+      if (snapshot2.val()[i].questions && snapshot2.val()[i].questions.length > 0) {
+        for (var e = 0; e < snapshot2.val()[i].questions.length; e++) {
+          all_questions.push(snapshot2.val()[i].questions[e]);
+        }
+      }
+    }
+  }
 
-    if (query.step/2 == snapshot2.val().questions.length || query.step == (snapshot2.val().questions.length*2)+1) {
+  if (all_questions.length >= 10) {
+
+    if (query.step == 10 || query.step == (10)+1) {
 
     var pendhtml = "";
 
     pendhtml += '<main><div>';
 
-    if (query.step/2 == snapshot2.val().questions.length) {
+    if (query.step == 10) {
 
     var correct = userquizdata.choices.filter(function(a) {return a[1] == 1}).length;
-    pendhtml += '<div class="quiz_results_title">'+localize(localizations[cookies.lang].general.lessonquizresults,cookies.lang,{"NUM":String(lessonnumber)})+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(correct),"TOTAL_NUM":String(snapshot2.val().questions.length)})+'</div>';
+    pendhtml += '<div class="quiz_results_title">'+localizations[cookies.lang].general.fullquizresults+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(correct),"TOTAL_NUM":String(10)})+'</div>';
 
-    if (correct == snapshot2.val().questions.length || correct == snapshot2.val().questions.length-1) {
-      pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_done+'</div>';
+    if (correct >= 6) {
+      pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_pass+'</div>';
     } else {
-      if (correct/snapshot2.val().questions.length < 0.6) {
-        pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_poor+'</div>';
-      } else {
-
-        var foundlastquiz = false;
-        for (var i = 0; i < Object.keys(userdata.quizzes).length; i++) {
-          if (Object.keys(userdata.quizzes)[i] !== query.id && userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid == userquizdata.lessonid && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices) {
-            foundlastquiz = userdata.quizzes[Object.keys(userdata.quizzes)[i]];
-          }
-        }
-        if (foundlastquiz && correct > foundlastquiz.choices.filter(function(a) {return a[1] == 1}).length) {
-          pendhtml += '<div class="quiz_results_subtitle">'+localize(localizations[cookies.lang].general.feedback_improvement,cookies.lang,{"NUM":String(correct-foundlastquiz.choices.filter(function(a) {return a[1] == 1}).length)})+'</div>';
-        } else {
-          pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_generic+'</div>';
-        }
-
-      }
+      pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_fail+'</div>';
     }
 
-    pendhtml += '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step+1)+'" method="POST" style="overflow:hidden;margin-bottom:22px;"><input type="submit" value="'+localizations[cookies.lang].general.review+'" style="width: 200px;float:left;"></form>'
-
-    if (correct == snapshot2.val().questions.length || correct == snapshot2.val().questions.length-1) {
-    if (lessons[lessonnumber]) {
-      pendhtml += '<form action="/lesson/'+(lessonnumber+1)+'" method="GET" style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.continuelesson+'" style="width: 250px;float:right;"></form>'
-    } else {
-      pendhtml += '<form action="/lesson/'+(lessonnumber+1)+'" method="GET" style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.continuequiz+'" style="width: 250px;float:right;"></form>'
-    }
-    } else {
-      pendhtml += '<form action="/lesson/'+lessonnumber+'" method="GET" style="overflow:hidden;margin-top:12px;"><input type="submit" value="'+localizations[cookies.lang].general.backtolesson+'" style="width: 200px;float:left;"></form>'
-    }
+    pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step+1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.review+'" style="width: 200px;float:left;"></form>'
 
     }
 
-    if (query.step == (snapshot2.val().questions.length*2)+1) {
+    if (query.step == (10)+1) {
 
       pendhtml += '<div class="quiz_results_title" style="font-size: 22px;">'+localizations[cookies.lang].general.review+'</div>';
 
-      pendhtml += '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
+      pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
 
-      var questions_shuffled = shuffleArray(snapshot2.val().questions,userquizdata.date);
+      var questions_shuffled = shuffleArray(all_questions,userquizdata.date);
+      questions_shuffled = questions_shuffled.splice(0,10);
 
       for (var question_index = 0; question_index < userquizdata.length; question_index++) {
   
@@ -1167,7 +1296,7 @@ if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquiz
         return internalServerError(undefined,true);
       }
   
-      pendhtml += '<div class="question_subtitle" style="padding-top: 20px;">'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (userquizdata.choices[question_index][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
+      pendhtml += '<div class="question_subtitle" style="padding-top: 20px;">'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (userquizdata.choices[question_index][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
   
       for (var i = 0; i < selected_options.length; i++) {
         pendhtml += '<div'+(selected_options[i].correct ? ' class="correct"' : ((typeof userquizdata.choices[question_index][0] == "number" ? userquizdata.choices[question_index][0] == i : userquizdata.choices[question_index][0].indexOf(i) > -1) ? ' class="incorrect"' : ''))+'><div><input'+((typeof userquizdata.choices[question_index][0] == "number" ? userquizdata.choices[question_index][0] == i : userquizdata.choices[question_index][0].indexOf(i) > -1) ? ' checked disabled' : ' disabled')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
@@ -1177,7 +1306,7 @@ if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquiz
   
       }
 
-      pendhtml += '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;margin-top:26px;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
+      pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;margin-top:26px;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
 
     }
 
@@ -1187,7 +1316,7 @@ if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquiz
       if (error) {
         return internalServerError(error);
       }
-      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
       }
@@ -1198,12 +1327,10 @@ if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquiz
 
     } else {
 
-    var questions_shuffled = shuffleArray(snapshot2.val().questions,userquizdata.date);
-    var question_index = Math.floor(query.step/2);
+    var questions_shuffled = shuffleArray(all_questions,userquizdata.date);
+    questions_shuffled = questions_shuffled.splice(0,10);
+    var question_index = query.step;
     var reasoning = false;
-    if (question_index*2 !== query.step) {
-      reasoning = true;
-    }
 
     if (!questions_shuffled[question_index].answers || !(questions_shuffled[question_index].answers.length > 0)) {
       return internalServerError(undefined,true);
@@ -1243,21 +1370,21 @@ if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquiz
 
     var pendhtml = "";
 
-    pendhtml += '<main><div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (userquizdata.choices[userquizdata.choices.length-1][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
+    pendhtml += '<main><div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (userquizdata.choices[userquizdata.choices.length-1][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
 
     for (var i = 0; i < selected_options.length; i++) {
       pendhtml += '<div'+(reasoning ? (selected_options[i].correct ? ' class="correct"' : ((typeof userquizdata.choices[userquizdata.choices.length-1][0] == "number" ? userquizdata.choices[userquizdata.choices.length-1][0] == i : userquizdata.choices[userquizdata.choices.length-1][0].indexOf(i) > -1) ? ' class="incorrect"' : '')) : '')+'><div><input'+(reasoning ? ((typeof userquizdata.choices[userquizdata.choices.length-1][0] == "number" ? userquizdata.choices[userquizdata.choices.length-1][0] == i : userquizdata.choices[userquizdata.choices.length-1][0].indexOf(i) > -1) ? ' checked disabled' : ' disabled') : '')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && reasoning && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
     }
 
-    pendhtml += '</div>'+(reasoning ? "</form>" : "")+'<div class="question_error"'+(query.error == "nooption" ? "" : ' style="display: none;"')+'>'+([2,3].indexOf(questions_shuffled[question_index].type) > -1 ? localize(localizations[cookies.lang].general.nooption_multiple,cookies.lang,{"NUM":String(questions_shuffled[question_index].type)}) : localizations[cookies.lang].general.nooption)+'</div><div style="overflow:hidden;margin-top:12px;">'+(reasoning ? '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step+1)+'" method="POST">' : '')+'<input type="submit" value="'+(reasoning ? localizations[cookies.lang].general.continue : localizations[cookies.lang].general.submit)+'" style="width: 200px;float:right;">'+(reasoning ? '</form>' : '')+'</div>'+(reasoning ? '' : '</form>')+'</div></main>'
+    pendhtml += '</div>'+(reasoning ? "</form>" : "")+'<div class="question_error"'+(query.error == "nooption" ? "" : ' style="display: none;"')+'>'+([2,3].indexOf(questions_shuffled[question_index].type) > -1 ? localize(localizations[cookies.lang].general.nooption_multiple,cookies.lang,{"NUM":String(questions_shuffled[question_index].type)}) : localizations[cookies.lang].general.nooption)+'</div><div style="overflow:hidden;margin-top:12px;">'+(reasoning ? '<form action="/quiz/0?id='+query.id+'&step='+(query.step+1)+'" method="POST">' : '')+'<input type="submit" value="'+(reasoning ? localizations[cookies.lang].general.continue : localizations[cookies.lang].general.submit)+'" style="width: 200px;float:right;">'+(reasoning ? '</form>' : '')+'</div>'+(reasoning ? '' : '</form>')+'</div></main>'
 
-    pendhtml += '<script>window.history.replaceState(undefined,undefined,"/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+query.step+'");function beforeSubmit() {var checkedcount = 0; for (var i = 0; i < document.querySelector(".question_options").children.length; i++) {checkedcount += (document.querySelector(".question_options").children[i].querySelector("input").checked ? 1 : 0)};if (checkedcount !== '+(multiple || 1)+') {document.querySelector(".question_error").style.display = "block";return false;}}</script>';
+    pendhtml += '<script>window.history.replaceState(undefined,undefined,"/quiz/0?id='+query.id+'&step='+query.step+'");function beforeSubmit() {var checkedcount = 0; for (var i = 0; i < document.querySelector(".question_options").children.length; i++) {checkedcount += (document.querySelector(".question_options").children[i].querySelector("input").checked ? 1 : 0)};if (checkedcount !== '+(multiple || 1)+') {document.querySelector(".question_error").style.display = "block";return false;}}</script>';
 
     fs.readFile("index.html", 'utf8', function(error, data) {
       if (error) {
         return internalServerError(error);
       }
-      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
       }
@@ -1277,12 +1404,12 @@ if (userquizdata && !((query.step || 0) > (userquizdata.length)+1) && ((userquiz
   });
 
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz"});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0"});
   res.end();
 }
 
 } else {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz"});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0"});
   res.end();
 }
 } else {
@@ -1298,7 +1425,7 @@ if (userdata && userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
 }
 
 if (matchinglessonid && !(matchinglessonid.length == (matchinglessonid.choices || []).length)) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/lesson/"+lessonnumber+"/quiz?id="+matchinglessonid.key+"&step="+((matchinglessonid.choices || []).length*2)});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+matchinglessonid.key+"&step="+((matchinglessonid.choices || []).length)});
   res.end();
 } else {
 
@@ -1370,6 +1497,7 @@ fs.readFile("quiz_splash.html", 'utf8', function(error, quiz_splash_data) {
     res.end();
   })
 
+}
 }
 }
 }

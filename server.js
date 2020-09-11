@@ -787,7 +787,7 @@ if (userdata && userdata.quizzes && userdata.quizzes[query.id]) {
 
 var userquizdata = userdata.quizzes[query.id];
 
-if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizdata.length*2)+1) && ((userquizdata.choices || []).length*2 == query.step || ((userquizdata.choices || []).length*2 == query.step+1 && query.step > 0) || (query.step == (userquizdata.length*2)+1))) {
+if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizdata.length*2)+1) && ((userquizdata.choices || []).length*2 == query.step || ((userquizdata.choices || []).length*2 == query.step+1 && query.step > 0) || ((userquizdata.choices || []).length == userquizdata.length && query.step == (userquizdata.length*2)+1))) {
 
   admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons/"+userquizdata.lessonindex).once("value").then(function(snapshot2) {
 
@@ -1220,7 +1220,7 @@ if (userdata && userdata.quizzes && userdata.quizzes[query.id]) {
 
 var userquizdata = userdata.quizzes[query.id];
 
-if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout) == query.step && !(query.step > 9)) || (query.step == 10) || (query.step == 11))) {
+if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout) == query.step && !(query.step > 9)) || (query.step == 10 && Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout) > 9) || (query.step == 11 && Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout) > 9))) {
 
   admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons").once("value").then(function(snapshot2) {
 
@@ -1433,7 +1433,7 @@ if (userdata && userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
   }
 }
 
-if (matchinglessonid && !(Math.floor(((Date.now()-matchinglessonid.timer_date)/1000)/question_timeout) > 10)) {
+if (matchinglessonid && !(Math.floor(((Date.now()-matchinglessonid.timer_date)/1000)/question_timeout) > 9)) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+matchinglessonid.key+"&step="+Math.min(11,(Math.floor(((Date.now()-matchinglessonid.timer_date)/1000)/question_timeout)))});
   res.end();
 } else {

@@ -82,8 +82,8 @@
             "feedback_generic": "Keep up the good work!",
             "feedback_improvement": "Great job! You scored {NUM} higher than last time.",
             "feedback_done": "Great work! You're ready to move on.",
-            "feedback_pass": "feedback_pass",
-            "feedback_fail": "feedback_fail",
+            "feedback_pass": "Great work! You got at least 6 out of 10 questions right.",
+            "feedback_fail": "Please try again to get at least 6 out of 10 questions right.",
             "startfullquiz": "Start practice quiz",
             "quizsubtitle": "Prepare for the test with a 10 question practice test. Answer at least 6 questions correctly to pass. You have up to 60 seconds to answer each question."
         }

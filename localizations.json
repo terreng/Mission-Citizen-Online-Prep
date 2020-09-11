@@ -65,6 +65,7 @@
             "question_result_label": "Question {NUM} of {TOTAL_NUM}: {RESULT}",
             "correct": "Correct",
             "incorrect": "Incorrect",
+            "timeout": "Not answered in time",
             "nooption": "Please select an option",
             "nooption_multiple": "Please select {NUM} options",
             "submit": "Submit",

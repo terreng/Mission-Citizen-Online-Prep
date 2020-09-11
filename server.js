@@ -9,6 +9,9 @@ var localizations = JSON.parse(fs.readFileSync("localizations.json", 'utf8'));
 var languages = JSON.parse(fs.readFileSync("languages.json", 'utf8'));
 var lessontemplate = fs.readFileSync("lesson_content.html", 'utf8');
 
+var question_timeout = 60; //seconds per question on full length quiz
+var imprecision_tolerance = 6;//seconds of imprecision allowed for full length quiz server side timing validation. increase this if people are having trouble with slower internet connections.
+
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
@@ -609,7 +612,7 @@ doAuthentication(cookies,function(userdata) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"home"), "TITLE": "{general.home}", "CONTENT": ""})
+    data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"home"), "TITLE": "{general.home}", "CONTENT": ""})
     if (!data) {
       return internalServerError();
     }
@@ -627,7 +630,7 @@ doAuthentication(cookies,function(userdata) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": localize(lessontemplate,cookies.lang,{"TITLE": lessondata.title[cookies.lang], "VIDEO": ((lessondata.video && lessondata.video[cookies.lang]) ? '<div style="width: 100%;padding-top: 56.28%;position: relative;margin-top: 14px;background:black;"><iframe frameborder="0" allowfullscreen="1" allow="autoplay; picture-in-picture" title="'+lessondata.title[cookies.lang]+'" src="https://www.youtube.com/embed/'+lessondata.video[cookies.lang]+'?playsinline=1&amp;rel=0&amp;enablejsapi=1&amp;origin=https%3A%2F%2Fonline.missioncitizen.org&amp;widgetid=1" style="width: 100%;height: 100%;position: absolute;top: 0;"></iframe></div>' : ''), "TEXT": ((lessondata.text && lessondata.text[cookies.lang]) ? '<div style="white-space: pre-wrap;margin-top: 12px;">'+lessondata.text[cookies.lang]+'</div>' : ''), "FORM_ACTION": "/lesson/"+lessonnumber+"/quiz"})})
+    data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": localize(lessontemplate,cookies.lang,{"TITLE": lessondata.title[cookies.lang], "VIDEO": ((lessondata.video && lessondata.video[cookies.lang]) ? '<div style="width: 100%;padding-top: 56.28%;position: relative;margin-top: 14px;background:black;"><iframe frameborder="0" allowfullscreen="1" allow="autoplay; picture-in-picture" title="'+lessondata.title[cookies.lang]+'" src="https://www.youtube.com/embed/'+lessondata.video[cookies.lang]+'?playsinline=1&amp;rel=0&amp;enablejsapi=1&amp;origin=https%3A%2F%2Fonline.missioncitizen.org&amp;widgetid=1" style="width: 100%;height: 100%;position: absolute;top: 0;"></iframe></div>' : ''), "TEXT": ((lessondata.text && lessondata.text[cookies.lang]) ? '<div style="white-space: pre-wrap;margin-top: 12px;">'+lessondata.text[cookies.lang]+'</div>' : ''), "FORM_ACTION": "/lesson/"+lessonnumber+"/quiz"})})
     if (!data) {
       return internalServerError();
     }
@@ -903,7 +906,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
       if (error) {
         return internalServerError(error);
       }
-      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+      data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
       }
@@ -973,7 +976,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
       if (error) {
         return internalServerError(error);
       }
-      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+      data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
       }
@@ -1079,7 +1082,7 @@ if (userdata && userdata.quizzes && userdata.quizzes[query.id] && userdata.quizz
 
 var userquizdata = userdata.quizzes[query.id];
 
-if (userquizdata && (userquizdata.choices || []).length == query.index) {
+if (userquizdata && (Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout) == query.index || Math.floor(((Date.now()-userquizdata.timer_date-(imprecision_tolerance*1000))/1000)/question_timeout) == query.index)) {
 
   admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons").once("value").then(function(snapshot2) {
 
@@ -1154,8 +1157,14 @@ if (userquizdata && (userquizdata.choices || []).length == query.index) {
 
       admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/choices/"+query.index).set([body.option,iscorrect ? 1 : 0]).then(function() {
 
+      admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/timer_date").set((query.index+1 == 10 ? 1 : Date.now()-((query.index+1)*60*1000))).then(function() {
+
         res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+query.id+"&step="+((query.index)+1)});
         res.end();
+
+      }).catch(function(error) {
+        return internalServerError(error);
+      });
 
       }).catch(function(error) {
         return internalServerError(error);
@@ -1211,7 +1220,7 @@ if (userdata && userdata.quizzes && userdata.quizzes[query.id]) {
 
 var userquizdata = userdata.quizzes[query.id];
 
-if (userquizdata && userquizdata.type == 0 && !((query.step || 0) > (userquizdata.length)+1) && ((userquizdata.choices || []).length == query.step || (query.step == (userquizdata.length)+1))) {
+if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout) == query.step && !(query.step > 9)) || (query.step == 10) || (query.step == 11))) {
 
   admin.database().ref("lessonhistory/lessons/"+userquizdata.lessonhistoryid+"/lessons").once("value").then(function(snapshot2) {
 
@@ -1236,7 +1245,7 @@ if (userquizdata && userquizdata.type == 0 && !((query.step || 0) > (userquizdat
 
     if (query.step == 10) {
 
-    var correct = userquizdata.choices.filter(function(a) {return a[1] == 1}).length;
+    var correct = (userquizdata.choices || []).filter(function(a) {return a[1] == 1}).length;
     pendhtml += '<div class="quiz_results_title">'+localizations[cookies.lang].general.fullquizresults+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(correct),"TOTAL_NUM":String(10)})+'</div>';
 
     if (correct >= 6) {
@@ -1296,10 +1305,10 @@ if (userquizdata && userquizdata.type == 0 && !((query.step || 0) > (userquizdat
         return internalServerError(undefined,true);
       }
   
-      pendhtml += '<div class="question_subtitle" style="padding-top: 20px;">'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (userquizdata.choices[question_index][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
+      pendhtml += '<div class="question_subtitle" style="padding-top: 20px;">'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (((userquizdata.choices || [])[question_index] || [])[1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : (((userquizdata.choices || [])[question_index] || [])[1] == 0 ? '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.timeout+'</span>'))})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
   
       for (var i = 0; i < selected_options.length; i++) {
-        pendhtml += '<div'+(selected_options[i].correct ? ' class="correct"' : ((typeof userquizdata.choices[question_index][0] == "number" ? userquizdata.choices[question_index][0] == i : userquizdata.choices[question_index][0].indexOf(i) > -1) ? ' class="incorrect"' : ''))+'><div><input'+((typeof userquizdata.choices[question_index][0] == "number" ? userquizdata.choices[question_index][0] == i : userquizdata.choices[question_index][0].indexOf(i) > -1) ? ' checked disabled' : ' disabled')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
+        pendhtml += '<div'+(selected_options[i].correct ? ' class="correct"' : ((typeof ((userquizdata.choices || [])[question_index] || [])[0] == "number" ? ((userquizdata.choices || [])[question_index] || [])[0] == i : (((userquizdata.choices || [])[question_index] || [])[0] || []).indexOf(i) > -1) ? ' class="incorrect"' : ''))+'><div><input'+((typeof ((userquizdata.choices || [])[question_index] || [])[0] == "number" ? ((userquizdata.choices || [])[question_index] || [])[0] == i : (((userquizdata.choices || [])[question_index] || [])[0] || []).indexOf(i) > -1) ? ' checked disabled' : ' disabled')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
       }
   
       pendhtml += '</div></form>';
@@ -1316,7 +1325,7 @@ if (userquizdata && userquizdata.type == 0 && !((query.step || 0) > (userquizdat
       if (error) {
         return internalServerError(error);
       }
-      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
+      data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
       }
@@ -1384,7 +1393,7 @@ if (userquizdata && userquizdata.type == 0 && !((query.step || 0) > (userquizdat
       if (error) {
         return internalServerError(error);
       }
-      data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
+      data = localize(data,cookies.lang,{"META": '<meta http-equiv="refresh" content="'+String(Math.ceil(60-(((Date.now()-userquizdata.timer_date)/1000)-(Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout)*60)))+1)+';url=/quiz/0?id='+query.id+'&step='+(query.step+1)+'" />', "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
       }
@@ -1424,8 +1433,8 @@ if (userdata && userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
   }
 }
 
-if (matchinglessonid && !(matchinglessonid.length == (matchinglessonid.choices || []).length)) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+matchinglessonid.key+"&step="+((matchinglessonid.choices || []).length)});
+if (matchinglessonid && !(Math.floor(((Date.now()-matchinglessonid.timer_date)/1000)/question_timeout) > 10)) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+matchinglessonid.key+"&step="+Math.min(11,(Math.floor(((Date.now()-matchinglessonid.timer_date)/1000)/question_timeout)))});
   res.end();
 } else {
 
@@ -1442,7 +1451,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 
   if (lastlessons.lessons) {
   var newquizid = admin.database().ref("users/"+cookies.code+"/quizzes").push().key;
-  admin.database().ref("users/"+cookies.code+"/quizzes/"+newquizid).set({date: Date.now(), lessondate: lastlessons.date, lessonhistoryid: lessonhistoryid, type: 0, length: 10}).then(function() {
+  admin.database().ref("users/"+cookies.code+"/quizzes/"+newquizid).set({date: Date.now(), timer_date: Date.now(), lessondate: lastlessons.date, lessonhistoryid: lessonhistoryid, type: 0, length: 10}).then(function() {
     res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+newquizid+"&step=0"});
     res.end();
   }).catch(function(error) {
@@ -1471,7 +1480,7 @@ fs.readFile("quiz_splash.html", 'utf8', function(error, quiz_splash_data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": localize(quiz_splash_data,cookies.lang)})
+    data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": localize(quiz_splash_data,cookies.lang)})
     if (!data) {
       return internalServerError();
     }

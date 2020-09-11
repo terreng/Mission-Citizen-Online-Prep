@@ -1054,13 +1054,16 @@ if (url.indexOf("/quiz") == 0) {
 
 doAuthentication(cookies,function(userdata) {
 
-  var pendhtml = "";
+fs.readFile("quiz_splash.html", 'utf8', function(error, quiz_splash_data) {
+  if (error) {
+    return internalServerError(error);
+  }
 
   fs.readFile("index.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
+    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": localize(quiz_splash_data,cookies.lang)})
     if (!data) {
       return internalServerError();
     }
@@ -1068,6 +1071,8 @@ doAuthentication(cookies,function(userdata) {
     res.write(data, "utf-8");
     res.end();
   })
+
+})
 
 });
 

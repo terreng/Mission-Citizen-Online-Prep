@@ -79,7 +79,9 @@
             "feedback_poor": "You might want to go back and study the lesson again.",
             "feedback_generic": "Keep up the good work!",
             "feedback_improvement": "Great job! You scored {NUM} higher than last time.",
-            "feedback_done": "Great work! You're ready to move on."
+            "feedback_done": "Great work! You're ready to move on.",
+            "startfullquiz": "Start practice quiz",
+            "quizsubtitle": "Prepare for the test with a 10 question practice test. Answer at least 6 questions right to pass. You have up to 60 seconds to answer each question."
         }
     },
     "es": {

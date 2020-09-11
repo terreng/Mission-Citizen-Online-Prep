@@ -1050,6 +1050,28 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 });
 } else {
+if (url.indexOf("/quiz") == 0) {
+
+doAuthentication(cookies,function(userdata) {
+
+  var pendhtml = "";
+
+  fs.readFile("index.html", 'utf8', function(error, data) {
+    if (error) {
+      return internalServerError(error);
+    }
+    data = localize(data,cookies.lang,{"SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
+    if (!data) {
+      return internalServerError();
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
+    res.write(data, "utf-8");
+    res.end();
+  })
+
+});
+
+} else {
 
   fs.readFile("404.html", 'utf8', function(error, data) {
     if (error) {
@@ -1060,6 +1082,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
     res.end();
   })
 
+}
 }
 }
 }

@@ -85,7 +85,8 @@
             "feedback_pass": "Great work! You got at least 6 out of 10 questions right.",
             "feedback_fail": "Please try again to get at least 6 out of 10 questions right.",
             "startfullquiz": "Start practice quiz",
-            "quizsubtitle": "Prepare for the test with a 10 question practice test. Answer at least 6 questions correctly to pass. You have up to 60 seconds to answer each question."
+            "quiztime": "60 seconds",
+            "quizsubtitle": "Prepare for the test with a 10 question practice quiz. Answer at least 6 questions correctly to pass. You have up to 60 seconds to answer each question."
         }
     },
     "es": {

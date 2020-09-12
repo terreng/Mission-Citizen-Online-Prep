@@ -1155,20 +1155,25 @@ if (userquizdata && (Math.floor(((Date.now()-userquizdata.timer_date)/1000)/ques
         }
       }
 
-      admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/choices/"+query.index).set([body.option,iscorrect ? 1 : 0,Math.min(60,Math.floor((((Date.now()-userquizdata.timer_date)/1000)-(60*query.index)))-1)]).then(function() {
-
-      admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id+"/timer_date").set((query.index+1 == 10 ? 1 : Date.now()-1000-((query.index+1)*60*1000))).then(function() {
-
+      admin.database().ref("users/"+cookies.code+"/quizzes/"+query.id).transaction(function(current_value) {
+        if (current_value) {
+          if (!current_value.choices) {current_value.choices = []};
+          if (current_value.choices[query.index]) {
+            return current_value;
+          }
+          current_value.choices[query.index] = [body.option,iscorrect ? 1 : 0,Math.max(0,Math.min(60,Math.floor((((Date.now()-userquizdata.timer_date)/1000)-(60*query.index)))-1))];
+          current_value.timer_date = (query.index+1 == 10 ? 1 : Date.now()-1000-((query.index+1)*60*1000));
+          return current_value;
+        } else {
+          return current_value;
+        }
+      },function(error, committed, snapshot) {
+        if (error || !committed) {
+          return internalServerError(error);
+        }
         res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/quiz/0?id="+query.id+"&step="+((query.index)+1)});
         res.end();
-
-      }).catch(function(error) {
-        return internalServerError(error);
-      });
-
-      }).catch(function(error) {
-        return internalServerError(error);
-      });
+      })
 
       } else {
 

@@ -612,6 +612,8 @@ doAuthentication(cookies,function(userdata) {
   var pendhtml = '<main>';
 
   var next_step = false;
+  var things_earned = 0;
+  var need_earned = lessons.length*2;
 
   for (var i = 1; i < lessons.length+1; i++) {
   var earned_star = false;
@@ -625,6 +627,12 @@ doAuthentication(cookies,function(userdata) {
       }
     }
   }
+  }
+  if (earned_star) {
+    things_earned++;
+  }
+  if (earned_completion) {
+    things_earned++;
   }
   if (!earned_completion) {
     next_step = [i,0];
@@ -653,6 +661,10 @@ doAuthentication(cookies,function(userdata) {
   }
 
   pendhtml += '<div><div class="quiz_results_title" style="font-size: 22px;">'+(Object.keys(userdata.quizzes || {}).length > 0 ? localizations[cookies.lang].general.nextup : localizations[cookies.lang].general.nextup_new)+'</div><div class="quiz_results_subtitle">'+(next_step ? localize(next_step[1] == 0 ? localizations[cookies.lang].general.nextup_lesson : localizations[cookies.lang].general.nextup_quiz,cookies.lang,{"NUM":String(next_step[0])}) : localizations[cookies.lang].general.nextup_fullquiz)+'</div><form action="'+(next_step ? '/lesson/'+next_step[0] : '/quiz')+'" method="GET" style="overflow:hidden;margin-top:2px;"><input type="submit" value="'+(next_step ? localizations[cookies.lang].general.nextup_go_lesson : localizations[cookies.lang].general.nextup_go_fullquiz)+'" style="width: 200px;float: right;"></form></div>';
+
+  var progress = things_earned/need_earned;
+
+  pendhtml += '<div><div class="quiz_results_title" style="font-size: 21px;">'+localizations[cookies.lang].general.lessonprogress+'</div><div class="progress_bar" style="background: linear-gradient(90deg, #a8d2ff '+(Math.round(progress*100)+"%")+', #e0ebf7 '+(Math.round(progress*100)+"%")+');">'+(Math.round(progress*100)+"%")+'</div></div>'
 
   pendhtml += '</div>';
 

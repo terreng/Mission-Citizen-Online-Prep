@@ -442,3 +442,10 @@ nav {
 .quiz_timer div {
     float: left;
 }
+
+.progress_bar {
+    text-align: center;
+    font-size: 19px;
+    padding: 5px;
+    border-radius: 50px;
+}

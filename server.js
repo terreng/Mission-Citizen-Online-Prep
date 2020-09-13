@@ -608,11 +608,59 @@ doAuthentication(cookies,function(userdata) {
 
 if (url == "/") {
 doAuthentication(cookies,function(userdata) {
+
+  var pendhtml = '<main>';
+
+  var next_step = false;
+
+  for (var i = 1; i < lessons.length+1; i++) {
+  var earned_star = false;
+  var earned_completion = false;
+  if (userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
+  for (var e = 0; e < Object.keys(userdata.quizzes).length; e++) {
+    if (userdata.quizzes[Object.keys(userdata.quizzes)[e]].lessonid == lessons[i-1].id && userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices && userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length) {
+      earned_completion = true;
+      if (userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.filter(function(a) {return a[1] == 1}).length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length || userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.filter(function(a) {return a[1] == 1}).length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length-1) {
+        earned_star = true;
+      }
+    }
+  }
+  }
+  if (!earned_completion) {
+    next_step = [i,0];
+    break;
+  }
+  }
+  if (!next_step) {
+  for (var i = 1; i < lessons.length+1; i++) {
+  var earned_star = false;
+  var earned_completion = false;
+  if (userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
+  for (var e = 0; e < Object.keys(userdata.quizzes).length; e++) {
+    if (userdata.quizzes[Object.keys(userdata.quizzes)[e]].lessonid == lessons[i-1].id && userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices && userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length) {
+      earned_completion = true;
+      if (userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.filter(function(a) {return a[1] == 1}).length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length || userdata.quizzes[Object.keys(userdata.quizzes)[e]].choices.filter(function(a) {return a[1] == 1}).length == userdata.quizzes[Object.keys(userdata.quizzes)[e]].length-1) {
+        earned_star = true;
+      }
+    }
+  }
+  }
+  if (!earned_star) {
+    next_step = [i,1];
+    break;
+  }
+  }
+  }
+
+  pendhtml += '<div><div class="quiz_results_title" style="font-size: 22px;">'+(Object.keys(userdata.quizzes || {}).length > 0 ? localizations[cookies.lang].general.nextup : localizations[cookies.lang].general.nextup_new)+'</div><div class="quiz_results_subtitle">'+(next_step ? localize(next_step[1] == 0 ? localizations[cookies.lang].general.nextup_lesson : localizations[cookies.lang].general.nextup_quiz,cookies.lang,{"NUM":String(next_step[0])}) : localizations[cookies.lang].general.nextup_fullquiz)+'</div><form action="'+(next_step ? '/lesson/'+next_step[0] : '/quiz')+'" method="GET" style="overflow:hidden;margin-top:2px;"><input type="submit" value="'+(next_step ? localizations[cookies.lang].general.nextup_go_lesson : localizations[cookies.lang].general.nextup_go_fullquiz)+'" style="width: 200px;float: right;"></form></div>';
+
+  pendhtml += '</div>';
+
   fs.readFile("index.html", 'utf8', function(error, data) {
     if (error) {
       return internalServerError(error);
     }
-    data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"home"), "TITLE": "{general.home}", "CONTENT": ""})
+    data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"home"), "TITLE": "{general.home}", "CONTENT": pendhtml})
     if (!data) {
       return internalServerError();
     }

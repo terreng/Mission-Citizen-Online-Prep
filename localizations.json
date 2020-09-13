@@ -86,7 +86,15 @@
             "feedback_fail": "Please try again to get at least 6 out of 10 questions right.",
             "startfullquiz": "Start practice quiz",
             "quiztime": "60 seconds",
-            "quizsubtitle": "Prepare for the test with a 10 question practice quiz. Answer at least 6 questions correctly to pass. You have up to 60 seconds to answer each question."
+            "quizsubtitle": "Prepare for the test with a 10 question practice quiz. Answer at least 6 questions correctly to pass. You have up to 60 seconds to answer each question.",
+            "lessonprogress": "Lesson & Quiz Progress",
+            "nextup": "What to do next",
+            "nextup_new": "Get started",
+            "nextup_lesson": "Watch Lesson #{NUM} and take the lesson quiz.",
+            "nextup_quiz": "Review Lesson #{NUM} and try the quiz again for a better score.",
+            "nextup_go_lesson": "Go to lesson",
+            "nextup_fullquiz": "Practice for the test by taking a 10 question timed practice quiz.",
+            "nextup_go_fullquiz": "Go to practice quiz"
         }
     },
     "es": {

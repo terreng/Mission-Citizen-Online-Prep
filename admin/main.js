@@ -872,9 +872,53 @@ gid("settings_main").style.display = "block";
 gid("ac_username").innerHTML = "Email: "+firebase.auth().currentUser.email;
 gid("ac_uid").innerHTML = "Account ID: "+firebase.auth().currentUser.uid;
 
+gid("banner_loader").style.display = "block";
+gid("banner_content").style.display = "none";
+
+firebase.database().ref("banner").once("value").then(function(snapshot) {
+
+  gid("banner_title").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("banner_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title">';
+  }
+
+  gid("banner_body").innerHTML = "";
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("banner_body").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Body (HTML enabled)"></textarea>';
+  }
+
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    gid("banner_title").querySelector(".lang_"+Object.keys(langs)[i]).value = ((snapshot.val() && snapshot.val()[Object.keys(langs)[i]]) ? snapshot.val()[Object.keys(langs)[i]][0] : "") || "";
+    gid("banner_body").querySelector(".lang_"+Object.keys(langs)[i]).value = ((snapshot.val() && snapshot.val()[Object.keys(langs)[i]]) ? snapshot.val()[Object.keys(langs)[i]][1] : "") || "";
+  }
+
+  gid("banner_loader").style.display = "none";
+  gid("banner_content").style.display = "block";
+
+}).catch(function(error) {
+  showAlert("Error",error.message);
+});
 }
 
+function saveBanner() {
+  gid("banner_loader").style.display = "block";
+  gid("banner_content").style.display = "none";
 
+  var updatedata = {};
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    updatedata[Object.keys(langs)[i]] = [];
+    updatedata[Object.keys(langs)[i]][0] = gid("banner_title").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
+    updatedata[Object.keys(langs)[i]][1] = gid("banner_body").querySelector(".lang_"+Object.keys(langs)[i]).value || "";
+  }
+
+  firebase.database().ref("banner").set(updatedata).then(function() {
+    loadSettings();
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+    gid("banner_loader").style.display = "none";
+  gid("banner_content").style.display = "block";
+  });
+}
 
 function changePassword() {
 showAlert("Change Password","<input onkeypress='if(event.keyCode==13) {gid(\"new_password\").focus();}' type='password' class='c_text' id='old_password' placeholder='Current Password'><div class='padding'><input onkeypress='if(event.keyCode==13) {gid(\"new_password2\").focus();}' type='password' class='c_text' id='new_password' placeholder='New Password'><div class='padding'><input onkeypress='if(event.keyCode==13) {confirmChangePassword();}' type='password' class='c_text' id='new_password2' placeholder='Retype New Password'>","submit",function() {confirmChangePassword()});

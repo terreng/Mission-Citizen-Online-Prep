@@ -27,21 +27,36 @@ admin.firestore().settings({timestampsInSnapshots: true});
 var lessons;
 admin.database().ref("lessons").on("value",function(snapshot) {
   lessons = snapshot.val();
-	if (request_queue.length > 0) {
-		for (var r = 0; r < request_queue.length; r++) {
-			handleRequest(request_queue[r][0],request_queue[r][1])
-		}
-	}
-	request_queue = [];
+	checkReadyLessons();
 },function(error) {
   console.error(error);
   lessons = undefined;
 });
 
+var banner;
+admin.database().ref("banner").on("value",function(snapshot) {
+  banner = snapshot.val();
+  checkReadyLessons();
+},function(error) {
+  console.error(error);
+  banner = undefined;
+});
+
+function checkReadyLessons() {
+if (lessons !== undefined && banner !== undefined) {
+	if (request_queue.length > 0) {
+		for (var r = 0; r < request_queue.length; r++) {
+			handleRequest(request_queue[r][0],request_queue[r][1])
+		}
+	}
+  request_queue = [];
+}
+}
+
 var request_queue = [];
 
 const requestListener = function (req, res) {
-if (lessons !== undefined) {
+if (lessons !== undefined && banner !== undefined) {
 	handleRequest(req, res);
 } else {
 	request_queue.push([req,res])
@@ -610,6 +625,10 @@ if (url == "/") {
 doAuthentication(cookies,function(userdata) {
 
   var pendhtml = '<main>';
+
+  if (banner && banner[cookies.lang] && (banner[cookies.lang][0].length > 0 || banner[cookies.lang][1].length > 0)) {
+    pendhtml += '<div><div class="quiz_results_title" style="font-size: 22px;padding-bottom: 14px;">'+banner[cookies.lang][0]+'</div><div class="quiz_results_subtitle" style="padding-bottom: 0px;">'+banner[cookies.lang][1]+'</div></div>';
+  }
 
   var next_step = false;
   var things_earned = 0;

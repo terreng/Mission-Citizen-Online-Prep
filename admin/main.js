@@ -879,12 +879,12 @@ firebase.database().ref("banner").once("value").then(function(snapshot) {
 
   gid("banner_title").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("banner_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title">';
+    gid("banner_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title">';
   }
 
   gid("banner_body").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("banner_body").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Body (HTML enabled)"></textarea>';
+    gid("banner_body").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Body ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Body (HTML enabled)"></textarea>';
   }
 
   for (var i = 0; i < Object.keys(langs).length; i++) {

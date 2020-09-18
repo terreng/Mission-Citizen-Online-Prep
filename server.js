@@ -8,6 +8,21 @@ const bcrypt = require('bcrypt');
 var localizations = JSON.parse(fs.readFileSync("localizations.json", 'utf8'));
 var languages = JSON.parse(fs.readFileSync("languages.json", 'utf8'));
 var lessontemplate = fs.readFileSync("lesson_content.html", 'utf8');
+var files = {
+  "language.html": fs.readFileSync("language.html", 'utf8'),
+  "login_type.html": fs.readFileSync("login_type.html", 'utf8'),
+  "login.html": fs.readFileSync("login.html", 'utf8'),
+  "login_account.html": fs.readFileSync("login_account.html", 'utf8'),
+  "login_register.html": fs.readFileSync("login_register.html", 'utf8'),
+  "newcode.html": fs.readFileSync("newcode.html", 'utf8'),
+  "account.html": fs.readFileSync("account.html", 'utf8'),
+  "account_name.html": fs.readFileSync("account_name.html", 'utf8'),
+  "account_email.html": fs.readFileSync("account_email.html", 'utf8'),
+  "account_password.html": fs.readFileSync("account_password.html", 'utf8'),
+  "index.html": fs.readFileSync("index.html", 'utf8'),
+  "quiz_splash.html": fs.readFileSync("quiz_splash.html", 'utf8'),
+  "404.html": fs.readFileSync("404.html", 'utf8'),
+}
 
 var question_timeout = 60; //seconds per question on full length quiz
 var imprecision_tolerance = 6;//seconds of imprecision allowed for full length quiz server side timing validation. increase this if people on slower internet connections are missing questions they swear they answered in time.
@@ -133,10 +148,7 @@ if (url == "/logout") {
   res.end();
 } else {
 if (url == "/login_language") {
-  fs.readFile("language.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["language.html"];
     var langhtml = "";
     for (var i = 0; i < Object.keys(languages).length; i++) {
       langhtml += '<form action="{FORM_ACTION}" method="POST"><input name="language" readonly value="'+Object.keys(languages)[i]+'" style="display: none;"><input type="submit" value="'+languages[Object.keys(languages)[i]].name+'"></form>'
@@ -145,7 +157,6 @@ if (url == "/login_language") {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
 if (url == "/language_submit") {
 if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
@@ -176,15 +187,11 @@ if (cookies.code) {
   res.end();
   return;
 }
-  fs.readFile("login_type.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["login_type.html"];
     data = localize(data,cookies.lang,{"FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
 if (url == "/login_code") {
 if (cookies.code) {
@@ -192,10 +199,7 @@ if (cookies.code) {
   res.end();
   return;
 }
-  fs.readFile("login.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["login.html"];
     data = localize(data,cookies.lang,{"CONTINUE_QUERY": (query.continue ? "?continue="+query.continue : ""), "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "SUBTITLE": (query.error == "badcode" ? '<font color="red">{login.badcode}</font>' : "{login.subtitle}"), "VALUE": ((query.code && query.code.replace(/\s/g,'')) ? String(query.code).replace(/\s/g,'').substring(0,4)+(String(query.code).replace(/\s/g,'').length > 4 ? " "+String(query.code).replace(/\s/g,'').substring(4,8)+(String(query.code).replace(/\s/g,'').length > 8 ? " "+String(query.code).replace(/\s/g,'').substring(8,12) : "") : "") : "")});
     if (!data) {
       return internalServerError();
@@ -203,7 +207,6 @@ if (cookies.code) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
 if (url == "/login_submit") {
 if (!(body && (body.intent == "code" || body.intent == "login" || body.intent == "register"))) {
@@ -387,15 +390,11 @@ if (url == "/login_account") {
     res.end();
     return;
   }
-  fs.readFile("login_account.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["login_account.html"];
     data = localize(data,cookies.lang,{"CONTINUE_QUERY": (query.continue ? "?continue="+query.continue : ""), "EMAIL_VALUE": query.email ? urlescape(query.email) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : ""), "FORM_ACTION_QUERY": (query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
 if (url == "/login_register") {
   if (cookies.code) {
@@ -403,25 +402,18 @@ if (url == "/login_register") {
     res.end();
     return;
   }
-  fs.readFile("login_register.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["login_register.html"];
     data = localize(data,cookies.lang,{"CONTINUE_QUERY": (query.continue ? "?continue="+query.continue : ""), "EMAIL_VALUE": query.email ? urlescape(query.email) : "", "NAME_VALUE": query.name ? urlescape(query.name) : "", "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : "", "FORM_ACTION": "/login_submit"+(query.continue ? "?continue="+query.continue : "")})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
 if (!cookies.code) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login?continue="+url});
   res.end();
 } else {
 if (url == "/welcome") {
-  fs.readFile("newcode.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["newcode.html"];
     data = localize(data,cookies.lang,{"FORM_ACTION": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12)});
     if (!data) {
       return internalServerError();
@@ -429,16 +421,12 @@ if (url == "/welcome") {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
 
 if (url == "/account") {
 doAuthentication(cookies,function(userdata) {
 if (userdata.email) {
-  fs.readFile("account.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["account.html"];
     var successes = {
       namechanged: localizations[cookies.lang].account.namechanged,
       emailchanged: localizations[cookies.lang].account.emailchanged,
@@ -451,7 +439,6 @@ if (userdata.email) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 } else {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"});
   res.end();
@@ -574,10 +561,7 @@ if (err) {
 } else {
 if (url == "/account_name") {
 doAuthentication(cookies,function(userdata) {
-  fs.readFile("account_name.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["account_name.html"];
     data = localize(data,cookies.lang,{"NAME_VALUE": htmlescape(userdata.name), "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
     if (!data) {
       return internalServerError();
@@ -585,15 +569,11 @@ doAuthentication(cookies,function(userdata) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 });
 } else {
 if (url == "/account_email") {
 doAuthentication(cookies,function(userdata) {
-  fs.readFile("account_email.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["account_email.html"];
     data = localize(data,cookies.lang,{"EMAIL_VALUE": htmlescape(userdata.email), "ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
     if (!data) {
       return internalServerError();
@@ -601,15 +581,11 @@ doAuthentication(cookies,function(userdata) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 });
 } else {
 if (url == "/account_password") {
 doAuthentication(cookies,function(userdata) {
-  fs.readFile("account_password.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["account_password.html"];
     data = localize(data,cookies.lang,{"ERROR_MESSAGES": JSON.stringify(error_text), "ERROR_VALUE": query.error ? (error_text[query.error] || "") : "", "ERROR_STYLE": query.error ? ' style="display: block;"' : ""})
     if (!data) {
       return internalServerError();
@@ -617,7 +593,6 @@ doAuthentication(cookies,function(userdata) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 });
 } else {
 
@@ -687,10 +662,7 @@ doAuthentication(cookies,function(userdata) {
 
   pendhtml += '</div>';
 
-  fs.readFile("index.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["index.html"];
     data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"home"), "TITLE": "{general.home}", "CONTENT": pendhtml})
     if (!data) {
       return internalServerError();
@@ -698,17 +670,13 @@ doAuthentication(cookies,function(userdata) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 });
 } else {
 if (url.indexOf("/lesson/") == 0 && url.split("/lesson/")[1].indexOf("/") == -1 && lessons && lessons[Number(url.split("/lesson/")[1])-1]) {
 var lessonnumber = Number(url.split("/lesson/")[1]);
 var lessondata = lessons[Number(url.split("/lesson/")[1])-1];
 doAuthentication(cookies,function(userdata) {
-  fs.readFile("index.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["index.html"];
     data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lesson,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": localize(lessontemplate,cookies.lang,{"TITLE": lessondata.title[cookies.lang], "VIDEO": ((lessondata.video && lessondata.video[cookies.lang]) ? '<div style="width: 100%;padding-top: 56.28%;position: relative;margin-top: 14px;background:black;"><iframe frameborder="0" allowfullscreen="1" allow="autoplay; picture-in-picture" title="'+lessondata.title[cookies.lang]+'" src="https://www.youtube.com/embed/'+lessondata.video[cookies.lang]+'?playsinline=1&amp;rel=0&amp;enablejsapi=1&amp;origin=https%3A%2F%2Fonline.missioncitizen.org&amp;widgetid=1" style="width: 100%;height: 100%;position: absolute;top: 0;"></iframe></div>' : ''), "TEXT": ((lessondata.text && lessondata.text[cookies.lang]) ? '<div style="white-space: pre-wrap;margin-top: 12px;">'+lessondata.text[cookies.lang]+'</div>' : ''), "FORM_ACTION": "/lesson/"+lessonnumber+"/quiz"})})
     if (!data) {
       return internalServerError();
@@ -716,7 +684,6 @@ doAuthentication(cookies,function(userdata) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 });
 } else {
 if (url == "/quiz_submit") {
@@ -981,10 +948,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
 
     pendhtml += '</div></main>';
 
-    fs.readFile("index.html", 'utf8', function(error, data) {
-      if (error) {
-        return internalServerError(error);
-      }
+    var data = files["index.html"];
       data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
@@ -992,7 +956,6 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
       res.write(data, "utf-8");
       res.end();
-    })
 
     } else {
 
@@ -1051,10 +1014,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
 
     pendhtml += '<script>window.history.replaceState(undefined,undefined,"/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+query.step+'");function beforeSubmit() {var checkedcount = 0; for (var i = 0; i < document.querySelector(".question_options").children.length; i++) {checkedcount += (document.querySelector(".question_options").children[i].querySelector("input").checked ? 1 : 0)};if (checkedcount !== '+(multiple || 1)+') {document.querySelector(".question_error").style.display = "block";return false;}}</script>';
 
-    fs.readFile("index.html", 'utf8', function(error, data) {
-      if (error) {
-        return internalServerError(error);
-      }
+    var data = files["index.html"];
       data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
@@ -1062,7 +1022,6 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
       res.write(data, "utf-8");
       res.end();
-    })
 
     }
 
@@ -1405,10 +1364,7 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
 
     pendhtml += '</div></main>';
 
-    fs.readFile("index.html", 'utf8', function(error, data) {
-      if (error) {
-        return internalServerError(error);
-      }
+    var data = files["index.html"];
       data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
@@ -1416,7 +1372,6 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
       res.write(data, "utf-8");
       res.end();
-    })
 
     } else {
 
@@ -1473,10 +1428,7 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
 
     pendhtml += '<script>var last_time_string = ""; window.history.replaceState(undefined,undefined,"/quiz/0?id='+query.id+'&step='+query.step+'");function beforeSubmit() {var checkedcount = 0; for (var i = 0; i < document.querySelector(".question_options").children.length; i++) {checkedcount += (document.querySelector(".question_options").children[i].querySelector("input").checked ? 1 : 0)};if (checkedcount !== '+(multiple || 1)+') {document.querySelector(".question_error").style.display = "block";return false;}};var timerdate = Date.now()+(1000*'+(Math.ceil(60-(((Date.now()-userquizdata.timer_date)/1000)-(Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout)*60)))+1)+');function checkTimer() {var seconds_remaining = Math.max(0,Math.ceil((timerdate-Date.now())/1000)); var minutes_remaining = Math.floor(seconds_remaining/60); var seconds_string = String(seconds_remaining-(minutes_remaining*60)); if (seconds_string.length == 1) {seconds_string = "0"+seconds_string}; var new_time_string = String(minutes_remaining)+":"+seconds_string; if (new_time_string !== last_time_string) {document.querySelector("#timer_time").innerText = new_time_string; last_time_string = new_time_string;}}; setInterval(function() {checkTimer()},30); checkTimer();</script>';
 
-    fs.readFile("index.html", 'utf8', function(error, data) {
-      if (error) {
-        return internalServerError(error);
-      }
+    var data = files["index.html"];
       data = localize(data,cookies.lang,{"META": '<meta http-equiv="refresh" content="'+String(Math.ceil(60-(((Date.now()-userquizdata.timer_date)/1000)-(Math.floor(((Date.now()-userquizdata.timer_date)/1000)/question_timeout)*60)))+1)+';url=/quiz/0?id='+query.id+'&step='+(query.step+1)+'" />', "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
       if (!data) {
         return internalServerError();
@@ -1484,7 +1436,6 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
       res.write(data, "utf-8");
       res.end();
-    })
 
     }
 
@@ -1555,15 +1506,9 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 
 } else {
 
-fs.readFile("quiz_splash.html", 'utf8', function(error, quiz_splash_data) {
-  if (error) {
-    return internalServerError(error);
-  }
+  var quiz_splash_data = files["quiz_splash.html"];
 
-  fs.readFile("index.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["index.html"];
     data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": localize(quiz_splash_data,cookies.lang)})
     if (!data) {
       return internalServerError();
@@ -1571,9 +1516,7 @@ fs.readFile("quiz_splash.html", 'utf8', function(error, quiz_splash_data) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'private, max-age=0' });
     res.write(data, "utf-8");
     res.end();
-  })
 
-})
 
 }
 
@@ -1581,14 +1524,10 @@ fs.readFile("quiz_splash.html", 'utf8', function(error, quiz_splash_data) {
 
 } else {
 
-  fs.readFile("404.html", 'utf8', function(error, data) {
-    if (error) {
-      return internalServerError(error);
-    }
+  var data = files["404.html"];
     res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
-  })
 
 }
 }

@@ -96,7 +96,8 @@
             "nextup_go_lesson": "Go to lesson",
             "nextup_fullquiz": "Practice for the test by taking a 10 question timed practice quiz.",
             "nextup_go_fullquiz": "Go to practice quiz",
-            "language": "Language"
+            "language": "Language",
+            "changelanguage": "Change site language"
         }
     },
     "es": {
@@ -196,7 +197,8 @@
             "nextup_go_lesson": "Ir al lección",
             "nextup_fullquiz": "Toma una prueba de práctica cronometrada de 10 preguntas para prepararse para el examen.",
             "nextup_go_fullquiz": "Ir al prueba de práctica",
-            "language": "Idioma"
+            "language": "Idioma",
+            "changelanguage": "Cambiar idioma"
         }
     }
 }

@@ -1605,7 +1605,7 @@ return foundmatch;
 function renderLanguagePicker(cookies) {
 var selected_lang = cookies.lesson_lang || cookies.lang;
 
-var pendhtml = '<div class="language_picker"><form action="/lesson_language_submit" method="POST"><select name="lang" onchange="this.form.submit()">';
+var pendhtml = '<div class="language_picker"><a href="/change_lesson_language?continue='+url+'">'+localizations[cookies.lang].general.language+'</a><form action="/lesson_language_submit" method="POST"><select name="lang" onchange="this.form.submit()">';
 
 for (var i = 0; i < Object.keys(languages).length; i++) {
   pendhtml += '<option value="'+Object.keys(languages)[i]+'"'+(selected_lang == Object.keys(languages)[i] ? " selected" : "")+'>'+languages[Object.keys(languages)[i]].name+'</option>';

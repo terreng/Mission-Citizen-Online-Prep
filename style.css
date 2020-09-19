@@ -469,6 +469,17 @@ nav {
     font-size: 18px;
     background: unset;
     border: none;
+    margin: 0px;
+    display: none;
+}
+
+.language_picker > a {
+    float: right;
+    font-size: 18px;
+    padding-left: 2px;
+    padding-right: 5px;
+    color: black;
+    text-decoration: none;
 }
 
 .language_picker svg {

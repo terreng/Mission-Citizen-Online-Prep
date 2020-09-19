@@ -415,7 +415,7 @@ if (!cookies.code) {
 
 if (url == "/lesson_language") {
 if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': ['lesson_lang='+body.language]});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+decodeURIComponent(query.continue.substring(1)) : "/"), 'Set-Cookie': ['lesson_lang='+body.language]});
   res.end();
 } else {
   var data = files["language.html"];
@@ -423,7 +423,7 @@ if (body && body.language && Object.keys(languages).indexOf(body.language) > -1)
     for (var i = 0; i < Object.keys(languages).length; i++) {
       langhtml += '<form action="{FORM_ACTION}" method="POST"><input name="language" readonly value="'+Object.keys(languages)[i]+'" style="display: none;"><input type="submit" value="'+languages[Object.keys(languages)[i]].name+'"></form>'
     }
-    data = localize(data,undefined,{"FORM_ACTION": "/lesson_language"+(query.continue ? "?continue="+query.continue : ""), "LANGUAGES": langhtml})
+    data = localize(data,undefined,{"FORM_ACTION": "/lesson_language"+(query.continue ? "?continue="+encodeURIComponent(query.continue) : ""), "LANGUAGES": langhtml})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -1624,7 +1624,7 @@ return foundmatch;
 function renderLanguagePicker(cookies) {
 var selected_lang = cookies.lesson_lang || cookies.lang;
 
-var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+url+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language?continue='+url+'" method="POST"><select name="language" onchange="this.form.submit()">';
+var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+encodeURIComponent(req.url)+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language?continue='+encodeURIComponent(req.url)+'" method="POST"><select name="language" onchange="this.form.submit()">';
 
 for (var i = 0; i < Object.keys(languages).length; i++) {
   pendhtml += '<option value="'+Object.keys(languages)[i]+'"'+(selected_lang == Object.keys(languages)[i] ? " selected" : "")+'>'+languages[Object.keys(languages)[i]].name+'</option>';

@@ -271,6 +271,9 @@ main > div {
     padding: 8px;
     width: calc(100% - 28px);
 }
+main > div.language_picker {
+    margin: 8px 10px;
+}
 }
 
 @media (min-width: 901px) {
@@ -448,4 +451,30 @@ nav {
     font-size: 19px;
     padding: 5px;
     border-radius: 50px;
+}
+
+.language_picker {
+    padding: 0px;
+    width: calc(100% - 20px);
+    background: unset;
+    border: none;
+    border-radius: unset;
+    margin-left: 10px;
+    margin-right: 10px;
+    overflow: hidden;
+}
+
+.language_picker select {
+    float: right;
+    font-size: 18px;
+    background: unset;
+    border: none;
+}
+
+.language_picker svg {
+    float: right;
+    height: 22px;
+    width: 22px;
+    padding-right: 3px;
+    color: #464646;
 }

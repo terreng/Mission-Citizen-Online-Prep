@@ -64,6 +64,10 @@ function hideNav() {
 document.querySelector("nav").style.display = "none";
 document.getElementById("nav_background").style.display = "none";
 }
+if (document.querySelector(".language_picker")) {
+    document.querySelector(".language_picker").querySelector("a").style.display = "none";
+    document.querySelector(".language_picker").querySelector("select").style.display = "inline-block";
+}
 </script>
 </body>
 </html>

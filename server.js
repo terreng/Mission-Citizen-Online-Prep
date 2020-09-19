@@ -841,11 +841,9 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
 
     if (query.step/2 == snapshot2.val().questions.length || query.step == (snapshot2.val().questions.length*2)+1) {
 
-    var pendhtml = "";
-
-    pendhtml += '<main><div>';
-
     if (query.step/2 == snapshot2.val().questions.length) {
+
+    var pendhtml = '<main><div>';
 
     var correct = userquizdata.choices.filter(function(a) {return a[1] == 1}).length;
     pendhtml += '<div class="quiz_results_title">'+localize(localizations[cookies.lang].general.lessonquizresults,cookies.lang,{"NUM":String(lessonnumber)})+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(correct),"TOTAL_NUM":String(snapshot2.val().questions.length)})+'</div>';
@@ -887,6 +885,8 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
     }
 
     if (query.step == (snapshot2.val().questions.length*2)+1) {
+
+      var pendhtml = '<main>'+renderLanguagePicker(cookies)+'<div>';
 
       pendhtml += '<div class="quiz_results_title" style="font-size: 22px;">'+localizations[cookies.lang].general.review+'</div>';
 
@@ -1004,7 +1004,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
 
     var pendhtml = "";
 
-    pendhtml += '<main><div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (userquizdata.choices[userquizdata.choices.length-1][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
+    pendhtml += '<main>'+renderLanguagePicker(cookies)+'<div><div class="question_subtitle">'+localize(reasoning ? localizations[cookies.lang].general.question_result_label : localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (reasoning ? (userquizdata.choices[userquizdata.choices.length-1][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>') : '')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
 
     for (var i = 0; i < selected_options.length; i++) {
       pendhtml += '<div'+(reasoning ? (selected_options[i].correct ? ' class="correct"' : ((typeof userquizdata.choices[userquizdata.choices.length-1][0] == "number" ? userquizdata.choices[userquizdata.choices.length-1][0] == i : userquizdata.choices[userquizdata.choices.length-1][0].indexOf(i) > -1) ? ' class="incorrect"' : '')) : '')+'><div><input'+(reasoning ? ((typeof userquizdata.choices[userquizdata.choices.length-1][0] == "number" ? userquizdata.choices[userquizdata.choices.length-1][0] == i : userquizdata.choices[userquizdata.choices.length-1][0].indexOf(i) > -1) ? ' checked disabled' : ' disabled') : '')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && reasoning && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
@@ -1282,11 +1282,9 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
 
     if (query.step == 10 || query.step == (10)+1) {
 
-    var pendhtml = "";
-
-    pendhtml += '<main><div>';
-
     if (query.step == 10) {
+
+    var pendhtml = '<main><div>';
 
     var correct = Object.keys(userquizdata.choices || []).map(function (key) {return (userquizdata.choices || [])[Number(key)]}).filter(function(a) {return a[1] == 1}).length;
     pendhtml += '<div class="quiz_results_title">'+localizations[cookies.lang].general.fullquizresults+'</div><div class="quiz_results_results">'+localize(localizations[cookies.lang].general.correctamount,cookies.lang,{"NUM":String(correct),"TOTAL_NUM":String(10)})+'</div>';
@@ -1302,6 +1300,8 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
     }
 
     if (query.step == (10)+1) {
+
+      var pendhtml = '<main>'+renderLanguagePicker(cookies)+'<div>'
 
       pendhtml += '<div class="quiz_results_title" style="font-size: 22px;">'+localizations[cookies.lang].general.review+'</div>';
 
@@ -1418,7 +1418,7 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
 
     var pendhtml = "";
 
-    pendhtml += '<main><div><div class="question_subtitle">'+localize(localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length)})+'<div class="quiz_timer"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M19.03,7.39L20.45,5.97C20,5.46 19.55,5 19.04,4.56L17.62,6C16.07,4.74 14.12,4 12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22C17,22 21,17.97 21,13C21,10.88 20.26,8.93 19.03,7.39M11,14H13V8H11M15,1H9V3H15V1Z" /></svg><div id="timer_time">'+localizations[cookies.lang].general.quiztime+'</div></div></div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
+    pendhtml += '<main>'+renderLanguagePicker(cookies)+'<div><div class="question_subtitle">'+localize(localizations[cookies.lang].general.question_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length)})+'<div class="quiz_timer"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M19.03,7.39L20.45,5.97C20,5.46 19.55,5 19.04,4.56L17.62,6C16.07,4.74 14.12,4 12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22C17,22 21,17.97 21,13C21,10.88 20.26,8.93 19.03,7.39M11,14H13V8H11M15,1H9V3H15V1Z" /></svg><div id="timer_time">'+localizations[cookies.lang].general.quiztime+'</div></div></div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options'+(reasoning ? " reasoning" : "")+'">';
 
     for (var i = 0; i < selected_options.length; i++) {
       pendhtml += '<div><div><input type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lang]+'</label>'+((selected_options[i].correct && reasoning && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lang]+'</div>' : '')+'</div></div>'
@@ -1605,7 +1605,7 @@ return foundmatch;
 function renderLanguagePicker(cookies) {
 var selected_lang = cookies.lesson_lang || cookies.lang;
 
-var pendhtml = '<div class="language_picker"><a href="/change_lesson_language?continue='+url+'">'+localizations[cookies.lang].general.language+'</a><form action="/lesson_language_submit" method="POST"><select name="lang" onchange="this.form.submit()">';
+var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+url+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language" method="POST"><select name="lang" onchange="this.form.submit()">';
 
 for (var i = 0; i < Object.keys(languages).length; i++) {
   pendhtml += '<option value="'+Object.keys(languages)[i]+'"'+(selected_lang == Object.keys(languages)[i] ? " selected" : "")+'>'+languages[Object.keys(languages)[i]].name+'</option>';

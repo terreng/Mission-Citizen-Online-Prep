@@ -144,7 +144,7 @@ if (matched_static_file) {
 }
 } else {
 if (url == "/logout") {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"+(query.continue ? "?continue="+query.continue : ""), 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0', 'token=; Expires=0']});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"+(query.continue ? "?continue="+query.continue : ""), 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0', 'token=; Expires=0', 'lesson_lang=; Expires=0']});
   res.end();
 } else {
 if (url == "/login_language") {
@@ -160,7 +160,7 @@ if (url == "/login_language") {
 } else {
 if (url == "/language_submit") {
 if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'lang='+body.language});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': ['lesson_lang=; Expires=0', 'lang='+body.language]});
   res.end();
 } else {
   res.writeHead(400);
@@ -412,6 +412,24 @@ if (!cookies.code) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login?continue="+url});
   res.end();
 } else {
+
+if (url == "/lesson_language") {
+if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': ['lesson_lang='+body.language]});
+  res.end();
+} else {
+  var data = files["language.html"];
+    var langhtml = "";
+    for (var i = 0; i < Object.keys(languages).length; i++) {
+      langhtml += '<form action="{FORM_ACTION}" method="POST"><input name="language" readonly value="'+Object.keys(languages)[i]+'" style="display: none;"><input type="submit" value="'+languages[Object.keys(languages)[i]].name+'"></form>'
+    }
+    data = localize(data,undefined,{"FORM_ACTION": "/lesson_language"+(query.continue ? "?continue="+query.continue : ""), "LANGUAGES": langhtml})
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
+    res.write(data, "utf-8");
+    res.end();
+}
+} else {
+
 if (url == "/welcome") {
   var data = files["newcode.html"];
     data = localize(data,cookies.lang,{"FORM_ACTION": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), "CODE": String(cookies.code).substring(0,4)+" "+String(cookies.code).substring(4,8)+" "+String(cookies.code).substring(8,12)});
@@ -1556,6 +1574,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 }
 }
+}
 
 function doAuthentication(cookies,callback) {
 var userdata;
@@ -1605,7 +1624,7 @@ return foundmatch;
 function renderLanguagePicker(cookies) {
 var selected_lang = cookies.lesson_lang || cookies.lang;
 
-var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+url+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language" method="POST"><select name="lang" onchange="this.form.submit()">';
+var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+url+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language?continue='+url+'" method="POST"><select name="language" onchange="this.form.submit()">';
 
 for (var i = 0; i < Object.keys(languages).length; i++) {
   pendhtml += '<option value="'+Object.keys(languages)[i]+'"'+(selected_lang == Object.keys(languages)[i] ? " selected" : "")+'>'+languages[Object.keys(languages)[i]].name+'</option>';

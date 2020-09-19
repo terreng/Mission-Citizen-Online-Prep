@@ -272,7 +272,8 @@ main > div {
     width: calc(100% - 28px);
 }
 main > div.language_picker {
-    margin: 8px 10px;
+    margin: 8px auto;
+    width: calc(100% - 20px);
 }
 }
 
@@ -455,13 +456,12 @@ nav {
 
 .language_picker {
     padding: 0px;
-    width: calc(100% - 20px);
+    width: calc(100% - 30px);
     background: unset;
     border: none;
     border-radius: unset;
-    margin-left: 10px;
-    margin-right: 10px;
     overflow: hidden;
+    max-width: 822px;
 }
 
 .language_picker select {

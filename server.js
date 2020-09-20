@@ -144,8 +144,38 @@ if (matched_static_file) {
 }
 } else {
 if (url == "/logout") {
+
+if (cookies.code && typeof cookies.code == "string" && cookies.token && typeof cookies.token == "string") {
+  admin.database().ref("privateusers/"+cookies.code).once("value").then(function(snapshot) {
+    privateuserdata = snapshot.val();
+    if (privateuserdata && privateuserdata.tokens && privateuserdata.tokens.length > 0) {
+      for (var i = 0; i < privateuserdata.tokens.length; i++) {
+        if (privateuserdata.tokens[i].token == cookies.token) {
+          privateuserdata.tokens.splice(i,1);
+          break;
+        }
+      }
+    }
+    if (privateuserdata && privateuserdata.tokens) {
+      admin.database().ref("privateusers/"+cookies.code+"/tokens").set(privateuserdata.tokens).then(function() {
+        doLogOut()
+      }).catch(function(error) {
+        return internalServerError(error);
+      });
+    } else {
+      doLogOut()
+    }
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+} else {
+  doLogOut()
+}
+
+function doLogOut() {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/"+(query.continue ? "?continue="+query.continue : ""), 'Set-Cookie': ['lang=; Expires=0', 'code=; Expires=0', 'token=; Expires=0', 'lesson_lang=; Expires=0']});
   res.end();
+}
 } else {
 if (url == "/login_language") {
   var data = files["language.html"];

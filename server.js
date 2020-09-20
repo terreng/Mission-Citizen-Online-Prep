@@ -1313,7 +1313,9 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
       pendhtml += '<div class="quiz_results_subtitle">'+localizations[cookies.lang].general.feedback_fail+'</div>';
     }
 
-    pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step+1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.review+'" style="width: 200px;float:left;"></form>'
+    pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step+1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.review+'" style="width: 200px;float:left;margin-bottom:22px;"></form>'
+
+    pendhtml += '<form action="/quiz/" method="GET" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.backtofullquiz+'" style="width: 200px;float:left;"></form>'
 
     }
 

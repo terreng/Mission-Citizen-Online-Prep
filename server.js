@@ -138,8 +138,21 @@ if (query.token) {
         });
 
       } else {
+      if (query.intent == "getUserFull" && query.userid) {
+        admin.database().ref("users/"+query.userid).once("value").then(function(snapshot) {
+          if (snapshot.val()) {
+            var userdata = snapshot.val();
+          } else {
+            res.writeHead(400);
+            res.end();
+          }
+        }).catch(function(error) {
+          return internalServerError(error);
+        });
+      } else {
         res.writeHead(400);
         res.end();
+      }
       }
     } else {
       res.writeHead(400);

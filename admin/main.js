@@ -245,6 +245,7 @@ var userlist = [];
 function loadUsers() {
 
 gid("users_main").style.display = "block";
+gid("users_user").style.display = "none";
 
 gid("no_users").style.display = "none";
 gid("users_list_loader").style.display = "block";
@@ -259,7 +260,7 @@ asyncLoad((location.origin)+"/api?intent=getUsers&token="+encodeURIComponent(idT
   var pendhtml = "";
 
   for (var i = 0; i < userlist.length; i++) {
-    pendhtml += '<div class="user_list_item"><div>'+htmlescape(userlist[i].name)+'</div><div>'+htmlescape(userlist[i].date)+'</div></div>'
+    pendhtml += '<div class="user_list_item" onclick="openUser(\''+userlist[i].id+'\')"><div>'+htmlescape(userlist[i].name)+'</div><div>'+toDateString(userlist[i].date)+'</div></div>'
   }
 
   gid("inner_users_list").innerHTML = pendhtml;
@@ -275,6 +276,32 @@ gid("users_list").style.display = "block";
 }).catch(function(error) {
   showAlert("Error",error.message);
 });
+
+}
+
+function openUser(userid) {
+
+gid("users_main").style.display = "none";
+gid("users_user").style.display = "block";
+
+gid("user_loader").style.display = "block";
+gid("user_content").style.display = "none";
+
+firebase.auth().currentUser.getIdToken().then(function(idToken) {
+
+  asyncLoad((location.origin)+"/api?intent=getUserFull&userid="+userid+"&token="+encodeURIComponent(idToken),function(response) {
+
+    console.log(response);
+
+  },function() {
+	
+    showAlert("Error","Bad response from server");
+    
+  });
+  
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+  });
 
 }
 
@@ -1120,4 +1147,22 @@ return string.split("</br>").join(" ").replace(/<(?:.|\n)*?>/gm, '');
 
 function createPostProgress(text) {
 showAlert("Please wait",text+"...<div style='margin-bottom: 10px'/>","hidden");	
+}
+
+function toDateString(stamp) {
+var date = new Date(stamp);
+var day = date.getDate();
+var monthstring = capitalMonths[date.getMonth()];
+var timestring = monthstring +" " + day +nth(day) +", " + date.getFullYear();
+return timestring;
+}
+
+function nth(d) {
+  if(d>3 && d<21) return 'th';
+  switch (d % 10) {
+        case 1:  return "st";
+        case 2:  return "nd";
+        case 3:  return "rd";
+        default: return "th";
+    }
 }

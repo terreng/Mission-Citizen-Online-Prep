@@ -240,6 +240,8 @@ gid("content_title").innerHTML = "Settings"
 gid("content").scrollTop = 0;
 }
 
+var userlist = [];
+
 function loadUsers() {
 
 gid("users_main").style.display = "block";
@@ -248,7 +250,31 @@ gid("no_users").style.display = "none";
 gid("users_list_loader").style.display = "block";
 gid("users_list").style.display = "none";
 
+firebase.auth().currentUser.getIdToken().then(function(idToken) {
 
+asyncLoad((location.origin)+"/api?intent=getUsers&token="+encodeURIComponent(idToken),function(response) {
+
+  userlist = JSON.parse(response);
+
+  var pendhtml = "";
+
+  for (var i = 0; i < userlist.length; i++) {
+    pendhtml += '<div class="user_list_item"><div>'+htmlescape(userlist[i].name)+'</div><div>'+htmlescape(userlist[i].date)+'</div></div>'
+  }
+
+  gid("inner_users_list").innerHTML = pendhtml;
+gid("users_list_loader").style.display = "none";
+gid("users_list").style.display = "block";
+	
+},function() {
+	
+  showAlert("Error","Bad response from server");
+	
+});
+
+}).catch(function(error) {
+  showAlert("Error",error.message);
+});
 
 }
 

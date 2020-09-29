@@ -112,6 +112,47 @@ if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "pro
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+req.url});
   res.end();
 } else {
+if (url.indexOf("/api") == 0) {
+if (query.token) {
+  admin.auth().verifyIdToken(query.token, true).then(function(decodedToken) {
+    if (decodedToken.uid == "mD5iMxc7d5hD9HXXSAXSHbOHTHk2") {
+      if (query.intent == "getUsers") {
+
+        admin.database().ref("users").once("value").then(function(snapshot) {
+          var users = snapshot.val() || {};
+          users = Object.fromEntries(Object.entries(users).filter(function([key, value]) {return true && value.email}))
+          for (var i = 0; i < Object.keys(users).length; i++) {
+            users[Object.keys(users)[i]].id = Object.keys(users)[i];
+          }
+          var users_array = [];
+          for (var i = 0; i < Object.keys(users).length; i++) {
+            users_array.push(users[Object.keys(users)[i]])
+          }
+          users_array = users_array.sort(function(a,b) {return a.date - b.date});
+          var data = JSON.stringify(users_array);
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
+          res.write(data, "utf-8");
+          res.end();
+        }).catch(function(error) {
+          return internalServerError(error);
+        });
+
+      } else {
+        res.writeHead(400);
+        res.end();
+      }
+    } else {
+      res.writeHead(400);
+      res.end();
+    }
+  }).catch(function(error) {
+    return internalServerError(error);
+  });
+} else {
+  res.writeHead(400);
+  res.end();
+}
+} else {
 var static_files = [
   ["style.css","text/css"],
   ["logo.png","image/png"],
@@ -1592,6 +1633,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 }
 
+}
 }
 }
 }

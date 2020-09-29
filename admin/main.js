@@ -220,6 +220,12 @@ loadLessons();
 if (tab == "users") {
 gid("navtitle").innerHTML = "Users"
 gid("content_title").innerHTML = "Users"
+loadUsers();
+}
+if (tab == "insights") {
+gid("navtitle").innerHTML = "Insights"
+gid("content_title").innerHTML = "Insights"
+loadInsights();
 }
 if (tab == "feedback") {
 loadFeedback();
@@ -232,6 +238,18 @@ gid("navtitle").innerHTML = "Settings"
 gid("content_title").innerHTML = "Settings"
 }
 gid("content").scrollTop = 0;
+}
+
+function loadUsers() {
+
+gid("users_main").style.display = "block";
+
+gid("no_users").style.display = "none";
+gid("users_list_loader").style.display = "block";
+gid("users_list").style.display = "none";
+
+
+
 }
 
 var lessons;

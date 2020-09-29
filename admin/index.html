@@ -121,6 +121,11 @@ Mission: Citizen Online Admin
 <i class="material-icons sidebar-icons">group</i>Users
 </div>
 </a>
+<a href="#insights">
+<div class="option active" id="insights_button" onclick="switchSection('insights')">
+<i class="material-icons sidebar-icons">assessment</i>Insights
+</div>
+</a>
 <a href="#feedback" style="display: none;">
 <div class="option" id="feedback_button" onclick="switchSection('feedback')">
 <i class="material-icons sidebar-icons">feedback</i>Feedback
@@ -299,6 +304,40 @@ Save Changes
 </div>
 
 <div class="tabcontent" id="users_content" style="display: none;">
+
+<div id="users_main" class="container">
+
+<div id="users_list">
+<div id="inner_users_list">
+
+</div>
+</div>
+
+<div id="users_list_loader">
+<div class="real_spinner">
+<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
+</div>
+</div>
+
+<div id="no_users" style="display: none">
+<div style="
+    text-align: -webkit-center;
+    font-size: 76px;
+    color: black;
+"><i class="material-icons">error_outline</i></div>
+<div style="
+    text-align: -webkit-center;
+    font-size: 22px;
+">No users found</div>
+<div class="padding"></div>
+</div>
+</div>
+
+</div>
+
+<div class="tabcontent" id="insights_content" style="display: none;">
+
+
 
 </div>
 

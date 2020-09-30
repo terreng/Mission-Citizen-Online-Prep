@@ -123,6 +123,7 @@ if (query.token) {
           users = Object.fromEntries(Object.entries(users).filter(function([key, value]) {return true && value.email}))
           for (var i = 0; i < Object.keys(users).length; i++) {
             users[Object.keys(users)[i]].id = Object.keys(users)[i];
+            delete users[Object.keys(users)[i]].quizzes;
           }
           var users_array = [];
           for (var i = 0; i < Object.keys(users).length; i++) {

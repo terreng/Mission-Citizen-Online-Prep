@@ -279,6 +279,26 @@ gid("users_list").style.display = "block";
 
 }
 
+function findUser() {
+  showAlert("Find User",'<div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">Email</div><input type="text" class="c_text" placeholder="Email" id="find_user_email" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_email_not_found" style="display: none;color: red;padding-top: 8px;">User with email not gound</div>',"submit",function() {
+    var email = gid("find_user_email").value;
+    var found_user_id = false;
+    for (var i = 0; i < userlist.length; i++) {
+      if (userlist[i].email == email) {
+        found_user_id = userlist[i].id;
+      }
+    }
+    if (found_user_id) {
+      openUser(found_user_id);
+      hideAlert();
+    } else {
+      gid("user_email_not_found").style.display = "block";
+      gid("find_user_email").focus();
+    }
+  })
+  gid("find_user_email").focus();
+}
+
 function openUser(userid) {
 
 gid("users_main").style.display = "none";

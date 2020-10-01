@@ -311,7 +311,14 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
 
   asyncLoad((location.origin)+"/api?intent=getUserFull&userid="+userid+"&token="+encodeURIComponent(idToken),function(response) {
 
-    console.log(response);
+    response = JSON.parse(response);
+    gid("user_loader").style.display = "none";
+    gid("user_content").style.display = "block";
+
+    gid("user_details_name").innerText = "Name: "+response.name;
+    gid("user_details_email").innerText = "Email: "+response.email;
+    gid("user_details_date").innerText = "Registration date: "+toDateString(response.date);
+    gid("user_details_userid").innerText = "User ID: "+response.id;
 
   },function() {
 	

@@ -188,8 +188,54 @@ if (query.token) {
           return internalServerError(error);
         });
       } else {
-        res.writeHead(400);
-        res.end();
+        if (query.intent == "resetUserPassword" && query.userid) {
+          admin.database().ref("users/"+query.userid).once("value").then(function(snapshot) {
+            if (snapshot.val()) {
+
+              function makeid(length) { //https://stackoverflow.com/a/1349426/6276471
+                var result           = '';
+                var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                var charactersLength = characters.length;
+                for ( var i = 0; i < length; i++ ) {
+                   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+             }
+
+              var newpassword = makeid(15);
+
+              bcrypt.hash(newpassword, 10, function(err, hash) {
+                if (err) {
+                  return internalServerError(err);
+                } else {
+                  admin.database().ref("privateusers/"+query.userid+"/hash").set(hash).then(function() {
+                    admin.database().ref("privateusers/"+query.userid+"/tokens").set(null).then(function() {
+                    
+                      var data = JSON.stringify({"password": newpassword});
+                      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
+                      res.write(data, "utf-8");
+                      res.end();
+                    
+                    }).catch(function(error) {
+                      return internalServerError(error);
+                    });
+                  }).catch(function(error) {
+                    return internalServerError(error);
+                  });
+                }
+              });
+
+            } else {
+              res.writeHead(400);
+              res.end();
+            }
+          }).catch(function(error) {
+            return internalServerError(error);
+          });
+        } else {
+          res.writeHead(400);
+          res.end();
+        }
       }
       }
     } else {

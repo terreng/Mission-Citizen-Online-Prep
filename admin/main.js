@@ -299,7 +299,11 @@ function findUser() {
   gid("find_user_email").focus();
 }
 
+var openuserid = false;
+
 function openUser(userid) {
+
+openuserid = userid;
 
 gid("users_main").style.display = "none";
 gid("users_user").style.display = "block";
@@ -381,6 +385,41 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
     showAlert("Error",error.message);
   });
 
+}
+
+function resetUserPassword() {
+  showAlert("Reset user password?","This user will be signed out of all devices and a new password will be randomly generated.","confirm",function() {
+    createPostProgress("Resetting user password")
+    firebase.auth().currentUser.getIdToken().then(function(idToken) {
+    asyncLoad((location.origin)+"/api?intent=resetUserPassword&userid="+openuserid+"&token="+encodeURIComponent(idToken),function(response) {
+      showAlert("Password reset","New password:<br><br>"+JSON.parse(response).password)
+    },function() {
+      showAlert("Error","Bad response from server");
+    },function() {
+      showAlert("Error","You are offline");
+    },"resetUserPassword");
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+  });
+  })
+}
+
+function deleteUserAccount() {
+  showAlert("Delete user account?","This action cannot be undone. All data associated with this user will be permanently deleted.","confirm",function() {
+    createPostProgress("Deleting user")
+    firebase.auth().currentUser.getIdToken().then(function(idToken) {
+    asyncLoad((location.origin)+"/api?intent=deleteUser&userid="+openuserid+"&token="+encodeURIComponent(idToken),function(response) {
+      loadUsers();
+      showAlert("User deleted","The user was deleted successfully");
+    },function() {
+      showAlert("Error","Bad response from server");
+    },function() {
+      showAlert("Error","You are offline");
+    },"deleteUser");
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+  });
+  })
 }
 
 function toggleQuizItem(index) {

@@ -443,13 +443,30 @@ if (gid("quiz_item_"+index).nextElementSibling.style.display == "block") {
 
 function openUserQuiz(quiz_object) {
   console.log(quiz_object);
-var baseurl = "";
-if (quiz_object.type == 0) {
-  baseurl = (location.origin)+"/quiz/0?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)
-} else {
-  baseurl = (location.origin)+"/lesson/"+(quiz_object.lessonindex*2)+"/quiz?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)
-}
-console.log(baseurl);
+
+gid("users_main").style.display = "none";
+gid("users_quiz").style.display = "block";
+gid("users_user").style.display = "none";
+
+gid("user_quiz_loader").style.display = "block";
+gid("user_quiz_content").style.display = "none";
+
+firebase.auth().currentUser.getIdToken().then(function(idToken) {
+
+  var authobject = encodeURIComponent(JSON.stringify({"key":idToken,"userid":openuserid}));
+
+  var baseurl = "";
+  if (quiz_object.type == 0) {
+    baseurl = (location.origin)+"/quiz/0?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)+"&auth="+authobject
+  } else {
+    baseurl = (location.origin)+"/lesson/"+(quiz_object.lessonindex*2)+"/quiz?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)+"&auth="+authobject
+  }
+
+  console.log(baseurl);
+  
+}).catch(function(error) {
+  showAlert("Error",error.message);
+});
 }
 
 var lessons;

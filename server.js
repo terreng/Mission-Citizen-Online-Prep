@@ -112,6 +112,17 @@ if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV == "pro
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+req.url});
   res.end();
 } else {
+
+var headless = false;
+if (query.auth) {
+try {
+  query.auth = JSON.parse(query.auth);
+  if ((url.indexOf("/lesson/") == 0 && url.split("/lesson/")[1].indexOf("/quiz") > -1 && url.split("/lesson/")[1].indexOf("/quiz") == url.split("/lesson/")[1].indexOf("/")) || (url.indexOf("/quiz/0") == 0)) {
+  headless = true;
+  }
+} catch {}
+}
+
 if (url.indexOf("/api") == 0) {
 if (query.token) {
   admin.auth().verifyIdToken(query.token, true).then(function(decodedToken) {
@@ -367,7 +378,7 @@ if (body && body.language && Object.keys(languages).indexOf(body.language) > -1)
   res.end();
 }
 } else {
-if (Object.keys(languages).indexOf(cookies.lang) == -1) {
+if (Object.keys(languages).indexOf(cookies.lang) == -1 && !headless) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_language?continue="+url});
   res.end();
 } else {
@@ -608,7 +619,7 @@ if (url == "/login_register") {
     res.write(data, "utf-8");
     res.end();
 } else {
-if (!cookies.code) {
+if (!cookies.code && !headless) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login?continue="+url});
   res.end();
 } else {
@@ -1307,7 +1318,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 
 }
-});
+},headless ? query.auth : undefined);
 } else {
 if (url == "/quiz_submit_0") {
 if (body && query.id && query.index != null) {
@@ -1779,7 +1790,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 }
 
-function doAuthentication(cookies,callback) {
+function doAuthentication(cookies,callback,apiauth) {
 var userdata;
 var privateuserdata;
 admin.database().ref("users/"+cookies.code).once("value").then(function(snapshot) {

@@ -246,6 +246,7 @@ function loadUsers() {
 
 gid("users_main").style.display = "block";
 gid("users_user").style.display = "none";
+gid("users_quiz").style.display = "none";
 
 gid("no_users").style.display = "none";
 gid("users_list_loader").style.display = "block";
@@ -300,12 +301,14 @@ function findUser() {
 }
 
 var openuserid = false;
+var openuserresponse = false;
 
 function openUser(userid) {
 
 openuserid = userid;
 
 gid("users_main").style.display = "none";
+gid("users_quiz").style.display = "none";
 gid("users_user").style.display = "block";
 
 gid("user_loader").style.display = "block";
@@ -316,6 +319,7 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
   asyncLoad((location.origin)+"/api?intent=getUserFull&userid="+userid+"&token="+encodeURIComponent(idToken),function(response) {
 
     response = JSON.parse(response);
+    openuserresponse = response;
 
     gid("user_loader").style.display = "none";
     gid("user_content").style.display = "block";
@@ -349,7 +353,7 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
       if (response.lesson_score_history[i] && Object.keys(response.lesson_score_history[i]).length > 0) {
         for (var e = Object.keys(response.lesson_score_history[i]).length-1; e > -1; e--) {
           if (response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices && response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.length == response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length) {
-              pendhtml += '<div class="quiz_result_item"><div>'+toDateString(response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].date)+'</div><div>'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length+'/'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
+              pendhtml += '<div class="quiz_result_item" onclick="openUserQuiz(openuserresponse.lesson_score_history['+i+']['+Object.keys(response.lesson_score_history[i])[e]+'])"><div>'+toDateString(response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].date)+'</div><div>'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length+'/'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
           }
         }
       }
@@ -363,7 +367,7 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
 
     if (response.practice_quiz_score_history && Object.keys(response.practice_quiz_score_history).length > 0) {
       for (var e = Object.keys(response.practice_quiz_score_history).length-1; e > -1; e--) {
-        pendhtml += '<div class="quiz_result_item"><div>'+toDateString(response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].date)+'</div><div>'+(Object.keys(response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].choices || []).map(function (key) {return (response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length)+'/'+response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
+        pendhtml += '<div class="quiz_result_item" onclick="openUserQuiz(openuserresponse.practice_quiz_score_history['+Object.keys(response.practice_quiz_score_history)[e]+'])"><div>'+toDateString(response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].date)+'</div><div>'+(Object.keys(response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].choices || []).map(function (key) {return (response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length)+'/'+response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
       }
     }
 
@@ -435,6 +439,17 @@ if (gid("quiz_item_"+index).nextElementSibling.style.display == "block") {
   gid("quiz_item_"+index).nextElementSibling.style.display = "block";
   gid("quiz_item_"+index).children[2].children[0].innerText = "expand_less";
 }
+}
+
+function openUserQuiz(quiz_object) {
+  console.log(quiz_object);
+var baseurl = "";
+if (quiz_object.type == 0) {
+  baseurl = (location.origin)+"/quiz/0?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)
+} else {
+  baseurl = (location.origin)+"/lesson/"+(quiz_object.lessonindex*2)+"/quiz?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)
+}
+console.log(baseurl);
 }
 
 var lessons;

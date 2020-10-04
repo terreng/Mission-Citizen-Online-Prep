@@ -163,9 +163,11 @@ if (query.token) {
                 for (var i = 0; i < Object.keys(userdata.quizzes).length; i++) {
                   if (userdata.quizzes[Object.keys(userdata.quizzes)[i]].type === 0 && Math.floor(((Date.now()-userdata.quizzes[Object.keys(userdata.quizzes)[i]].timer_date)/1000)/question_timeout) > 9) {
                     practice_quiz_score_history.push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
+                    practice_quiz_score_history[practice_quiz_score_history.length-1].id = Object.keys(userdata.quizzes)[i];
                   } else {
                     if (lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid] != null && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices.length == userdata.quizzes[Object.keys(userdata.quizzes)[i]].length) {
                       lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]].push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
+                      lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]][lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]].length-1].id = Object.keys(userdata.quizzes)[i];
                     }
                   }
                 }

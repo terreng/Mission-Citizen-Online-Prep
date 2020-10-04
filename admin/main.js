@@ -447,9 +447,10 @@ function openUserQuiz(quiz_object) {
 gid("users_main").style.display = "none";
 gid("users_quiz").style.display = "block";
 gid("users_user").style.display = "none";
+gid("content").scrollTop = 0;
 
 gid("user_quiz_loader").style.display = "block";
-gid("user_quiz_content").style.display = "none";
+gid("user_quiz_content").style.display = "block";
 
 firebase.auth().currentUser.getIdToken().then(function(idToken) {
 
@@ -463,10 +464,24 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
   }
 
   console.log(baseurl);
+
+  gid("user_quiz_iframe").innerHTML = '<iframe frameborder="0" onload="gid(\'user_quiz_loader\').style.display = \'none\';this.style.height = this.contentWindow.document.documentElement.scrollHeight + \'px\';" style="border: 0;width: 100%;height:1px;" src="'+baseurl+'"></iframe>';
+  gid("users_quiz_title").innerText = (quiz_object.type == 0 ? "Practice Quiz Results" : "Lesson #"+(quiz_object.lessonindex+1)+" Quiz Results");
+  gid("users_quiz_subtitle").innerHTML = toDateString(quiz_object.date) + " &bull; "+((Object.keys(quiz_object.choices || []).map(function (key) {return (quiz_object.choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length)+'/'+quiz_object.length);
+
   
+  //gid("user_quiz_content").style.display = "block";
+
 }).catch(function(error) {
   showAlert("Error",error.message);
 });
+}
+
+function backFromQuizResults() {
+  gid("users_main").style.display = "none";
+  gid("users_quiz").style.display = "none";
+  gid("users_user").style.display = "block";
+  gid("content").scrollTop = 0;
 }
 
 var lessons;

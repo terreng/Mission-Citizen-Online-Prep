@@ -387,22 +387,24 @@ Back
 <div id="users_quiz" class="container">
 
 <div id="user_quiz_content">
-<div style="font-size: 25px;">User Details</div>
+<div style="font-size: 25px;" id="users_quiz_title"></div>
+<div style="font-size: 20px;padding-top: 4px;" id="users_quiz_subtitle"></div>
 <div class="padding"></div>
+<div id="user_quiz_iframe">
 
+</div>
+<div id="user_quiz_loader">
+<div class="real_spinner">
+<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
+</div>
+</div>
 <div class="padding"></div>
 <div class="buttons">
-<a onclick="loadUsers()">
+<a onclick="backFromQuizResults()">
 <div class="button gray">
 Back
 </div>
 </a>
-</div>
-</div>
-
-<div id="user_quiz_loader">
-<div class="real_spinner">
-<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
 </div>
 </div>
 </div>

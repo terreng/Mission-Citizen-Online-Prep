@@ -129,7 +129,7 @@ if (query.token) {
           for (var i = 0; i < Object.keys(users).length; i++) {
             users_array.push(users[Object.keys(users)[i]])
           }
-          users_array = users_array.sort(function(a,b) {return a.date - b.date});
+          users_array = users_array.sort(function(a,b) {return b.date - a.date});
           var data = JSON.stringify(users_array);
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
           res.write(data, "utf-8");
@@ -148,15 +148,17 @@ if (query.token) {
               admin.database().ref("lessonhistory/lessons").once("value").then(function(snapshot3) {
                 var lessonhistory = snapshot3.val();
 
+                var lesson_score_history = [];
+                var practice_quiz_score_history = [];
+
                 var lesson_numbers = {};
                 if (lessons.length > 0) {
                   for (var i = 0; i < lessons.length; i++) {
                     lesson_numbers[lessons[i].id] = i;
+                    lesson_score_history[i] = [];
                   }
                 }
 
-                var lesson_score_history = [];
-                var practice_quiz_score_history = [];
                 for (var i = 0; i < Object.keys(userdata.quizzes).length; i++) {
                   if (userdata.quizzes[Object.keys(userdata.quizzes)[i]].type === 0) {
                     practice_quiz_score_history.push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
@@ -169,7 +171,7 @@ if (query.token) {
 
                 //TODO: exclude quizzes that are in progress
 
-                var data = JSON.stringify({"name": userdata.name, "email": userdata.email, "date": userdata.date, "id": query.userid});
+                var data = JSON.stringify({"name": userdata.name, "email": userdata.email, "date": userdata.date, "id": query.userid, "lesson_score_history": lesson_score_history, "practice_quiz_score_history": practice_quiz_score_history});
                 res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
                 res.write(data, "utf-8");
                 res.end();

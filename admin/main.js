@@ -312,6 +312,9 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
   asyncLoad((location.origin)+"/api?intent=getUserFull&userid="+userid+"&token="+encodeURIComponent(idToken),function(response) {
 
     response = JSON.parse(response);
+
+    console.log(response);
+
     gid("user_loader").style.display = "none";
     gid("user_content").style.display = "block";
 
@@ -319,6 +322,40 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
     gid("user_details_email").innerText = "Email: "+response.email;
     gid("user_details_date").innerText = "Registration date: "+toDateString(response.date);
     gid("user_details_userid").innerText = "User ID: "+response.id;
+
+    var pendhtml = "";
+
+    for (var i = 0; i < response.lesson_score_history.length; i++) {
+
+      var earned_star = false;
+      var earned_completion = false;
+      if (response.lesson_score_history[i] && Object.keys(response.lesson_score_history[i]).length > 0) {
+      for (var e = 0; e < Object.keys(response.lesson_score_history[i]).length; e++) {
+        if (response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices && response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.length == response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length) {
+          earned_completion = true;
+          if (response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length == response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length || response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length == response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length-1) {
+            earned_star = true;
+          }
+        }
+      }
+      }
+
+      pendhtml += '<div class="quiz_item"><div>Lesson #'+(i+1)+'</div><div>'+(earned_star ? '<i class="material-icons">star</i>' : (earned_completion ? '<i class="material-icons">check</i>' : ''))+'</div><div><i class="material-icons">expand_more</i></div></div>'
+
+      pendhtml += '<div>';
+
+      if (response.lesson_score_history[i] && Object.keys(response.lesson_score_history[i]).length > 0) {
+        for (var e = 0; e < Object.keys(response.lesson_score_history[i]).length; e++) {
+          if (response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices && response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.length == response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length) {
+              pendhtml += '<div class="quiz_result_item"><div>'+toDateString(response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].date)+'</div><div>'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length+'/'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
+          }
+        }
+      }
+
+      pendhtml += '</div>';
+    }
+
+    gid("quiz_history").innerHTML = pendhtml;
 
   },function() {
 	

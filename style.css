@@ -236,7 +236,7 @@ main > div {
     max-width: 800px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
 header div:first-child {
     display: none;
 }
@@ -277,7 +277,7 @@ main > div.language_picker {
 }
 }
 
-@media (min-width: 901px) {
+@media (min-width: 801px) {
 nav {
     display: block !important;
 }

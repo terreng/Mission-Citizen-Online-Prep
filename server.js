@@ -1552,9 +1552,13 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
 
       var pendhtml = '<main>'+renderLanguagePicker(cookies)+'<div>'
 
+      if (!headless) {
       pendhtml += '<div class="quiz_results_title" style="font-size: 22px;">'+localizations[cookies.lang].general.review+'</div>';
+      }
 
+      if (!headless) {
       pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
+      }
 
       var questions_shuffled = shuffleArray(all_questions,userquizdata.date);
       questions_shuffled = questions_shuffled.splice(0,10);
@@ -1597,7 +1601,7 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
         return internalServerError(undefined,true);
       }
   
-      pendhtml += '<div class="question_subtitle" style="padding-top: 20px;">'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (((userquizdata.choices || [])[question_index] || [])[1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : (((userquizdata.choices || [])[question_index] || [])[1] == 0 ? '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.timeout+'</span>'))})+(((userquizdata.choices || [])[question_index] || [])[2] != null ? '<div class="quiz_timer"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 20C16.4 20 20 16.4 20 12S16.4 4 12 4 4 7.6 4 12 7.6 20 12 20M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2M17 13.9L16.3 15.2L11 12.3V7H12.5V11.4L17 13.9Z" /></svg><div id="timer_time">'+function() {var minutes_string = Math.floor(((userquizdata.choices || [])[question_index] || [])[2]/60); var seconds_string = String(((userquizdata.choices || [])[question_index] || [])[2]-(60*minutes_string)); if (seconds_string.length == 1) {seconds_string = "0"+seconds_string}; return String(minutes_string)+":"+seconds_string;}()+'</div></div>' : '')+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lesson_lang || cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
+      pendhtml += '<div class="question_subtitle" '+((question_index !== 0 || !headless) ? 'style="padding-top: 20px;"' : '')+'>'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (((userquizdata.choices || [])[question_index] || [])[1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : (((userquizdata.choices || [])[question_index] || [])[1] == 0 ? '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.timeout+'</span>'))})+(((userquizdata.choices || [])[question_index] || [])[2] != null ? '<div class="quiz_timer"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 20C16.4 20 20 16.4 20 12S16.4 4 12 4 4 7.6 4 12 7.6 20 12 20M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22C6.5 22 2 17.5 2 12C2 6.5 6.5 2 12 2M17 13.9L16.3 15.2L11 12.3V7H12.5V11.4L17 13.9Z" /></svg><div id="timer_time">'+function() {var minutes_string = Math.floor(((userquizdata.choices || [])[question_index] || [])[2]/60); var seconds_string = String(((userquizdata.choices || [])[question_index] || [])[2]-(60*minutes_string)); if (seconds_string.length == 1) {seconds_string = "0"+seconds_string}; return String(minutes_string)+":"+seconds_string;}()+'</div></div>' : '')+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lesson_lang || cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang]+'</div>' : '')+'<form action="/quiz_submit_0?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
   
       for (var i = 0; i < selected_options.length; i++) {
         pendhtml += '<div'+(selected_options[i].correct ? ' class="correct"' : ((typeof ((userquizdata.choices || [])[question_index] || [])[0] == "number" ? ((userquizdata.choices || [])[question_index] || [])[0] == i : (((userquizdata.choices || [])[question_index] || [])[0] || []).indexOf(i) > -1) ? ' class="incorrect"' : ''))+'><div><input'+((typeof ((userquizdata.choices || [])[question_index] || [])[0] == "number" ? ((userquizdata.choices || [])[question_index] || [])[0] == i : (((userquizdata.choices || [])[question_index] || [])[0] || []).indexOf(i) > -1) ? ' checked disabled' : ' disabled')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lesson_lang || cookies.lang]+'</label>'+((selected_options[i].correct && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lesson_lang || cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lesson_lang || cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lesson_lang || cookies.lang]+'</div>' : '')+'</div></div>'
@@ -1607,14 +1611,21 @@ if (userquizdata && userquizdata.type == 0 && ((Math.floor(((Date.now()-userquiz
   
       }
 
+      if (!headless) {
       pendhtml += '<form action="/quiz/0?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;margin-top:26px;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
+      }
 
     }
 
     pendhtml += '</div></main>';
 
+    if (headless) {
+      var data = files["headless_index.html"];
+      data = localize(data,cookies.lang,{"META": "", "CONTENT": pendhtml})
+    } else {
     var data = files["index.html"];
       data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,"quiz"), "TITLE": localizations[cookies.lang].general.fullquiz, "CONTENT": pendhtml})
+    }
       if (!data) {
         return internalServerError();
       }

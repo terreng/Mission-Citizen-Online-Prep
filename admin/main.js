@@ -442,8 +442,6 @@ if (gid("quiz_item_"+index).nextElementSibling.style.display == "block") {
 }
 
 function openUserQuiz(quiz_object) {
-  console.log(quiz_object);
-
 gid("users_main").style.display = "none";
 gid("users_quiz").style.display = "block";
 gid("users_user").style.display = "none";
@@ -458,17 +456,14 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
 
   var baseurl = "";
   if (quiz_object.type == 0) {
-    baseurl = (location.origin)+"/quiz/0?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)+"&auth="+authobject
+    baseurl = (location.origin)+"/quiz/0?id="+quiz_object.id+"&step="+((quiz_object.length)+1)+"&auth="+authobject
   } else {
     baseurl = (location.origin)+"/lesson/"+(quiz_object.lessonindex*2)+"/quiz?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)+"&auth="+authobject
   }
 
-  console.log(baseurl);
-
-  gid("user_quiz_iframe").innerHTML = '<iframe frameborder="0" onload="gid(\'user_quiz_loader\').style.display = \'none\';this.style.height = this.contentWindow.document.documentElement.scrollHeight + \'px\';" style="border: 0;width: 100%;height:1px;" src="'+baseurl+'"></iframe>';
+  gid("user_quiz_iframe").innerHTML = '<iframe frameborder="0" onload="gid(\'user_quiz_loader\').style.display = \'none\';gid(\'user_quiz_content\').querySelector(\'iframe\').style.height = \'1px\'; gid(\'user_quiz_content\').querySelector(\'iframe\').style.height = gid(\'user_quiz_content\').querySelector(\'iframe\').contentWindow.document.documentElement.scrollHeight + \'px\';" style="border: 0;width: 100%;height:1px;" onerror=\'setTimeout(function() {openUserQuiz('+JSON.stringify(quiz_object)+'),1000}\' src="'+baseurl+'"></iframe>';
   gid("users_quiz_title").innerText = (quiz_object.type == 0 ? "Practice Quiz Results" : "Lesson #"+(quiz_object.lessonindex+1)+" Quiz Results");
   gid("users_quiz_subtitle").innerHTML = toDateString(quiz_object.date) + " &bull; "+((Object.keys(quiz_object.choices || []).map(function (key) {return (quiz_object.choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length)+'/'+quiz_object.length);
-
   
   //gid("user_quiz_content").style.display = "block";
 

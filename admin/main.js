@@ -406,6 +406,9 @@ function resetUserPassword() {
 
 function deleteUserAccount() {
   showAlert("Delete user account?","This action cannot be undone. All data associated with this user will be permanently deleted.","confirm",function() {
+    createPostProgress("")
+    setTimeout(function() {
+    showAlert("Are you sure you want to permanently delete this user?","This user will be irrevocably deleted upon clicking confirm below.","confirm",function() {
     createPostProgress("Deleting user")
     firebase.auth().currentUser.getIdToken().then(function(idToken) {
     asyncLoad((location.origin)+"/api?intent=deleteUser&userid="+openuserid+"&token="+encodeURIComponent(idToken),function(response) {
@@ -419,6 +422,8 @@ function deleteUserAccount() {
   }).catch(function(error) {
     showAlert("Error",error.message);
   });
+  })
+  },400)
   })
 }
 

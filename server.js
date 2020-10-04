@@ -145,8 +145,8 @@ if (query.token) {
             var userdata = snapshot.val();
             admin.database().ref("lessons").once("value").then(function(snapshot2) {
               var lessons = snapshot2.val();
-              admin.database().ref("lessonhistory/lessons").once("value").then(function(snapshot3) {
-                var lessonhistory = snapshot3.val();
+              //admin.database().ref("lessonhistory/lessons").once("value").then(function(snapshot3) {
+                //var lessonhistory = snapshot3.val();
 
                 var lesson_score_history = [];
                 var practice_quiz_score_history = [];
@@ -160,25 +160,23 @@ if (query.token) {
                 }
 
                 for (var i = 0; i < Object.keys(userdata.quizzes).length; i++) {
-                  if (userdata.quizzes[Object.keys(userdata.quizzes)[i]].type === 0) {
+                  if (userdata.quizzes[Object.keys(userdata.quizzes)[i]].type === 0 && Math.floor(((Date.now()-userdata.quizzes[Object.keys(userdata.quizzes)[i]].timer_date)/1000)/question_timeout) > 9) {
                     practice_quiz_score_history.push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
                   } else {
-                    if (lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid] != null) {
+                    if (lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid] != null && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices.length == userdata.quizzes[Object.keys(userdata.quizzes)[i]].length) {
                       lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]].push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
                     }
                   }
                 }
-
-                //TODO: exclude quizzes that are in progress
 
                 var data = JSON.stringify({"name": userdata.name, "email": userdata.email, "date": userdata.date, "id": query.userid, "lesson_score_history": lesson_score_history, "practice_quiz_score_history": practice_quiz_score_history});
                 res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
                 res.write(data, "utf-8");
                 res.end();
 
-              }).catch(function(error) {
-                return internalServerError(error);
-              });
+              //}).catch(function(error) {
+              //  return internalServerError(error);
+              //});
             }).catch(function(error) {
               return internalServerError(error);
             });

@@ -313,8 +313,6 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
 
     response = JSON.parse(response);
 
-    console.log(response);
-
     gid("user_loader").style.display = "none";
     gid("user_content").style.display = "block";
 
@@ -340,12 +338,12 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
       }
       }
 
-      pendhtml += '<div class="quiz_item"><div>Lesson #'+(i+1)+'</div><div>'+(earned_star ? '<i class="material-icons">star</i>' : (earned_completion ? '<i class="material-icons">check</i>' : ''))+'</div><div><i class="material-icons">expand_more</i></div></div>'
+      pendhtml += '<div class="quiz_item" id="quiz_item_'+i+'" onclick="toggleQuizItem('+i+')"><div>Lesson #'+(i+1)+'</div><div>'+(earned_star ? '<i class="material-icons">star</i>' : (earned_completion ? '<i class="material-icons">check</i>' : ''))+'</div><div'+(earned_completion ? '' : ' style="display: none;"')+'><i class="material-icons">expand_more</i></div></div>'
 
-      pendhtml += '<div>';
+      pendhtml += '<div style="display: none;">';
 
       if (response.lesson_score_history[i] && Object.keys(response.lesson_score_history[i]).length > 0) {
-        for (var e = 0; e < Object.keys(response.lesson_score_history[i]).length; e++) {
+        for (var e = Object.keys(response.lesson_score_history[i]).length-1; e > -1; e--) {
           if (response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices && response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.length == response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length) {
               pendhtml += '<div class="quiz_result_item"><div>'+toDateString(response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].date)+'</div><div>'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length+'/'+response.lesson_score_history[i][Object.keys(response.lesson_score_history[i])[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
           }
@@ -355,18 +353,44 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
       pendhtml += '</div>';
     }
 
+    pendhtml += '<div class="quiz_item" id="quiz_item_'+response.lesson_score_history.length+'" onclick="toggleQuizItem('+response.lesson_score_history.length+')"><div>Practice Quiz</div><div></div><div'+(response.practice_quiz_score_history.length > 0 ? '' : ' style="display: none;"')+'><i class="material-icons">expand_more</i></div></div>'
+
+    pendhtml += '<div style="display: none;">';
+
+    if (response.practice_quiz_score_history && Object.keys(response.practice_quiz_score_history).length > 0) {
+      for (var e = Object.keys(response.practice_quiz_score_history).length-1; e > -1; e--) {
+        pendhtml += '<div class="quiz_result_item"><div>'+toDateString(response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].date)+'</div><div>'+(Object.keys(response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].choices || []).map(function (key) {return (response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length)+'/'+response.practice_quiz_score_history[Object.keys(response.practice_quiz_score_history)[e]].length+'</div><div><i class="material-icons">chevron_right</i></div></div>'
+      }
+    }
+
+    pendhtml += '</div>';
+
     gid("quiz_history").innerHTML = pendhtml;
 
   },function() {
 	
     showAlert("Error","Bad response from server");
     
-  });
+  },function() {
+	
+    showAlert("Error","You are offline");
+    
+  },"getUserFull");
   
   }).catch(function(error) {
     showAlert("Error",error.message);
   });
 
+}
+
+function toggleQuizItem(index) {
+if (gid("quiz_item_"+index).nextElementSibling.style.display == "block") {
+  gid("quiz_item_"+index).nextElementSibling.style.display = "none";
+  gid("quiz_item_"+index).children[2].children[0].innerText = "expand_more";
+} else {
+  gid("quiz_item_"+index).nextElementSibling.style.display = "block";
+  gid("quiz_item_"+index).children[2].children[0].innerText = "expand_less";
+}
 }
 
 var lessons;

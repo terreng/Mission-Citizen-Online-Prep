@@ -1,0 +1,15 @@
+main {
+    top: 0px;
+    margin-left: 0px;
+}
+
+@media (max-width: 800px) {
+main {
+    top: 0px;
+    margin-left: 0px;
+}
+}
+
+.language_picker {
+    display: none;
+}

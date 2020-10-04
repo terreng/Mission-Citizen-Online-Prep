@@ -20,6 +20,7 @@ var files = {
   "account_email.html": fs.readFileSync("account_email.html", 'utf8'),
   "account_password.html": fs.readFileSync("account_password.html", 'utf8'),
   "index.html": fs.readFileSync("index.html", 'utf8'),
+  "headless_index.html": fs.readFileSync("headless_index.html", 'utf8'),
   "quiz_splash.html": fs.readFileSync("quiz_splash.html", 'utf8'),
   "404.html": fs.readFileSync("404.html", 'utf8'),
 }
@@ -286,7 +287,9 @@ if (query.token) {
       res.end();
     }
   }).catch(function(error) {
-    return internalServerError(error);
+    console.error(error);
+    res.writeHead(400);
+    res.end();
   });
 } else {
   res.writeHead(400);
@@ -295,6 +298,7 @@ if (query.token) {
 } else {
 var static_files = [
   ["style.css","text/css"],
+  ["headless_style.css","text/css"],
   ["logo.png","image/png"],
   ["favicon.ico","image/x-icon"],
   ["admin/style.css","text/css"],
@@ -382,6 +386,9 @@ if (Object.keys(languages).indexOf(cookies.lang) == -1 && !headless) {
   res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+"/login_language?continue="+url});
   res.end();
 } else {
+if (headless) {
+  cookies.lang = "en";
+}
 var error_text = {
   mismatchpassword: localizations[cookies.lang].login.mismatchpassword,
   weakpassword: localizations[cookies.lang].login.weakpassword,
@@ -1117,9 +1124,13 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
 
       var pendhtml = '<main>'+renderLanguagePicker(cookies)+'<div>';
 
+      if (!headless) {
       pendhtml += '<div class="quiz_results_title" style="font-size: 22px;">'+localizations[cookies.lang].general.review+'</div>';
+      }
 
+      if (!headless) {
       pendhtml += '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
+      }
 
       var questions_shuffled = shuffleArray(snapshot2.val().questions,userquizdata.date);
 
@@ -1161,7 +1172,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
         return internalServerError(undefined,true);
       }
   
-      pendhtml += '<div class="question_subtitle" style="padding-top: 20px;">'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (userquizdata.choices[question_index][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lesson_lang || cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang]+'</div>' : '')+'<form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
+      pendhtml += '<div class="question_subtitle" '+((question_index !== 0 || !headless) ? 'style="padding-top: 20px;"' : '')+'>'+localize(localizations[cookies.lang].general.question_result_label,cookies.lang,{"NUM":String(question_index+1), "TOTAL_NUM": String(questions_shuffled.length), "RESULT": (userquizdata.choices[question_index][1] == 1 ? '<span style="color: #689f38">'+localizations[cookies.lang].general.correct+'</span>' : '<span style="color: #d32f2f">'+localizations[cookies.lang].general.incorrect+'</span>')})+'</div><div class="question_question">'+questions_shuffled[question_index].question[cookies.lesson_lang || cookies.lang]+'</div>'+((questions_shuffled[question_index].subtitle && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang] && questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang].length > 0) ? '<div class="question_question_subtitle">'+questions_shuffled[question_index].subtitle[cookies.lesson_lang || cookies.lang]+'</div>' : '')+'<form action="/quiz_submit?id='+query.id+'&index='+question_index+'" method="POST" onsubmit="return beforeSubmit()"><div class="question_options reasoning">';
   
       for (var i = 0; i < selected_options.length; i++) {
         pendhtml += '<div'+(selected_options[i].correct ? ' class="correct"' : ((typeof userquizdata.choices[question_index][0] == "number" ? userquizdata.choices[question_index][0] == i : userquizdata.choices[question_index][0].indexOf(i) > -1) ? ' class="incorrect"' : ''))+'><div><input'+((typeof userquizdata.choices[question_index][0] == "number" ? userquizdata.choices[question_index][0] == i : userquizdata.choices[question_index][0].indexOf(i) > -1) ? ' checked disabled' : ' disabled')+' type="'+(multiple ? "checkbox" : "radio")+'" name="option" value="'+i+'" id="'+i+'"></div><div><label for="'+i+'">'+selected_options[i].answer[cookies.lesson_lang || cookies.lang]+'</label>'+((selected_options[i].correct && questions_shuffled[question_index].reasoning && questions_shuffled[question_index].reasoning[cookies.lesson_lang || cookies.lang] && questions_shuffled[question_index].reasoning[cookies.lesson_lang || cookies.lang].length > 0) ? '<div>'+questions_shuffled[question_index].reasoning[cookies.lesson_lang || cookies.lang]+'</div>' : '')+'</div></div>'
@@ -1171,14 +1182,21 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
   
       }
 
+      if (!headless) {
       pendhtml += '<form action="/lesson/'+lessonnumber+'/quiz?id='+query.id+'&step='+(query.step-1)+'" method="POST" style="overflow:hidden;margin-top:26px;"><input type="submit" value="'+localizations[cookies.lang].general.backtoresults+'" style="width: 200px;float:left;"></form>'
+      }
 
     }
 
     pendhtml += '</div></main>';
 
+    if (headless) {
+      var data = files["headless_index.html"];
+      data = localize(data,cookies.lang,{"META": "", "CONTENT": pendhtml})
+    } else {
     var data = files["index.html"];
-      data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+    data = localize(data,cookies.lang,{"META": "", "SIDEBAR": renderSidebar(cookies,userdata,lessonnumber), "TITLE": localize(localizations[cookies.lang].general.lessonquiz,cookies.lang,{"NUM":String(lessonnumber)}), "CONTENT": pendhtml})
+    }
       if (!data) {
         return internalServerError();
       }
@@ -1751,7 +1769,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 
 }
 
-});
+},headless ? query.auth : undefined);
 
 } else {
 
@@ -1793,6 +1811,37 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 function doAuthentication(cookies,callback,apiauth) {
 var userdata;
 var privateuserdata;
+if (apiauth) {
+if (apiauth.key && apiauth.userid) {
+  admin.auth().verifyIdToken(apiauth.key, true).then(function(decodedToken) {
+    if (decodedToken.uid == "mD5iMxc7d5hD9HXXSAXSHbOHTHk2") {
+      admin.database().ref("users/"+apiauth.userid).once("value").then(function(snapshot) {
+        userdata = snapshot.val();
+        if (userdata) {
+          cookies.lang = "en";
+          cookies.code = apiauth.userid;
+          callback(userdata)
+        } else {
+          res.writeHead(400);
+          res.end();
+        }
+      }).catch(function(error) {
+        return internalServerError(error);
+      });
+    } else {
+      res.writeHead(400);
+      res.end();
+    }
+  }).catch(function(error) {
+    console.error(error);
+    res.writeHead(500);
+    res.end();
+  });
+} else {
+  res.writeHead(400);
+  res.end();
+}
+} else {
 admin.database().ref("users/"+cookies.code).once("value").then(function(snapshot) {
   userdata = snapshot.val();
   hasDoneCallback();
@@ -1831,6 +1880,7 @@ if (privateuserdata.tokens[i].token == cookies.token) {
 return foundmatch;
 }
 
+}
 }
 }
 }

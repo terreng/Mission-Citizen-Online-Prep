@@ -383,7 +383,7 @@ if (url == "/login_language") {
 } else {
 if (url == "/language_submit") {
 if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': ['lesson_lang=; Expires=0', 'lang='+body.language+'; Expires=2147483647']});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/login"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': ['lesson_lang=; Expires=0', 'lang='+body.language+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT']});
   res.end();
 } else {
   res.writeHead(400);
@@ -450,7 +450,7 @@ if (snapshot.val()) {
   tryCode();
 } else {
 admin.database().ref("users/"+workingcode+"/date").set(Date.now()).then(function() {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/welcome"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'code='+workingcode+'; Expires=2147483647'});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+("/welcome"+(query.continue ? "?continue="+query.continue : "")), 'Set-Cookie': 'code='+workingcode+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT'});
   res.end();
 }).catch(function(error) {
   return internalServerError(error);
@@ -465,7 +465,7 @@ tryCode()
 body.code = body.code.replace(/\s/g,'');
 admin.database().ref("users/"+body.code).once("value").then(function(snapshot) {
 if (snapshot.val() && !snapshot.val().email) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': 'code='+body.code+'; Expires=2147483647'});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+query.continue.substring(1) : "/"), 'Set-Cookie': 'code='+body.code+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT'});
   res.end();
 } else {
   badCode(body.code);
@@ -512,7 +512,7 @@ if (err) {
     "hash": hash,
     "tokens": [{"token":newtoken}]
   }).then(function() {
-    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+workingcode+'; Expires=2147483647', 'token='+newtoken+'; Expires=2147483647']});
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+workingcode+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT', 'token='+newtoken+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT']});
     res.end();
   }).catch(function(error) {
     return internalServerError(error);
@@ -574,7 +574,7 @@ if (result) {
   }
   privateuserdata.tokens.push({"token":newtoken});
   admin.database().ref("privateusers/"+Object.keys(snapshot.val())[0]+"/tokens").set(privateuserdata.tokens).then(function() {
-    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+Object.keys(snapshot.val())[0]+'; Expires=2147483647', 'token='+newtoken+'; Expires=2147483647']});
+    res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? query.continue : "/"), 'Set-Cookie': ['code='+Object.keys(snapshot.val())[0]+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT', 'token='+newtoken+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT']});
     res.end();
   }).catch(function(error) {
     return internalServerError(error);
@@ -641,7 +641,7 @@ if (!cookies.code && !headless) {
 
 if (url == "/lesson_language") {
 if (body && body.language && Object.keys(languages).indexOf(body.language) > -1) {
-  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+decodeURIComponent(query.continue.substring(1)) : "/"), 'Set-Cookie': ['lesson_lang='+body.language+'; Expires=2147483647']});
+  res.writeHead(302, {"Location": (process.env.NODE_ENV == "production" ? "https://" : "http://")+req.headers.host+(query.continue ? "/"+decodeURIComponent(query.continue.substring(1)) : "/"), 'Set-Cookie': ['lesson_lang='+body.language+'; Expires=Sun, 01 Jan 2040 08:00:00 GMT']});
   res.end();
 } else {
   var data = files["language.html"];

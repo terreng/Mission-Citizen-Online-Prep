@@ -118,7 +118,7 @@ var headless = false;
 if (query.auth) {
 try {
   query.auth = JSON.parse(query.auth);
-  if ((url.indexOf("/lesson/") == 0 && url.split("/lesson/")[1].indexOf("/quiz") > -1 && url.split("/lesson/")[1].indexOf("/quiz") == url.split("/lesson/")[1].indexOf("/")) || (url.indexOf("/quiz/0") == 0)) {
+  if ((url == "/lesson_language") || (url.indexOf("/lesson/") == 0 && url.split("/lesson/")[1].indexOf("/quiz") > -1 && url.split("/lesson/")[1].indexOf("/quiz") == url.split("/lesson/")[1].indexOf("/")) || (url.indexOf("/quiz/0") == 0)) {
   headless = true;
   }
 } catch {}
@@ -641,7 +641,7 @@ if (body && body.language && Object.keys(languages).indexOf(body.language) > -1)
     for (var i = 0; i < Object.keys(languages).length; i++) {
       langhtml += '<form action="{FORM_ACTION}" method="POST"><input name="language" readonly value="'+Object.keys(languages)[i]+'" style="display: none;"><input type="submit" value="'+languages[Object.keys(languages)[i]].name+'"></form>'
     }
-    data = localize(data,undefined,{"FORM_ACTION": "/lesson_language"+(query.continue ? "?continue="+encodeURIComponent(query.continue) : ""), "LANGUAGES": langhtml})
+    data = localize(data,undefined,{"FORM_ACTION": "/lesson_language"+(query.continue ? "?continue="+encodeURIComponent(query.continue)+(query.auth ? "&auth="+encodeURIComponent(JSON.stringify(query.auth)) : "") : ""), "LANGUAGES": langhtml})
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': Buffer.byteLength(data, "utf-8"), 'Cache-Control': 'no-store' });
     res.write(data, "utf-8");
     res.end();
@@ -1122,7 +1122,7 @@ if (userquizdata && userquizdata.type !== 0 && !((query.step || 0) > (userquizda
 
     if (query.step == (snapshot2.val().questions.length*2)+1) {
 
-      var pendhtml = '<main>'+renderLanguagePicker(cookies)+'<div>';
+      var pendhtml = '<main>'+renderLanguagePicker(cookies,query.auth)+'<div>';
 
       if (!headless) {
       pendhtml += '<div class="quiz_results_title" style="font-size: 22px;">'+localizations[cookies.lang].general.review+'</div>';
@@ -1885,10 +1885,10 @@ return foundmatch;
 }
 }
 
-function renderLanguagePicker(cookies) {
+function renderLanguagePicker(cookies,apiauth) {
 var selected_lang = cookies.lesson_lang || cookies.lang;
 
-var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+encodeURIComponent(req.url)+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language?continue='+encodeURIComponent(req.url)+'" method="POST"><select name="language" onchange="this.form.submit()">';
+var pendhtml = '<div class="language_picker"><a href="/lesson_language?continue='+encodeURIComponent(req.url)+(apiauth ? "&auth="+encodeURIComponent(JSON.stringify(apiauth)) : "")+'">'+localizations[cookies.lang].general.language+': '+languages[selected_lang].name+'</a><form action="/lesson_language?continue='+encodeURIComponent(req.url)+(apiauth ? "&auth="+encodeURIComponent(JSON.stringify(apiauth)) : "")+'" method="POST"><select name="language" onchange="this.form.submit()">';
 
 for (var i = 0; i < Object.keys(languages).length; i++) {
   pendhtml += '<option value="'+Object.keys(languages)[i]+'"'+(selected_lang == Object.keys(languages)[i] ? " selected" : "")+'>'+languages[Object.keys(languages)[i]].name+'</option>';

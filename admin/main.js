@@ -281,20 +281,28 @@ gid("users_list").style.display = "block";
 }
 
 function findUser() {
-  showAlert("Find User",'<div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">Email</div><input type="text" class="c_text" placeholder="Email" id="find_user_email" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_email_not_found" style="display: none;color: red;padding-top: 8px;">User with email not gound</div>',"submit",function() {
+  showAlert("Find User",'<div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">Email</div><input type="text" class="c_text" placeholder="Email" id="find_user_email" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_email_not_found" style="display: none;color: red;padding-top: 8px;">User with email not found</div><div style="font-size: 18px; padding-bottom: 12px; padding-top: 12px;text-align: center;">- - - OR - - -</div><div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">User ID (Login Code)</div><input type="text" class="c_text" placeholder="User ID" id="find_user_userid" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_userid_not_found" style="display: none;color: red;padding-top: 8px;">User with login code not found</div>',"submit",function() {
     var email = gid("find_user_email").value;
+    var userid = gid("find_user_userid").value.split(" ").join("");
+    gid("user_userid_not_found").style.display = "none";
+    gid("user_email_not_found").style.display = "none";
     var found_user_id = false;
     for (var i = 0; i < userlist.length; i++) {
       if (userlist[i].email == email) {
         found_user_id = userlist[i].id;
       }
     }
-    if (found_user_id) {
-      openUser(found_user_id);
+    if (found_user_id || userid.length == 12) {
+      openUser(userid.length == 12 ? userid : found_user_id);
       hideAlert();
     } else {
-      gid("user_email_not_found").style.display = "block";
-      gid("find_user_email").focus();
+      if (userid) {
+        gid("user_userid_not_found").style.display = "block";
+        gid("find_user_userid").focus();
+      } else {
+        gid("user_email_not_found").style.display = "block";
+        gid("find_user_email").focus();
+      }
     }
   })
   gid("find_user_email").focus();
@@ -477,6 +485,10 @@ function backFromQuizResults() {
   gid("users_quiz").style.display = "none";
   gid("users_user").style.display = "block";
   gid("content").scrollTop = 0;
+}
+
+function exportUsers() {
+  showAlert("Export Users","Coming soon");
 }
 
 var lessons;

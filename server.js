@@ -305,6 +305,8 @@ var static_files = [
   ["android-chrome-256x256.png","image/png"],
   ["apple-touch-icon.png","image/png"],
   ["mstile-150x150.png","image/png"],
+  ["favicon-16x16.png","image/png"],
+  ["favicon-32x32.png","image/png"],
   ["favicon.ico","image/x-icon"],
   ["safari-pinned-tab.svg","image/svg+xml"],
   ["browserconfig.xml","text/xml"],

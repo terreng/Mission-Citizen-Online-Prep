@@ -197,7 +197,7 @@ if (query.token) {
               return internalServerError(error);
             });
           } else {
-            res.writeHead(400);
+            res.writeHead(204);
             res.end();
           }
         }).catch(function(error) {

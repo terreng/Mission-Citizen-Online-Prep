@@ -281,7 +281,7 @@ gid("users_list").style.display = "block";
 }
 
 function findUser() {
-  showAlert("Find User",'<div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">Email</div><input type="text" class="c_text" placeholder="Email" id="find_user_email" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_email_not_found" style="display: none;color: red;padding-top: 8px;">User with email not found</div><div style="font-size: 18px; padding-bottom: 12px; padding-top: 12px;text-align: center;">- - - OR - - -</div><div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">User ID (Login Code)</div><input type="text" class="c_text" placeholder="User ID" id="find_user_userid" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_userid_not_found" style="display: none;color: red;padding-top: 8px;">User with login code not found</div>',"submit",function() {
+  showAlert("Find User",'<div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">Email</div><input type="text" class="c_text" placeholder="Email" id="find_user_email" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_email_not_found" style="display: none;color: red;padding-top: 8px;">User with email not found</div><div style="font-size: 18px; padding-bottom: 12px; padding-top: 12px;text-align: center;">- - - OR - - -</div><div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">User ID (Login Code)</div><input type="text" class="c_text" placeholder="User ID" id="find_user_userid" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="user_userid_not_found" style="display: none;color: red;padding-top: 8px;">Invalid login code</div>',"submit",function() {
     var email = gid("find_user_email").value;
     var userid = gid("find_user_userid").value.split(" ").join("");
     gid("user_userid_not_found").style.display = "none";
@@ -338,10 +338,12 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
     gid("user_details_name").style.display = "";
     gid("user_details_email").style.display = "";
     gid("account_user_buttons").style.display = "";
+    gid("anon_user_buttons").style.display = "none";
     } else {
       gid("user_details_name").style.display = "none";
       gid("user_details_email").style.display = "none";
       gid("account_user_buttons").style.display = "none";
+      gid("anon_user_buttons").style.display = "";
     }
     gid("user_details_date").innerText = "Registration date: "+toDateString(response.date);
     gid("user_details_userid").innerText = "User ID: "+response.id;
@@ -484,10 +486,10 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
   if (quiz_object.type == 0) {
     baseurl = (location.origin)+"/quiz/0?id="+quiz_object.id+"&step="+((quiz_object.length)+1)+"&auth="+authobject
   } else {
-    baseurl = (location.origin)+"/lesson/"+(quiz_object.lessonindex*2)+"/quiz?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)+"&auth="+authobject
+    baseurl = (location.origin)+"/lesson/"+(quiz_object.lessonindex+1)+"/quiz?id="+quiz_object.id+"&step="+((quiz_object.length*2)+1)+"&auth="+authobject
   }
 
-  gid("user_quiz_iframe").innerHTML = '<iframe frameborder="0" onload="gid(\'user_quiz_loader\').style.display = \'none\';gid(\'user_quiz_content\').querySelector(\'iframe\').style.height = \'1px\'; gid(\'user_quiz_content\').querySelector(\'iframe\').style.height = gid(\'user_quiz_content\').querySelector(\'iframe\').contentWindow.document.documentElement.scrollHeight + \'px\';" style="border: 0;width: 100%;height:1px;" onerror=\'setTimeout(function() {openUserQuiz('+JSON.stringify(quiz_object)+'),1000}\' src="'+baseurl+'"></iframe>';
+  gid("user_quiz_iframe").innerHTML = '<iframe frameborder="0" onload="gid(\'user_quiz_loader\').style.display = \'none\';gid(\'user_quiz_content\').querySelector(\'iframe\').style.height = \'1px\'; gid(\'user_quiz_content\').querySelector(\'iframe\').style.height = gid(\'user_quiz_content\').querySelector(\'iframe\').contentWindow.document.documentElement.scrollHeight + \'px\';" style="border: 0;width: 100%;height:1px;" onerror=\'return;setTimeout(function() {openUserQuiz('+JSON.stringify(quiz_object)+'),1000}\' src="'+baseurl+'"></iframe>';
   gid("users_quiz_title").innerText = (quiz_object.type == 0 ? "Practice Quiz Results" : "Lesson #"+(quiz_object.lessonindex+1)+" Quiz Results");
   gid("users_quiz_subtitle").innerHTML = toDateString(quiz_object.date) + " &bull; "+((Object.keys(quiz_object.choices || []).map(function (key) {return (quiz_object.choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length)+'/'+quiz_object.length);
   
@@ -503,6 +505,48 @@ function backFromQuizResults() {
   gid("users_quiz").style.display = "none";
   gid("users_user").style.display = "block";
   gid("content").scrollTop = 0;
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+function makeUserAccount() {
+  showAlert("Transform this anonymous account into a student account",'<div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;">Student Name</div><input type="text" class="c_text" placeholder="Name" id="transform_name" onkeypress="if(event.keyCode==13) {gid(\'transform_email\').focus()}"></input><div id="transform_name_bad" style="display: none;color: red;padding-top: 8px;">Please enter student name</div><div style="font-size: 18px; padding-bottom: 7px;font-weight:bold;padding-top: 7px;">Student Email</div><input type="text" class="c_text" placeholder="Email" id="transform_email" onkeypress="if(event.keyCode==13) {gid(\'p_ok_link\').click()}"></input><div id="transform_email_bad" style="display: none;color: red;padding-top: 8px;">Please enter a valid email address</div><div style="padding-top:10px;">A temporary password for this user will be generated automatically.</div>',"submit",function() {
+    var name = gid("transform_name").value;
+    var email = gid("transform_email").value;
+    gid("transform_name_bad").style.display = "none";
+    gid("transform_email_bad").style.display = "none";
+    if (name.length > 0) {
+      if (validateEmail(email)) {
+        createPostProgress("Transforming user account and generating temporary password")
+        firebase.auth().currentUser.getIdToken().then(function(idToken) {
+        asyncLoad((location.origin)+"/api?intent=transformUser&userid="+openuserid+"&token="+encodeURIComponent(idToken)+"&name="+encodeURIComponent(name)+"&email="+encodeURIComponent(email),function(response) {
+          showAlert("User account successfully made into a student account","Temporary password:<br><br>"+JSON.parse(response).password);
+          openUser(openuserid);
+        },function(error) {
+          if (error == 409) {
+            showAlert("Error","An account with this email address already exists.");
+          } else {
+          showAlert("Error","Bad response from server");
+          }
+        },function() {
+          showAlert("Error","You are offline");
+        },"transformUser");
+      }).catch(function(error) {
+        showAlert("Error",error.message);
+      });
+      } else {
+        gid("transform_email_bad").style.display = "block";
+        gid("transform_email").focus();
+      }
+    } else {
+      gid("transform_name_bad").style.display = "block";
+      gid("transform_name").focus();
+    }
+  })
+  gid("transform_name").focus();
 }
 
 function exportUsers() {

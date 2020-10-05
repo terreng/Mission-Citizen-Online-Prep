@@ -124,6 +124,137 @@ try {
 } catch {}
 }
 
+if (url == "/users.csv") {
+  if (query.token) {
+    admin.auth().verifyIdToken(query.token, true).then(function(decodedToken) {
+      if (decodedToken.uid == "mD5iMxc7d5hD9HXXSAXSHbOHTHk2") {
+
+        admin.database().ref("users").once("value").then(function(snapshot) {
+          var users = snapshot.val() || {};
+          users = Object.fromEntries(Object.entries(users).filter(function([key, value]) {return true && value.email}))
+          for (var i = 0; i < Object.keys(users).length; i++) {
+            users[Object.keys(users)[i]].id = Object.keys(users)[i];
+          }
+          var users_array = [];
+          for (var i = 0; i < Object.keys(users).length; i++) {
+            users_array.push(users[Object.keys(users)[i]])
+          }
+          users_array = users_array.sort(function(a,b) {return b.date - a.date});
+
+          admin.database().ref("lessons").once("value").then(function(snapshot2) {
+            var lessons = snapshot2.val();
+
+            var pendcsv = "User ID,Name,Email,Registration Date,";
+
+            if (lessons.length > 0) {
+              for (var i = 0; i < lessons.length; i++) {
+                pendcsv += "Lesson "+(i+1)+",";
+              }
+            }
+
+            pendcsv += "Practice Quiz\n"
+
+            if (users_array.length > 0) {
+            for (var u = 0; u < users_array.length; u++) {
+
+              var userdata = users_array[u];
+
+              pendcsv += userdata.id+","+userdata.name.replace(/(,|\")/g,"")+","+userdata.email.replace(/(,|\")/g,"")+","+toCSVDate(userdata.date)+",";
+
+              var lesson_score_history = [];
+              var practice_quiz_score_history = [];
+
+              var lesson_numbers = {};
+              if (lessons.length > 0) {
+                for (var i = 0; i < lessons.length; i++) {
+                  lesson_numbers[lessons[i].id] = i;
+                  lesson_score_history[i] = [];
+                }
+              }
+
+              if (userdata.quizzes) {
+              for (var i = 0; i < Object.keys(userdata.quizzes).length; i++) {
+                if (userdata.quizzes[Object.keys(userdata.quizzes)[i]].type === 0 && Math.floor(((Date.now()-userdata.quizzes[Object.keys(userdata.quizzes)[i]].timer_date)/1000)/question_timeout) > 9) {
+                  practice_quiz_score_history.push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
+                  practice_quiz_score_history[practice_quiz_score_history.length-1].id = Object.keys(userdata.quizzes)[i];
+                } else {
+                  if (lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid] != null && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices && userdata.quizzes[Object.keys(userdata.quizzes)[i]].choices.length == userdata.quizzes[Object.keys(userdata.quizzes)[i]].length) {
+                    lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]].push(userdata.quizzes[Object.keys(userdata.quizzes)[i]]);
+                    lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]][lesson_score_history[lesson_numbers[userdata.quizzes[Object.keys(userdata.quizzes)[i]].lessonid]].length-1].id = Object.keys(userdata.quizzes)[i];
+                  }
+                }
+              }
+              }
+
+              for (var i = 0; i < lesson_score_history.length; i++) {
+
+                var highest_score = 0;
+                var out_of_score = 0;
+                if (lesson_score_history[i] && Object.keys(lesson_score_history[i]).length > 0) {
+                for (var e = 0; e < Object.keys(lesson_score_history[i]).length; e++) {
+                  if (lesson_score_history[i][Object.keys(lesson_score_history[i])[e]].choices) {
+                    if (lesson_score_history[i][Object.keys(lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length > highest_score) {
+                      highest_score = lesson_score_history[i][Object.keys(lesson_score_history[i])[e]].choices.filter(function(a) {return a[1] == 1}).length;
+                      out_of_score = lesson_score_history[i][Object.keys(lesson_score_history[i])[e]].length;
+                    }
+                  }
+                }
+                }
+
+                if (highest_score > 0) {
+                  pendcsv += String(highest_score)+"/"+String(out_of_score)+",";
+                } else {
+                  pendcsv += ",";
+                }
+          
+              }
+          
+              var highest_score = 0;
+              var out_of_score = 0;
+          
+              if (practice_quiz_score_history && Object.keys(practice_quiz_score_history).length > 0) {
+                for (var e = Object.keys(practice_quiz_score_history).length-1; e > -1; e--) {
+                  if ((Object.keys(practice_quiz_score_history[Object.keys(practice_quiz_score_history)[e]].choices || []).map(function (key) {return (practice_quiz_score_history[Object.keys(practice_quiz_score_history)[e]].choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length) > highest_score) {
+                    highest_score = (Object.keys(practice_quiz_score_history[Object.keys(practice_quiz_score_history)[e]].choices || []).map(function (key) {return (practice_quiz_score_history[Object.keys(practice_quiz_score_history)[e]].choices || [])[Number(key)]}).filter(function(a) {return (a && a[1] == 1)}).length);
+                    out_of_score = practice_quiz_score_history[Object.keys(practice_quiz_score_history)[e]].length;
+                  }
+                }
+              }
+
+              if (highest_score > 0) {
+                pendcsv += String(highest_score)+"/"+String(out_of_score);
+              }
+
+              pendcsv += "\n";
+
+            }
+            }
+
+            res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Length': Buffer.byteLength(pendcsv, "utf-8"), 'Cache-Control': 'no-store' });
+            res.write(pendcsv, "utf-8");
+            res.end();
+
+          }).catch(function(error) {
+            return internalServerError(error);
+          });
+        }).catch(function(error) {
+          return internalServerError(error);
+        });
+
+      } else {
+        res.writeHead(403);
+        res.end();
+      }
+    }).catch(function(error) {
+      console.error(error);
+      res.writeHead(400);
+      res.end();
+    });
+  } else {
+    res.writeHead(400);
+    res.end();
+  }
+} else {
 if (url.indexOf("/api") == 0) {
 if (query.token) {
   admin.auth().verifyIdToken(query.token, true).then(function(decodedToken) {
@@ -1887,6 +2018,7 @@ admin.database().ref("lessonhistory/lessons").orderByChild("key").limitToLast(1)
 }
 }
 }
+}
 
 function doAuthentication(cookies,callback,apiauth) {
 var userdata;
@@ -2162,4 +2294,9 @@ randy = function() {calls += 1; return randomFromSeed(seed+calls || 1)};
       a[j] = x;
   }
 return a;
+}
+
+function toCSVDate(stamp) {
+var date = new Date(stamp);
+return date.getFullYear()+"/"+(String((date.getMonth()+1)).length == 1 ? "0"+(date.getMonth()+1) : (date.getMonth()+1))+"/"+(String(date.getDate()).length == 1 ? "0"+date.getDate() : date.getDate());
 }

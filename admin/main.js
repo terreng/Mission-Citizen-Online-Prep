@@ -420,7 +420,7 @@ firebase.auth().currentUser.getIdToken().then(function(idToken) {
 }
 
 function resetUserPassword() {
-  showAlert("Reset user password?","This user will be signed out of all devices and a new password will be randomly generated.","confirm",function() {
+  showAlert("Reset user password?","This user will be signed out of all devices and a temporary new password will be automatically generated.","confirm",function() {
     createPostProgress("Resetting user password")
     firebase.auth().currentUser.getIdToken().then(function(idToken) {
     asyncLoad((location.origin)+"/api?intent=resetUserPassword&userid="+openuserid+"&token="+encodeURIComponent(idToken),function(response) {
@@ -550,7 +550,14 @@ function makeUserAccount() {
 }
 
 function exportUsers() {
-  showAlert("Export Users","Coming soon");
+showAlert("Export Users","This will export all account users into a .CSV file. You can import CSV files into spreadsheet software like Google Sheets or Microsoft Excel.","submit",function() {
+  firebase.auth().currentUser.getIdToken().then(function(idToken) {
+    window.location = ((location.origin)+"/users.csv?token="+idToken);
+    hideAlert();
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+  });
+});
 }
 
 var lessons;

@@ -139,7 +139,7 @@ if (url == "/users.csv") {
           for (var i = 0; i < Object.keys(users).length; i++) {
             users_array.push(users[Object.keys(users)[i]])
           }
-          users_array = users_array.sort(function(a,b) {return b.date - a.date});
+          users_array = users_array.sort(function(a,b) {return a.date - b.date});
 
           admin.database().ref("lessons").once("value").then(function(snapshot2) {
             var lessons = snapshot2.val();

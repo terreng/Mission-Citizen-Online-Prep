@@ -1,5 +1,4 @@
 var admin = require('firebase-admin');
-const request = require('request');
 const http = require('http');
 const { parse } = require('querystring');
 var fs = require('fs');
@@ -7,22 +6,22 @@ const bcrypt = require('bcrypt');
 
 var localizations = JSON.parse(fs.readFileSync("localizations.json", 'utf8'));
 var languages = JSON.parse(fs.readFileSync("languages.json", 'utf8'));
-var lessontemplate = fs.readFileSync("lesson_content.html", 'utf8');
+var lessontemplate = fs.readFileSync("pages/lesson_content.html", 'utf8');
 var files = {
-  "language.html": fs.readFileSync("language.html", 'utf8'),
-  "login_type.html": fs.readFileSync("login_type.html", 'utf8'),
-  "login.html": fs.readFileSync("login.html", 'utf8'),
-  "login_account.html": fs.readFileSync("login_account.html", 'utf8'),
-  "login_register.html": fs.readFileSync("login_register.html", 'utf8'),
-  "newcode.html": fs.readFileSync("newcode.html", 'utf8'),
-  "account.html": fs.readFileSync("account.html", 'utf8'),
-  "account_name.html": fs.readFileSync("account_name.html", 'utf8'),
-  "account_email.html": fs.readFileSync("account_email.html", 'utf8'),
-  "account_password.html": fs.readFileSync("account_password.html", 'utf8'),
-  "index.html": fs.readFileSync("index.html", 'utf8'),
-  "headless_index.html": fs.readFileSync("headless_index.html", 'utf8'),
-  "quiz_splash.html": fs.readFileSync("quiz_splash.html", 'utf8'),
-  "404.html": fs.readFileSync("404.html", 'utf8'),
+  "language.html": fs.readFileSync("pages/language.html", 'utf8'),
+  "login_type.html": fs.readFileSync("pages/login_type.html", 'utf8'),
+  "login.html": fs.readFileSync("pages/login.html", 'utf8'),
+  "login_account.html": fs.readFileSync("pages/login_account.html", 'utf8'),
+  "login_register.html": fs.readFileSync("pages/login_register.html", 'utf8'),
+  "newcode.html": fs.readFileSync("pages/newcode.html", 'utf8'),
+  "account.html": fs.readFileSync("pages/account.html", 'utf8'),
+  "account_name.html": fs.readFileSync("pages/account_name.html", 'utf8'),
+  "account_email.html": fs.readFileSync("pages/account_email.html", 'utf8'),
+  "account_password.html": fs.readFileSync("pages/account_password.html", 'utf8'),
+  "index.html": fs.readFileSync("pages/index.html", 'utf8'),
+  "headless_index.html": fs.readFileSync("pages/headless_index.html", 'utf8'),
+  "quiz_splash.html": fs.readFileSync("pages/quiz_splash.html", 'utf8'),
+  "404.html": fs.readFileSync("pages/404.html", 'utf8'),
 }
 
 var question_timeout = 60; //seconds per question on full length quiz
@@ -487,18 +486,18 @@ if (query.token) {
 }
 } else {
 var static_files = [
-  ["style.css","text/css"],
-  ["headless_style.css","text/css"],
-  ["logo.png","image/png"],
-  ["icon.png","image/png"],
-  ["android-chrome-192x192.png","image/png"],
-  ["android-chrome-256x256.png","image/png"],
-  ["apple-touch-icon.png","image/png"],
-  ["mstile-150x150.png","image/png"],
-  ["favicon-16x16.png","image/png"],
-  ["favicon-32x32.png","image/png"],
+  ["css/style.css","text/css","style.css"],
+  ["css/headless_style.css","text/css","headless_style.css"],
+  ["images/logo.png","image/png","logo.png"],
+  ["images/icon.png","image/png","icon.png"],
+  ["images/android-chrome-192x192.png","image/png","android-chrome-192x192.png"],
+  ["images/android-chrome-256x256.png","image/png","android-chrome-256x256.png"],
+  ["images/apple-touch-icon.png","image/png","apple-touch-icon.png"],
+  ["images/mstile-150x150.png","image/png","mstile-150x150.png"],
+  ["images/favicon-16x16.png","image/png","favicon-16x16.png"],
+  ["images/favicon-32x32.png","image/png","favicon-32x32.png"],
   ["favicon.ico","image/x-icon"],
-  ["safari-pinned-tab.svg","image/svg+xml"],
+  ["images/safari-pinned-tab.svg","image/svg+xml","safari-pinned-tab.svg"],
   ["browserconfig.xml","text/xml"],
   ["site.webmanifest","application/manifest+json"],
   ["admin/style.css","text/css"],

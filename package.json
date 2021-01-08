@@ -12,8 +12,7 @@
     "dotenv": "^8.2.0",
     "firebase-admin": "^8.10.0",
     "http": "0.0.1-security",
-    "querystring": "^0.2.0",
-    "request": "^2.88.2"
+    "querystring": "^0.2.0"
   },
   "engines": {
     "node": "12.x",

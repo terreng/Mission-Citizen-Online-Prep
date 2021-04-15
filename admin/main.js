@@ -79,7 +79,7 @@ gid("c_username").innerHTML = string;
 if (gid(location.hash.split("#")[1]+"_content")) {
 switchSection(location.hash.split("#")[1])
 } else {
-switchSection("lessons")
+switchSection("users")
 }
 for (var i = 0; i < document.getElementsByClassName("option").length; i++) {
 document.getElementsByClassName("option")[i].style.display = "block"

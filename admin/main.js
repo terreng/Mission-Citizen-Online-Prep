@@ -820,7 +820,7 @@ function saveQuestionChanges() {
     }
   }
   if(num_correct < Number(gid("question_type").value)){
-    showAlert('Error','Please select at least ' + Number(gid("question_type").value) + ' correct answers');
+    showAlert('Error','Please select at least ' + Number(gid("question_type").value) + ' correct answer' + (Number(gid("question_type").value) > 1 ? 's' : ''));
     return;
   }
   var updatedata = {

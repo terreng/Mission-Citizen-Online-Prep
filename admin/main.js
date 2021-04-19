@@ -703,7 +703,6 @@ function editQuestion(index) {
   gid("lessons_edit_question").style.display = "block";
   gid("lessons_edit_quiz").style.display = "none";
   answers = JSON.parse(JSON.stringify(((questions && questions[questionindex] && questions[questionindex].answers) ? questions[questionindex].answers : [])));
-
   gid("question_question").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?">';
@@ -814,6 +813,16 @@ function backQuestion() {
 }
 
 function saveQuestionChanges() {
+  var num_correct = 0;
+  for(var i = 0;i<answers.length;i++){
+    if(answers[i]['correct']){
+      num_correct++;
+    }
+  }
+  if(num_correct < Number(gid("question_type").value)){
+    showAlert('Error','Please select at least ' + Number(gid("question_type").value) + ' correct answers');
+    return;
+  }
   var updatedata = {
     "answers": answers,
     "question": {},

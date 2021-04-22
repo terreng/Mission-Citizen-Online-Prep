@@ -691,11 +691,11 @@ padding: 15px 15px;
 width: calc(100% - 8px);
 height: 30px;
 font-size: 20px;
-padding: 1px 3px;
+padding: 2px 4px;
 border-color: black;
 border-style: solid;
 border-width: 1px;
-border-radius: 0;
+border-radius: 3px;
 }
 
 .c_textarea {
@@ -709,7 +709,15 @@ border-color: black;
 border-style: solid;
 border-width: 1px;
 display: block;
-border-radius: 0;
+border-radius: 0px;
+}
+
+.c_text:focus {
+    outline-color: #4fb2ff;
+}
+
+.c_textarea:focus {
+    outline-color: #4fb2ff;
 }
 
 .c_preview {
@@ -2163,3 +2171,4 @@ padding-bottom: 7px;
     font-size: 18px;
     display: none;
 }
+

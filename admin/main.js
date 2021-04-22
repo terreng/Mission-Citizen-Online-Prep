@@ -635,8 +635,7 @@ function editLesson(lessonindex,newlesson) {
 
 function updateLesson() {
 for (var i = 0; i < Object.keys(langs).length; i++) {
-  var title = gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value;
-  if(!title){
+  if(gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).focus();
@@ -648,7 +647,7 @@ for (var i = 0; i < Object.keys(langs).length; i++) {
   var checkvideoid = getvideoid.match(/((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/);
   if ((checkvideoid && checkvideoid[5] && checkvideoid[5].length == 11) || getvideoid.length == 11) {
     gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = ((checkvideoid && checkvideoid[5]) ? checkvideoid[5] : getvideoid);
-  }else if(getvideoid){
+  }else if(getvideoid.length > 0){
     gid("video_input_"+Object.keys(langs)[i]).style.borderColor = "red";
     gid("video_input_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
     gid("video_input_"+Object.keys(langs)[i]).focus();
@@ -775,8 +774,7 @@ pendhtml += '<select style="border-width: 2px;margin-top: 16px;font-size: 20px;"
 showAlert("Question Option",pendhtml,"submit",function() {
 
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    var option_input = gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value;
-    if(!option_input){
+    if(gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
       gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
       gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
       gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).focus();

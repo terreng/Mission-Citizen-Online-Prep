@@ -843,8 +843,7 @@ function backQuestion() {
 
 function saveQuestionChanges() {
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    var question = gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value;
-    if(!question){
+    if(gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
       gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
       gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
       gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).focus();

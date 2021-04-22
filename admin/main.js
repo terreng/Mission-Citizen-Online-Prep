@@ -620,11 +620,11 @@ function editLesson(lessonindex,newlesson) {
   }
   gid("lesson_video").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA">';
+    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA" id="video_input_'+Object.keys(langs)[i]+'">';
   }
   gid("lesson_text").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_text").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Text/Description ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Optional text that shows below video"></textarea>';
+    gid("lesson_text").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Text/Description ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;b" placeholder="Optional text that shows below video"></textarea>';
   }
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value = ((lessons[lessonindex] && lessons[lessonindex].title) ? lessons[lessonindex].title[Object.keys(langs)[i]] || "" : "")
@@ -634,6 +634,22 @@ function editLesson(lessonindex,newlesson) {
 }
 
 function updateLesson() {
+for (var i = 0; i < Object.keys(langs).length; i++) {//converts full links to just IDs
+  var getvideoid = gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value;
+  var checkvideoid = getvideoid.match(/((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/);
+  if ((checkvideoid && checkvideoid[5] && checkvideoid[5].length == 11) || getvideoid.length == 11) {
+    gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = ((checkvideoid && checkvideoid[5]) ? checkvideoid[5] : getvideoid);
+    gid("video_input_"+Object.keys(langs)[i]).style.borderColor = "black";
+  }else if(getvideoid){
+    var flagged = true;
+    gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = "";
+    gid("video_input_"+Object.keys(langs)[i]).style.borderColor = "red";
+  }
+}
+if(flagged){
+  showAlert("Invalid Video ID", "The " + langs[Object.keys(langs)[i]] + " video ID is invalid" );
+  return;
+}
 var updatedata = {
   "title": {},
   "text": {},

@@ -616,11 +616,11 @@ function editLesson(lessonindex,newlesson) {
   gid("lessons_edit").style.display = "block";
   gid("lesson_title").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title">';
+    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a title in '+langs[Object.keys(langs)[i]]+'</div>';
   }
   gid("lesson_video").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA">';
+    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA" id="video_input_'+Object.keys(langs)[i]+'" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a valid video ID or URL</div>';
   }
   gid("lesson_text").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -634,6 +634,26 @@ function editLesson(lessonindex,newlesson) {
 }
 
 function updateLesson() {
+for (var i = 0; i < Object.keys(langs).length; i++) {
+  if(gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).focus();
+    return;
+  }
+}
+for (var i = 0; i < Object.keys(langs).length; i++) {
+  var getvideoid = gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value;
+  var checkvideoid = getvideoid.match(/((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/);
+  if ((checkvideoid && checkvideoid[5] && checkvideoid[5].length == 11) || getvideoid.length == 11) {
+    gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = ((checkvideoid && checkvideoid[5]) ? checkvideoid[5] : getvideoid);
+  }else if(getvideoid.length > 0){
+    gid("video_input_"+Object.keys(langs)[i]).style.borderColor = "red";
+    gid("video_input_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+    gid("video_input_"+Object.keys(langs)[i]).focus();
+    return;  
+  }
+}
 var updatedata = {
   "title": {},
   "text": {},
@@ -705,7 +725,7 @@ function editQuestion(index) {
   answers = JSON.parse(JSON.stringify(((questions && questions[questionindex] && questions[questionindex].answers) ? questions[questionindex].answers : [])));
   gid("question_question").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?">';
+    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a question in '+langs[Object.keys(langs)[i]]+'</div>';
   }
   gid("question_subtitle").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -746,12 +766,21 @@ function editOption(index) {
 var pendhtml = "";
 
 for (var i = 0; i < Object.keys(langs).length; i++) {
-  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option">';
+  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter an option in '+langs[Object.keys(langs)[i]]+'</div>';
 }
 
 pendhtml += '<select style="border-width: 2px;margin-top: 16px;font-size: 20px;"><option value="true">Correct</option><option value="false">Incorrect</option></select>'
 
 showAlert("Question Option",pendhtml,"submit",function() {
+
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    if(gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
+      gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
+      gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+      gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).focus();
+      return;
+    }
+  }
 
   if (!answers[index]) {
     answers[index] = {"answer":{}};
@@ -813,6 +842,14 @@ function backQuestion() {
 }
 
 function saveQuestionChanges() {
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    if(gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).focus();
+      return;
+    }
+  }
   var num_correct = 0;
   for(var i = 0;i<answers.length;i++){
     if(answers[i]['correct']){

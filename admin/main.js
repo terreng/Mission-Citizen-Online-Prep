@@ -767,12 +767,22 @@ function editOption(index) {
 var pendhtml = "";
 
 for (var i = 0; i < Object.keys(langs).length; i++) {
-  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option">';
+  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter an option in '+langs[Object.keys(langs)[i]]+'</div>';
 }
 
 pendhtml += '<select style="border-width: 2px;margin-top: 16px;font-size: 20px;"><option value="true">Correct</option><option value="false">Incorrect</option></select>'
 
 showAlert("Question Option",pendhtml,"submit",function() {
+
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    var option_input = gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value;
+    if(!option_input){
+      gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
+      gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+      gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).focus();
+      return;
+    }
+  }
 
   if (!answers[index]) {
     answers[index] = {"answer":{}};

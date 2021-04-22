@@ -616,11 +616,11 @@ function editLesson(lessonindex,newlesson) {
   gid("lessons_edit").style.display = "block";
   gid("lesson_title").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title">';
+    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a title in '+langs[Object.keys(langs)[i]]+'</div>';
   }
   gid("lesson_video").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA" id="video_input_'+Object.keys(langs)[i]+'">';
+    gid("lesson_video").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">YouTube Video ID ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="hEFglmU27MA" id="video_input_'+Object.keys(langs)[i]+'" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a valid video ID or URL</div>';
   }
   gid("lesson_text").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -638,7 +638,8 @@ for (var i = 0; i < Object.keys(langs).length; i++) {
   var title = gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value;
   if(!title){
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
-    showAlert("Missing Title", "Please enter a " + langs[Object.keys(langs)[i]] + " title");
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).focus();
     return;
   }
 }
@@ -647,11 +648,10 @@ for (var i = 0; i < Object.keys(langs).length; i++) {
   var checkvideoid = getvideoid.match(/((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/);
   if ((checkvideoid && checkvideoid[5] && checkvideoid[5].length == 11) || getvideoid.length == 11) {
     gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = ((checkvideoid && checkvideoid[5]) ? checkvideoid[5] : getvideoid);
-    gid("video_input_"+Object.keys(langs)[i]).style.borderColor = "black";
   }else if(getvideoid){
-    gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value = "";
     gid("video_input_"+Object.keys(langs)[i]).style.borderColor = "red";
-    showAlert("Invalid Video ID", "The " + langs[Object.keys(langs)[i]] + " video ID is invalid" );
+    gid("video_input_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+    gid("video_input_"+Object.keys(langs)[i]).focus();
     return;  
   }
 }
@@ -726,7 +726,7 @@ function editQuestion(index) {
   answers = JSON.parse(JSON.stringify(((questions && questions[questionindex] && questions[questionindex].answers) ? questions[questionindex].answers : [])));
   gid("question_question").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?">';
+    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a question in '+langs[Object.keys(langs)[i]]+'</div>';
   }
   gid("question_subtitle").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -837,8 +837,9 @@ function saveQuestionChanges() {
   for (var i = 0; i < Object.keys(langs).length; i++) {
     var question = gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value;
     if(!question){
-      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red"
-      showAlert("Error", "Please add a question in " + langs[Object.keys(langs)[i]]);
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).focus();
       return;
     }
   }

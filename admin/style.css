@@ -2156,3 +2156,10 @@ padding-bottom: 7px;
     height: 30px;
     color: #696969;
 }
+
+.input_error {
+    color:red;
+    padding-top: 6px;
+    font-size: 18px;
+    display: none;
+}

@@ -634,13 +634,13 @@ function editLesson(lessonindex,newlesson) {
 }
 
 function updateLesson() {
-  for (var i = 0; i < Object.keys(langs).length; i++) {
-    var title = gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value;
-    if(!title){
-      gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
-      showAlert("Missing Title", "Please enter a " + langs[Object.keys(langs)[i]] + " title");
-      return;
-    }
+for (var i = 0; i < Object.keys(langs).length; i++) {
+  var title = gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value;
+  if(!title){
+    gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
+    showAlert("Missing Title", "Please enter a " + langs[Object.keys(langs)[i]] + " title");
+    return;
+  }
 }
 for (var i = 0; i < Object.keys(langs).length; i++) {
   var getvideoid = gid("lesson_video").querySelector(".lang_"+Object.keys(langs)[i]).value;
@@ -834,6 +834,14 @@ function backQuestion() {
 }
 
 function saveQuestionChanges() {
+  for (var i = 0; i < Object.keys(langs).length; i++) {
+    var question = gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value;
+    if(!question){
+      gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red"
+      showAlert("Error", "Please add a question in " + langs[Object.keys(langs)[i]]);
+      return;
+    }
+  }
   var num_correct = 0;
   for(var i = 0;i<answers.length;i++){
     if(answers[i]['correct']){

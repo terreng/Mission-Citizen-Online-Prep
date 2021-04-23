@@ -451,7 +451,7 @@ function missedReport() {
   if(!isNaN(Number(gid('date-select').value))) {
     var end_date = Date.now();
     if(Number(gid('date-select').value) > 0 ){
-      var start_date = end_date - (3600000*24*30*(Number(gid('date-select').value)));
+      var start_date = end_date - (3600000*24*30.333333333333333333333333333333333333333333333333333*(Number(gid('date-select').value)));
     }else{
       var start_date = new Date(1601276400000);
       }

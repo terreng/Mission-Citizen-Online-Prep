@@ -490,11 +490,7 @@ function missedReport() {
         var percent = (answer['percent_chosen'])*100;
         pendhtml += '<div class="answer_bar" style="border:2px solid '+ border_color +';background: linear-gradient(to right, '+ main_color +' '+ percent +'%, #f5f5f5 0%)"><div class="answer">'+ (answer['answer']['en'].length == 0 ? answer['answer']['es'] : answer['answer']['en']) +'</div><div style="float:right;font-size:18px;">'+ Math.round(percent) +'%</div></div></div>'
       }
-<<<<<<< Updated upstream
-      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.floor(percent_missed) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
-=======
-      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.round(100-(100*res[i]['percent_correct'])) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> times total.</div><div style="padding:20px;"></div>'
->>>>>>> Stashed changes
+      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.round(100-(100*res[i]['percent_correct'])) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
   },gid('include_anonymous').checked, start_date, end_date);

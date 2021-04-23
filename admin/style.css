@@ -2181,7 +2181,7 @@ padding-bottom: 7px;
     margin: 10px 0px;
 }
 
-.mock-answer {
+.answer {
     font-size: 18px;
     float: left;
     max-width: calc(100% - 44px);

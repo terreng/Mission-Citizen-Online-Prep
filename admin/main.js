@@ -426,6 +426,26 @@ function getDates() {
   }
 }
 
+var capitalMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+function toDateString(stamp) {
+var date = new Date(stamp);
+var day = date.getDate();
+var monthstring = capitalMonths[date.getMonth()];
+var timestring = monthstring +" " + day +nth(day) +", " + date.getFullYear();
+return timestring;
+}
+
+function nth(d) {
+      if(d>3 && d<21) return 'th';
+      switch (d % 10) {
+            case 1:  return "st";
+            case 2:  return "nd";
+            case 3:  return "rd";
+            default: return "th";
+      }
+}
+
 function missedReport() {
 
   if(!isNaN(Number(gid('date-select').value))) {
@@ -451,23 +471,30 @@ function missedReport() {
   generateMostFrequentlyMissedQuestions(function(res){
     gid("insights_loader").style.display = "none";
     gid("insights_missed").style.display = "block";
+
     var pendhtml = "";
-    // console.log(res);
-    for(var i=0;i<res.length;i++){
+    pendhtml += (gid('include_anonymous').checked ? 'Including anonymous users' : 'Not including anonymous users');
+    gid('includes_anon').innerHTML = pendhtml;
+    pendhtml = "";
+    pendhtml += 'Including data from ' + toDateString(start_date) + ' to ' + toDateString(end_date);
+    gid('date_range').innerHTML = pendhtml;
+    pendhtml = "";
+
+    for(var i=0;i<res.length;i++){//for each question...
       pendhtml += '<div>'+ res[i]['where'] +'</div><div style="font-size: 22px;">'+ (res[i]['question']['en'].length == 0 ? res[i]['question']['es'] : res[i]['question']['en']) +'</div>'
-      var percent_missed = 0;
-      for(var e=0;e<Object.keys(res[i][Object.keys(res[i])[3]]).length;e++){
+      for(var e=0;e<Object.keys(res[i][Object.keys(res[i])[3]]).length;e++){//for each answer...
         var answer = res[i]['answers'][Object.keys(res[i]['answers'])[e]];
         // console.log(answer)
         var border_color = (answer['correct'] ? '#66bb6a': '#ef5350');
         var main_color = (answer['correct'] ? '#c8e6c9': '#ffcdd2');
-        var percent = (answer['count']/res[i]['count'])*100;
-        pendhtml += '<div class="answer_bar" style="border:2px solid '+ border_color +';background: linear-gradient(to right, '+ main_color +' '+ percent +'%, #f5f5f5 0%)"><div class="mock-answer">'+ (answer['answer']['en'].length == 0 ? answer['answer']['es'] : answer['answer']['en']) +'</div><div style="float:right;font-size:18px;">'+ Math.floor(percent) +'%</div></div></div>'
-        if(!answer['correct']){
-          percent_missed += percent;
-        }
+        var percent = (answer['percent_chosen'])*100;
+        pendhtml += '<div class="answer_bar" style="border:2px solid '+ border_color +';background: linear-gradient(to right, '+ main_color +' '+ percent +'%, #f5f5f5 0%)"><div class="answer">'+ (answer['answer']['en'].length == 0 ? answer['answer']['es'] : answer['answer']['en']) +'</div><div style="float:right;font-size:18px;">'+ Math.round(percent) +'%</div></div></div>'
       }
+<<<<<<< Updated upstream
       pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.floor(percent_missed) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
+=======
+      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.round(100-(100*res[i]['percent_correct'])) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> times total.</div><div style="padding:20px;"></div>'
+>>>>>>> Stashed changes
     }
     gid('question_report').innerHTML = pendhtml;
   },gid('include_anonymous').checked, start_date, end_date);

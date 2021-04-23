@@ -365,23 +365,29 @@ function missedReport() {
   gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "block";
 
-  var pendhtml = "";
-  var percentages = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
-  for(var e=0;e<percentages.length;e++){
-    var sum = 0;
-    for(var i=0;i<percentages[e].length;i++){
-      percentages[e][i] = Math.random();
-      sum+=percentages[e][i];
+  generateMostFrequentlyMissedQuestions(function(res){
+    gid("insights_loader").style.display = "none";
+    gid("insights_missed").style.display = "block";
+    var pendhtml = "";
+    var percentages = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
+    for(var e=0;e<percentages.length;e++){
+      var sum = 0;
+      for(var i=0;i<percentages[e].length;i++){
+        percentages[e][i] = Math.random();
+        sum+=percentages[e][i];
+      }
+      for(var i=0;i<percentages[e].length;i++){
+        percentages[e][i] = (percentages[e][i]/sum)*100;
+      }
     }
-    for(var i=0;i<percentages[e].length;i++){
-      percentages[e][i] = (percentages[e][i]/sum)*100;
+    for(var e=0;e<percentages.length;e++){
+      pendhtml += '<div style="font-size: 22px;">Question '+ (e+1) +'</div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][0] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 1</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][0]) +'%</div></div></div><div class="answer_bar" style="border:2px solid #66bb6a;background: linear-gradient(to right, #c8e6c9 '+ percentages[e][1] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 2</div><div style="float:right;font-size:18px">'+ Math.floor(percentages[e][1]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][2] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 3</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][2]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][3] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 4</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][3]) +'%</div></div><div style="font-size:18px">Missed <b>'+ Math.floor(percentages[e][0]+percentages[e][2]+percentages[e][3]) +'%</b> of the time, answered <b>'+ Math.floor(Math.random()*10) +'</b> times total.</div><div style="padding:20px;"></div>'
     }
-  }
-  for(var e=0;e<percentages.length;e++){
-    pendhtml += '<div style="font-size: 22px;">Question '+ (e+1) +'</div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][0] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 1</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][0]) +'%</div></div></div><div class="answer_bar" style="border:2px solid #66bb6a;background: linear-gradient(to right, #c8e6c9 '+ percentages[e][1] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 2</div><div style="float:right;font-size:18px">'+ Math.floor(percentages[e][1]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][2] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 3</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][2]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][3] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 4</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][3]) +'%</div></div><div style="font-size:18px">Missed <b>'+ Math.floor(percentages[e][0]+percentages[e][2]+percentages[e][3]) +'%</b> of the time, answered <b>'+ Math.floor(Math.random()*10) +'</b> times total.</div><div style="padding:20px;"></div>'
-  }
-  gid('question_report').innerHTML = pendhtml;
+    gid('question_report').innerHTML = pendhtml;
+
+  });
 }
+
 
 function timeReport() {
   gid("insights_main").style.display = "none";

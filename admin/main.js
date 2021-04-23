@@ -365,21 +365,24 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,includehist
   
 }
 
+function getDates() {
+  if(!isNan(Number(gid('date-select').value))) {
+  var end_date = Date.now();
+  if(Number(gid('date-select').value) > 0 ){
+    var start_date = end_date - (3600000*24*30*(Number(gid('date-select').value)));
+  }else{
+    var start_date = new Date(1601276400000);
+    }
+  }else{
+  //Custom
+  } 
+}
+
 function missedReport() {
   gid("insights_main").style.display = "none";
   gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "block";
-  if(!isNan(Number(gid('date-select').value))) {
-    var end_date = Date.now();
-    if(Number(gid('date-select').value) > 0 ){
-      var start_date = end_date - (3600000*24*30*(Number(gid('date-select').value)));
-    }else{
-      var start_date = new Date(1601276400000);
-    }
-  }else{
-    //Custom
-  }
   generateMostFrequentlyMissedQuestions(function(res){
     gid("insights_loader").style.display = "none";
     gid("insights_missed").style.display = "block";

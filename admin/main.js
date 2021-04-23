@@ -244,12 +244,14 @@ function loadInsights() {
   gid("insights_main").style.display = "block";
   gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
+  gid("insights_spinner").style.display = "none"
 }
 
 function missedReport() {
   gid("insights_main").style.display = "none";
-  gid("insights_missed").style.display = "block";
+  gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
+  gid("insights_loader").style.display = "block";
 
   var pendhtml = "";
   var percentages = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
@@ -272,7 +274,9 @@ function missedReport() {
 function timeReport() {
   gid("insights_main").style.display = "none";
   gid("insights_missed").style.display = "none";
-  gid("insights_time").style.display = "block";
+  gid("insights_time").style.display = "none";
+  gid("insights_loader").style.display = "block";
+  
 }
 
 var userlist = [];

@@ -426,26 +426,32 @@ Back
 <div class="tabcontent" id="insights_content" style="display: none;">
 
 <div class="container" id="insights_main">
+<div style="font-size: 25px;">Generate Insight Report</div>
+<div class="padding"></div>
 <div class="buttons"> 
 <a onclick="missedReport()">
-<div class="button">Generate Missed Report</div>
+<div class="button">Most Frequently Missed</div>
 </a>
 </div>
 <div class="padding"></div>
 <div class="buttons">
 <a onclick="timeReport()">
-<div class="button">Generate Time Report</div>
+<div class="button">Most Time Spent</div>
 </a>
 </div>
 </div>
 
 <div class="container" id="insights_missed">
-<div style="font-size: 25px;">Missed</div>
+<div style="font-size: 25px;">Most Frequently Missed Questions</div>
 <div class="padding"></div>
-
+<div class="buttons">
+<a onclick="loadInsights()">
+<div class="button gray">Back</div>
+</a>
+</div>
+<div style="margin-top:15px"></div>
 <div id="question_report">
-<div style="font-size: 22px;">Question Example</div>
-
+<div></div>
 </div>
 
 <div class="padding"></div>

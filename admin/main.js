@@ -244,7 +244,7 @@ function loadInsights() {
   gid("insights_main").style.display = "block";
   gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
-  gid("insights_spinner").style.display = "none"
+  gid("insights_loader").style.display = "none"
 }
 
 function missedReport() {
@@ -276,7 +276,7 @@ function timeReport() {
   gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "block";
-  
+
 }
 
 var userlist = [];

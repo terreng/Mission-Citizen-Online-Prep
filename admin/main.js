@@ -271,10 +271,9 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 
 				var this_questions;
 
-				var question_source_string = "";
-
 				if (this_quiz.type !== 0) {
 
+					var question_source_string = "";
 					var this_lesson_questions = null;
 
 					for (var f = 0; f < data_lessonhistory[this_quiz.lessonhistoryid].lessons.length; f++) {
@@ -290,6 +289,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 
 					for (var f = 0; f < this_questions.length; f++) {
 						this_questions[f].answers = shuffleArray(this_questions[f].answers,this_quiz.date+f);
+						this_questions[f].where = question_source_string;
 					}
 
 				}
@@ -302,6 +302,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 						if (data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions && data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions.length > 0) {
 						  for (var u = 0; u < data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions.length; u++) {
 							all_questions.push(data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions[u]);
+							all_questions[all_questions.length-1].where = "Lesson "+(t+1);
 						  }
 						}
 					  }
@@ -331,7 +332,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 							"subtitle": this_questions[f].subtitle,
 							"type": this_questions[f].type,
 							"answers": {},
-							"where": question_source_string,
+							"where": this_questions[f].where,
 							"count": 0,
 							"correct_count_weighted": 0
 						}

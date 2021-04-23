@@ -484,7 +484,6 @@ function missedReport() {
       pendhtml += '<div>'+ res[i]['where'] +'</div><div style="font-size: 22px;">'+ (res[i]['question']['en'].length == 0 ? res[i]['question']['es'] : res[i]['question']['en']) +'</div>'
       for(var e=0;e<Object.keys(res[i][Object.keys(res[i])[3]]).length;e++){//for each answer...
         var answer = res[i]['answers'][Object.keys(res[i]['answers'])[e]];
-        // console.log(answer)
         var border_color = (answer['correct'] ? '#66bb6a': '#ef5350');
         var main_color = (answer['correct'] ? '#c8e6c9': '#ffcdd2');
         var percent = (answer['percent_chosen'])*100;

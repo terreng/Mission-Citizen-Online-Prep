@@ -431,8 +431,22 @@ Back
 <input type="checkbox" id="include_anonymous" checked="true" style="width: 20px;height: 20px;">
 <label for="include_anonymous" style="font-size: 20px;padding-top: 10px;vertical-align: top;">Include Anonymous Users</label>
 <div style="padding:3px"></div>
-<input type="checkbox" id="include_history" checked="true" style="width: 20px;height: 20px;">
-<label for="include_history" style="font-size: 20px;padding-top: 10px;vertical-align: top;">Include Lesson History</label>
+<label for="date-select" style="font-size: 20px;">Choose Date Range:</label>
+<select id="date-select" onchange="getDates()">
+    <option value="1">1 Month</option>
+    <option value="3" selected="true">3 Months</option>
+    <option value="6">6 Months</option>
+    <option value="9">9 Months</option>
+    <option value="12">1 Year</option>
+    <option value="24">2 Years</option>
+    <option value="-1">All Time</option>
+    <option value="cust">Custom...</option>
+</select><br>
+<label for="start_date_picker">Start Date: </label>
+<input type="date" id="start_date_picker" style="margin-top: 5px;"><br>
+<label for="end_date_picker">End Date: </label>
+<input type="date" id="end_date_picker" style="margin: 3px;">
+
 <div class="padding"></div>
 <div class="buttons"> 
 <a onclick="missedReport()">

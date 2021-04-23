@@ -370,7 +370,16 @@ function missedReport() {
   gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "block";
-
+  if(!isNan(Number(gid('date-select').value))) {
+    var end_date = Date.now();
+    if(Number(gid('date-select').value) > 0 ){
+      var start_date = end_date - (3600000*24*30*(Number(gid('date-select').value)));
+    }else{
+      var start_date = new Date(1601276400000);
+    }
+  }else{
+    //Custom
+  }
   generateMostFrequentlyMissedQuestions(function(res){
     gid("insights_loader").style.display = "none";
     gid("insights_missed").style.display = "block";
@@ -393,7 +402,7 @@ function missedReport() {
       pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.floor(percent_missed) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> times total.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
-  },true, true);
+  },gid('include_anonymous').checked, true);
 }
 
 

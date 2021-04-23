@@ -467,7 +467,7 @@ function missedReport() {
           percent_missed += percent;
         }
       }
-      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.floor(percent_missed) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> times total.</div><div style="padding:20px;"></div>'
+      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.floor(percent_missed) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
   },gid('include_anonymous').checked, start_date, end_date);

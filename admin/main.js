@@ -240,6 +240,41 @@ gid("content_title").innerHTML = "Settings"
 gid("content").scrollTop = 0;
 }
 
+function loadInsights() {
+  gid("insights_main").style.display = "block";
+  gid("insights_missed").style.display = "none";
+  gid("insights_time").style.display = "none";
+}
+
+function missedReport() {
+  gid("insights_main").style.display = "none";
+  gid("insights_missed").style.display = "block";
+  gid("insights_time").style.display = "none";
+
+  var pendhtml = "";
+  var percentages = [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]];
+  for(var e=0;e<percentages.length;e++){
+    var sum = 0;
+    for(var i=0;i<percentages[e].length;i++){
+      percentages[e][i] = Math.random();
+      sum+=percentages[e][i];
+    }
+    for(var i=0;i<percentages[e].length;i++){
+      percentages[e][i] = (percentages[e][i]/sum)*100;
+    }
+  }
+  for(var e=0;e<percentages.length;e++){
+    pendhtml += '<div style="font-size: 22px;">Question '+ (e+1) +'</div><div class="padding"></div><div class="answer_bar" style="background: linear-gradient(to right, red '+ percentages[e][0] +'%, #BDBDBD 0%)"><div style="color:white;font-size:18px;">Answer 1</div><div style="float:right;color:white;font-size:18px;margin-top:-18px;">'+ Math.floor(percentages[e][0]) +'%</div></div><div class="padding"></div><div class="answer_bar" style="background: linear-gradient(to right, #25df25 '+ percentages[e][1] +'%, #BDBDBD 0%)"><div style="color:white;font-size:18px;">Answer 2</div><div style="float:right;color:white;font-size:18px;margin-top:-18px;">'+ Math.floor(percentages[e][1]) +'%</div></div><div class="padding"></div><div class="answer_bar" style="background: linear-gradient(to right, red '+ percentages[e][2] +'%, #BDBDBD 0%)"><div style="color:white;font-size:18px;">Answer 3</div><div style="float:right;color:white;font-size:18px;margin-top:-18px;">'+ Math.floor(percentages[e][2]) +'%</div></div><div class="padding"></div><div class="answer_bar" style="background: linear-gradient(to right, red '+ percentages[e][3] +'%, #BDBDBD 0%)"><div style="color:white;font-size:18px;">Answer 4</div><div style="float:right;color:white;font-size:18px;margin-top:-18px;">'+ Math.floor(percentages[e][3]) +'%</div></div><div style="padding:30px;"></div>'
+  }
+  gid('question_report').innerHTML = pendhtml;
+}
+
+function timeReport() {
+  gid("insights_main").style.display = "none";
+  gid("insights_missed").style.display = "none";
+  gid("insights_time").style.display = "block";
+}
+
 var userlist = [];
 
 function loadUsers() {

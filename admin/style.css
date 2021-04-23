@@ -2172,3 +2172,11 @@ padding-bottom: 7px;
     display: none;
 }
 
+.answer_bar {
+    max-width: 500px;
+    height: 25px;
+    color: white;
+    padding: 6px;
+    font-size: 18px;
+    border-radius: 5px;
+}

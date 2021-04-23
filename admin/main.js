@@ -346,8 +346,14 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,includehist
 		}
 
 	}
+  var questions_array_sorted = [];
+  for(var i=0;i<Object.keys(questions_object).length;i++){
+    questions_array_sorted.push(questions_object[Object.keys(questions_object)[i]]);
+  }
 
-	callback(questions_object);
+  questions_array_sorted.sort(function(a,b){return a.count - b.count})
+
+	callback(questions_array_sorted);
   
   }).catch(function(error) {
     showAlert("Error",error.message);
@@ -381,11 +387,11 @@ function missedReport() {
       }
     }
     for(var e=0;e<percentages.length;e++){
-      pendhtml += '<div style="font-size: 22px;">Question '+ (e+1) +'</div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][0] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 1</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][0]) +'%</div></div></div><div class="answer_bar" style="border:2px solid #66bb6a;background: linear-gradient(to right, #c8e6c9 '+ percentages[e][1] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 2</div><div style="float:right;font-size:18px">'+ Math.floor(percentages[e][1]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][2] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 3</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][2]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][3] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 4</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][3]) +'%</div></div><div style="font-size:18px">Missed <b>'+ Math.floor(percentages[e][0]+percentages[e][2]+percentages[e][3]) +'%</b> of the time, answered <b>'+ Math.floor(Math.random()*10) +'</b> times total.</div><div style="padding:20px;"></div>'
+      pendhtml += '<div>Lesson 7</div><div style="font-size: 22px;">Question '+ (e+1) +'</div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][0] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 1</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][0]) +'%</div></div></div><div class="answer_bar" style="border:2px solid #66bb6a;background: linear-gradient(to right, #c8e6c9 '+ percentages[e][1] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 2</div><div style="float:right;font-size:18px">'+ Math.floor(percentages[e][1]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][2] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 3</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][2]) +'%</div></div><div class="answer_bar" style="border:2px solid #ef5350;background: linear-gradient(to right, #ffcdd2 '+ percentages[e][3] +'%, #f5f5f5 0%)"><div class="mock-answer">Answer 4</div><div style="float:right;font-size:18px;">'+ Math.floor(percentages[e][3]) +'%</div></div><div style="font-size:18px">Missed <b>'+ Math.floor(percentages[e][0]+percentages[e][2]+percentages[e][3]) +'%</b> of the time, answered <b>'+ Math.floor(Math.random()*10) +'</b> times total.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
-
-  });
+    console.log(res);
+  },true, true);
 }
 
 

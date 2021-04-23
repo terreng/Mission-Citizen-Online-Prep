@@ -247,7 +247,7 @@ function loadInsights() {
   gid("insights_loader").style.display = "none"
 }
 
-function generateMostFrequentlyMissedQuestions(callback,includeanons,includehistory) {
+function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,enddate) {
 
   firebase.database().ref("users").once("value").then(function(snapshot) {
   
@@ -267,7 +267,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,includehist
 
 				var this_quiz = data_users[Object.keys(data_users)[i]].quizzes[Object.keys(data_users[Object.keys(data_users)[i]].quizzes)[e]];
 
-				if (includehistory || (data_lessonhistory && this_quiz.lessonhistoryid == Object.keys(data_lessonhistory)[Object.keys(data_lessonhistory).length-1])) {
+				if (this_quiz.date >= startdate && this_quiz.date <= enddate) {
 
 				var this_questions;
 
@@ -308,13 +308,17 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,includehist
 							"type": this_questions[f].type,
 							"answers": {},
 							"where": question_source_string,
-							"count": 0
+							"count": 0,
+							"correct_count_weighted": 0
 						}
 
 					}
 
-					questions_object[question_title_simplified].count++;
+					if (this_quiz.choices && this_quiz.choices[f]) {
+						questions_object[question_title_simplified].count++;
+					}
 
+					var num_correct = 0;
 					for (var a = 0; a < this_questions[f].answers.length; a++) {
 
 						var answer_simplified = this_questions[f].answers[a].answer["en"].replace(/[^a-zA-Z0-9]/gi,"").toLowerCase();
@@ -329,13 +333,19 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,includehist
 
 						}
 
-						if (this_quiz.choices && this_quiz.choices[f] && this_quiz.choices[f][0] == a) {
+						if (this_quiz.choices && this_quiz.choices[f] && ((typeof this_quiz.choices[f][0] == "object" && this_quiz.choices[f][0].indexOf(a) > -1) || this_quiz.choices[f][0] == a)) {
 
 							questions_object[question_title_simplified].answers[answer_simplified].count++;
+
+							if (questions_object[question_title_simplified].answers[answer_simplified].correct) {
+								num_correct++;
+							}
 
 						}
 
 					}
+
+					questions_object[question_title_simplified].correct_count_weighted += num_correct/(questions_object[question_title_simplified].type || 1);
 
 				}
 
@@ -351,7 +361,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,includehist
     questions_array_sorted.push(questions_object[Object.keys(questions_object)[i]]);
   }
 
-  questions_array_sorted.sort(function(a,b){return a.count - b.count})
+  questions_array_sorted.sort(function(a,b){return (a.correct_count_weighted/a.count) - (b.correct_count_weighted/b.count)})
   console.log(questions_object);
 	callback(questions_array_sorted);
   

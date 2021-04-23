@@ -432,7 +432,7 @@ Back
 <label for="include_anonymous" style="font-size: 20px;padding-top: 10px;vertical-align: top;">Include anonymous users</label>
 <div style="padding:4px"></div>
 <label for="date-select" style="font-size: 20px;">Inclued data from:</label>
-<select id="date-select" onchange="getDates()" style="border: 1px;">
+<select id="date-select" onchange="getDates()" style="border-width: 1px;">
     <option value="1">Last month</option>
     <option value="3" selected="true">Last 3 months</option>
     <option value="6">Last 6 months</option>
@@ -442,11 +442,12 @@ Back
     <option value="-1">All time</option>
     <option value="cust">Custom...</option>
 </select><br>
-<label for="start_date_picker" style="font-size: 18px;">Start date: </label>
-<input type="date" id="start_date_picker" style="margin-top: 10px;"><br>
-<label for="end_date_picker" style="font-size: 18px;">End date: </label>
-<input type="date" id="end_date_picker" style="margin: 3px;">
-
+<div id="date-pickers" style="display: none">
+<label for="start-date-picker" style="font-size: 18px;">Start date: </label>
+<input type="date" id="start-date-picker" style="margin-top: 10px;" min="2020-09-28"><br>
+<label for="end-date-picker" style="font-size: 18px;">End date: </label>
+<input type="date" id="end-date-picker" style="margin: 3px;">
+</div>
 <div style="padding: 10px;"></div>
 <div class="buttons"> 
 <a onclick="missedReport()">

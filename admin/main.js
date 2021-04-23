@@ -413,23 +413,40 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 }
 
 function getDates() {
-  if(!isNan(Number(gid('date-select').value))) {
-  var end_date = Date.now();
-  if(Number(gid('date-select').value) > 0 ){
-    var start_date = end_date - (3600000*24*30*(Number(gid('date-select').value)));
+  if(isNaN(Number(gid('date-select').value))) {
+    var end = new Date(Date.now());
+    var start = new Date(1601276400000);
+    gid('date-pickers').style.display = "block";
+    gid('end-date-picker').value = end.toISOString().substring(0, 10);
+    gid('end-date-picker').max = end.toISOString().substring(0, 10);
+    gid('start-date-picker').value = start.toISOString().substring(0, 10);
   }else{
-    var start_date = new Date(1601276400000);
-    }
-  }else{
-  //Custom
-  } 
+    gid('date-pickers').style.display = "none";
+  }
 }
 
 function missedReport() {
+
+  if(!isNaN(Number(gid('date-select').value))) {
+    var end_date = Date.now();
+    if(Number(gid('date-select').value) > 0 ){
+      var start_date = end_date - (3600000*24*30*(Number(gid('date-select').value)));
+    }else{
+      var start_date = new Date(1601276400000);
+      }
+  }else{
+      var start_date = gid('start-date-picker').value;
+      var end_date = gid('end-date-picker').value;
+  }
+  if(start_date > end_date){
+    showAlert("Invalid Dates", "Please enter a valid date range");
+    return;
+  }
   gid("insights_main").style.display = "none";
   gid("insights_missed").style.display = "none";
   gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "block";
+
   generateMostFrequentlyMissedQuestions(function(res){
     gid("insights_loader").style.display = "none";
     gid("insights_missed").style.display = "block";
@@ -452,7 +469,7 @@ function missedReport() {
       pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.floor(percent_missed) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> times total.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
-  },gid('include_anonymous').checked, true);
+  },gid('include_anonymous').checked, start_date, end_date);
 }
 
 

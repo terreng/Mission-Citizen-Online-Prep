@@ -399,7 +399,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
   }
 
   questions_array_sorted.sort(function(a,b){return (a.percent_correct) - (b.percent_correct)})
-  console.log(questions_object);
+  console.log(questions_array_sorted);
 	callback(questions_array_sorted);
   
   }).catch(function(error) {

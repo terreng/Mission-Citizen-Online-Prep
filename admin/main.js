@@ -294,7 +294,31 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 
 				}
 
-				//TODO: ALSO INCLUDE DATA FROM QUIZZES
+				if (this_quiz.type == 0) {
+
+					var all_questions = [];
+					if (data_lessonhistory[this_quiz.lessonhistoryid].lessons && data_lessonhistory[this_quiz.lessonhistoryid].lessons.length > 0) {
+					  for (var t = 0; t < data_lessonhistory[this_quiz.lessonhistoryid].lessons.length; t++) {
+						if (data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions && data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions.length > 0) {
+						  for (var u = 0; u < data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions.length; u++) {
+							all_questions.push(data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions[u]);
+						  }
+						}
+					  }
+					}
+
+					if (all_questions.length >= 10) {
+
+						this_questions = shuffleArray(all_questions,this_quiz.date);
+						this_questions = this_questions.splice(0,10);
+
+						for (var f = 0; f < this_questions.length; f++) {
+							this_questions[f].answers = shuffleArray(this_questions[f].answers,this_quiz.date+f);
+						}
+
+					}
+
+				}
 
 				for (var f = 0; f < this_questions.length; f++) {
 

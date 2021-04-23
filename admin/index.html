@@ -429,25 +429,25 @@ Back
 <div style="font-size: 25px;">Generate Insight Report</div>
 <div class="padding"></div>
 <input type="checkbox" id="include_anonymous" checked="true" style="width: 20px;height: 20px;">
-<label for="include_anonymous" style="font-size: 20px;padding-top: 10px;vertical-align: top;">Include Anonymous Users</label>
-<div style="padding:3px"></div>
-<label for="date-select" style="font-size: 20px;">Choose Date Range:</label>
-<select id="date-select" onchange="getDates()">
-    <option value="1">1 Month</option>
-    <option value="3" selected="true">3 Months</option>
-    <option value="6">6 Months</option>
-    <option value="9">9 Months</option>
-    <option value="12">1 Year</option>
-    <option value="24">2 Years</option>
-    <option value="-1">All Time</option>
+<label for="include_anonymous" style="font-size: 20px;padding-top: 10px;vertical-align: top;">Include anonymous users</label>
+<div style="padding:4px"></div>
+<label for="date-select" style="font-size: 20px;">Inclued data from:</label>
+<select id="date-select" onchange="getDates()" style="border: 1px;">
+    <option value="1">Last month</option>
+    <option value="3" selected="true">Last 3 months</option>
+    <option value="6">Last 6 months</option>
+    <option value="9">Last 9 months</option>
+    <option value="12">Last year</option>
+    <option value="24">Last 2 years</option>
+    <option value="-1">All time</option>
     <option value="cust">Custom...</option>
 </select><br>
-<label for="start_date_picker">Start Date: </label>
-<input type="date" id="start_date_picker" style="margin-top: 5px;"><br>
-<label for="end_date_picker">End Date: </label>
+<label for="start_date_picker" style="font-size: 18px;">Start date: </label>
+<input type="date" id="start_date_picker" style="margin-top: 10px;"><br>
+<label for="end_date_picker" style="font-size: 18px;">End date: </label>
 <input type="date" id="end_date_picker" style="margin: 3px;">
 
-<div class="padding"></div>
+<div style="padding: 10px;"></div>
 <div class="buttons"> 
 <a onclick="missedReport()">
 <div class="button">Most Frequently Missed</div>

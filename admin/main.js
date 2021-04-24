@@ -1546,7 +1546,7 @@ hideAlert();
 function loadSettings() {
 gid("settings_main").style.display = "block";
 
-gid("ac_username").innerHTML = "Email: "+firebase.auth().currentUser.email;
+gid("ac_username").innerHTML = "Email: "+firebase.auth().currentUser.email+" (contact Terren to change)";
 gid("ac_uid").innerHTML = "Account ID: "+firebase.auth().currentUser.uid;
 
 gid("banner_loader").style.display = "block";

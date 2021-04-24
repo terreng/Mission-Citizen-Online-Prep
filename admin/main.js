@@ -851,7 +851,18 @@ function exportLessons() {
 }
 
 function importLessons() {
-
+  showAlert("Import Lesson Data",  '<input type="file"id="lesson_import" accept="application/json"> <div id="import_lesson_error" class="input_error">Please select a JSON file</div>', "submit", function(){
+    if(!gid("lesson_import").files[0]) {
+      gid("import_lesson_error").style.display = "block";
+      return;
+    }
+    var file = gid("lesson_import").files[0];
+    const reader = new FileReader();
+    reader.addEventListener('load', (event) => {
+      var lesson_data = event.target.result;
+    });
+    reader.readAsText(file);
+  })
 }
 
 var lessons;

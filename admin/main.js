@@ -832,6 +832,28 @@ showAlert("Export Users","This will export all account users into a .CSV file. Y
 });
 }
 
+function exportLessons() {
+  showAlert("Export Lesson Data","This will export lesson data into a .JSON file for backup purposes.","submit",function() {
+    firebase.database().ref("lessons").once("value").then(function(snapshot) {
+      lessons = snapshot.val();
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lessons));
+      var downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "lesson_data.json");
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      hideAlert();
+    }).catch(function(error) {
+      showAlert("Error",error.message);
+    });
+  });
+}
+
+function importLessons() {
+
+}
+
 var lessons;
 
 function loadLessons() {

@@ -391,7 +391,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
 	for (var e = 0; e < Object.keys(questions_array_sorted[i].answers).length; e++ ) {
 		answers_sorted.push(questions_array_sorted[i].answers[Object.keys(questions_array_sorted[i].answers)[e]]);
 	}
-	answers_sorted.sort(function(a,b){return b.count-a.count;})
+	answers_sorted.sort(function(a,b){return b.count-a.count;});
 	questions_array_sorted[i].answers = answers_sorted;
 	for (var e = 0; e < questions_array_sorted[i].answers.length; e++) {
 		questions_array_sorted[i].answers[e].percent_chosen = questions_array_sorted[i].answers[e].count/questions_array_sorted[i].count;
@@ -400,6 +400,7 @@ function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,e
   }
 
   questions_array_sorted.sort(function(a,b){return (a.percent_correct) - (b.percent_correct)})
+  questions_array_sorted = questions_array_sorted.filter(function(a) {return a.count > 0})
   console.log(questions_array_sorted);
 	callback(questions_array_sorted);
   

@@ -858,8 +858,29 @@ function importLessons() {
     }
     var file = gid("lesson_import").files[0];
     const reader = new FileReader();
-    reader.addEventListener('load', (event) => {
-      var lesson_data = event.target.result;
+    reader.addEventListener('load', function(event) {
+	  var lesson_data = event.target.result;
+	  
+		try {
+			var parsed_lesson_data = JSON.parse(lesson_data);
+		} catch(error) {
+			showAlert("Error","Invalid JSON file.")
+			return;
+		}
+
+		showAlert("Are you sure you want to overwrite the existing lesson data?", "Importing this file will irriversably overwrite the existing lesson data. You should probably download a backup of the existing lesson data first. Click \"CONFIRM\" to continue.","confirm",function() {
+
+			createPostProgress("Importing");
+			firebase.database().ref("lessons").set(parsed_lesson_data).then(function() {
+
+				showAlert("Lesson data imported successfully","The JSON file was successfully imported. This change will take up to an hour to go live on the website.")
+
+			}).catch(function(error) {
+				showAlert("Error",error.message);
+			});
+
+		})
+
     });
     reader.readAsText(file);
   })

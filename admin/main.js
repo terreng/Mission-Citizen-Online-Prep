@@ -240,6 +240,278 @@ gid("content_title").innerHTML = "Settings"
 gid("content").scrollTop = 0;
 }
 
+function loadInsights() {
+  gid("insights_main").style.display = "block";
+  gid("insights_missed").style.display = "none";
+  gid("insights_loader").style.display = "none"
+}
+
+function generateMostFrequentlyMissedQuestions(callback,includeanons,startdate,enddate) {
+
+  firebase.database().ref("users").once("value").then(function(snapshot) {
+  
+  var data_users = snapshot.val();
+  
+  firebase.database().ref("lessonhistory/lessons").once("value").then(function(snapshot) {
+  
+  var data_lessonhistory = snapshot.val();
+
+  var questions_object = {}
+  
+    for (var i = 0; i < Object.keys(data_users).length; i++) {
+
+		if (data_users[Object.keys(data_users)[i]].quizzes && (includeanons || data_users[Object.keys(data_users)[i]].email)) {
+
+			for (var e = 0; e < Object.keys(data_users[Object.keys(data_users)[i]].quizzes).length; e++) {
+
+				var this_quiz = data_users[Object.keys(data_users)[i]].quizzes[Object.keys(data_users[Object.keys(data_users)[i]].quizzes)[e]];
+
+				if (this_quiz.date >= startdate && this_quiz.date <= enddate) {
+
+				var this_questions;
+
+				if (this_quiz.type !== 0) {
+
+					var question_source_string = "";
+					var this_lesson_questions = null;
+
+					for (var f = 0; f < data_lessonhistory[this_quiz.lessonhistoryid].lessons.length; f++) {
+						if (data_lessonhistory[this_quiz.lessonhistoryid].lessons[f].id == this_quiz.lessonid) {
+
+							this_lesson_questions = data_lessonhistory[this_quiz.lessonhistoryid].lessons[f].questions;
+							question_source_string = "Lesson "+(f+1);
+
+						}
+					}
+
+					this_questions = shuffleArray(this_lesson_questions,this_quiz.date);
+
+					for (var f = 0; f < this_questions.length; f++) {
+						this_questions[f].answers = shuffleArray(this_questions[f].answers,this_quiz.date+f);
+						this_questions[f].where = question_source_string;
+					}
+
+				}
+
+				if (this_quiz.type == 0) {
+
+					var all_questions = [];
+					if (data_lessonhistory[this_quiz.lessonhistoryid].lessons && data_lessonhistory[this_quiz.lessonhistoryid].lessons.length > 0) {
+					  for (var t = 0; t < data_lessonhistory[this_quiz.lessonhistoryid].lessons.length; t++) {
+						if (data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions && data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions.length > 0) {
+						  for (var u = 0; u < data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions.length; u++) {
+							all_questions.push(data_lessonhistory[this_quiz.lessonhistoryid].lessons[t].questions[u]);
+							all_questions[all_questions.length-1].where = "Lesson "+(t+1);
+						  }
+						}
+					  }
+					}
+
+					if (all_questions.length >= 10) {
+
+						this_questions = shuffleArray(all_questions,this_quiz.date);
+						this_questions = this_questions.splice(0,10);
+
+						for (var f = 0; f < this_questions.length; f++) {
+							this_questions[f].answers = shuffleArray(this_questions[f].answers,this_quiz.date+f);
+						}
+
+					}
+
+				}
+
+				for (var f = 0; f < this_questions.length; f++) {
+
+					var question_title_simplified = this_questions[f].question["en"].replace(/[^a-zA-Z0-9]/gi,"").toLowerCase();
+
+					if (!questions_object[question_title_simplified]) {
+
+						questions_object[question_title_simplified] = {
+							"question": this_questions[f].question,
+							"subtitle": this_questions[f].subtitle,
+							"type": this_questions[f].type,
+							"answers": {},
+							"where": this_questions[f].where,
+							"count": 0,
+							"correct_count_weighted": 0
+						}
+
+					}
+
+					if (this_quiz.choices && this_quiz.choices[f]) {
+						questions_object[question_title_simplified].count++;
+					}
+
+					var num_correct = 0;
+					for (var a = 0; a < this_questions[f].answers.length; a++) {
+
+						var answer_simplified = this_questions[f].answers[a].answer["en"].replace(/[^a-zA-Z0-9]/gi,"").toLowerCase();
+
+						if (!questions_object[question_title_simplified].answers[answer_simplified]) {
+
+							questions_object[question_title_simplified].answers[answer_simplified] = {
+								"answer": this_questions[f].answers[a].answer,
+								"correct": this_questions[f].answers[a].correct,
+								"count": 0
+							}
+
+						}
+
+						if (this_quiz.choices && this_quiz.choices[f] && ((typeof this_quiz.choices[f][0] == "object" && this_quiz.choices[f][0].indexOf(a) > -1) || this_quiz.choices[f][0] == a)) {
+
+							questions_object[question_title_simplified].answers[answer_simplified].count++;
+
+							if (questions_object[question_title_simplified].answers[answer_simplified].correct) {
+								num_correct++;
+							}
+
+						}
+
+					}
+
+					questions_object[question_title_simplified].correct_count_weighted += num_correct/(questions_object[question_title_simplified].type || 1);
+
+				}
+
+				}
+
+			}
+
+		}
+
+	}
+  var questions_array_sorted = [];
+  for(var i=0;i<Object.keys(questions_object).length;i++){
+    questions_array_sorted.push(questions_object[Object.keys(questions_object)[i]]);
+  }
+
+  for (var i = 0; i < questions_array_sorted.length; i++ ) {
+	var answers_sorted = [];
+	for (var e = 0; e < Object.keys(questions_array_sorted[i].answers).length; e++ ) {
+		answers_sorted.push(questions_array_sorted[i].answers[Object.keys(questions_array_sorted[i].answers)[e]]);
+	}
+	answers_sorted.sort(function(a,b){return b.count-a.count;});
+	questions_array_sorted[i].answers = answers_sorted;
+	for (var e = 0; e < questions_array_sorted[i].answers.length; e++) {
+		questions_array_sorted[i].answers[e].percent_chosen = questions_array_sorted[i].answers[e].count/questions_array_sorted[i].count;
+	}
+	questions_array_sorted[i].percent_correct = questions_array_sorted[i].correct_count_weighted/questions_array_sorted[i].count;
+  }
+
+  questions_array_sorted.sort(function(a,b){return (a.percent_correct) - (b.percent_correct)})
+  questions_array_sorted = questions_array_sorted.filter(function(a) {return a.count > 0})
+  console.log(questions_array_sorted);
+	callback(questions_array_sorted);
+  
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+  });
+  
+  }).catch(function(error) {
+    showAlert("Error",error.message);
+  });
+  
+}
+
+function getDates() {
+  if(isNaN(Number(gid('date-select').value))) {
+    var end = new Date(Date.now());
+    var start = new Date(1601276400000);
+    gid('date-pickers').style.display = "block";
+    gid('end-date-picker').value = end.toISOString().substring(0, 10);
+    gid('end-date-picker').max = end.toISOString().substring(0, 10);
+    gid('start-date-picker').max = end.toISOString().substring(0, 10);
+    gid('start-date-picker').value = start.toISOString().substring(0, 10);
+  }else{
+    gid('date-pickers').style.display = "none";
+  }
+}
+
+var capitalMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+function toDateString(stamp) {
+var date = new Date(stamp);
+var day = date.getDate();
+var monthstring = capitalMonths[date.getMonth()];
+var timestring = monthstring +" " + day +nth(day) +", " + date.getFullYear();
+return timestring;
+}
+
+function nth(d) {
+      if(d>3 && d<21) return 'th';
+      switch (d % 10) {
+            case 1:  return "st";
+            case 2:  return "nd";
+            case 3:  return "rd";
+            default: return "th";
+      }
+}
+
+var report_json;
+
+function exportInsights() {
+  showAlert("Export Insights","This will export this insights report into a .JSON file.","submit",function() {
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report_json));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "most_frequently_missed_questions.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+	downloadAnchorNode.remove();
+	hideAlert();
+  });
+  }
+  
+function missedReport() {
+
+  if(!isNaN(Number(gid('date-select').value))) {
+    var end_date = Date.now();
+    if(Number(gid('date-select').value) > 0 ){
+      var start_date = end_date - (3600000*24*30.333333333333333333333333333333333333333333333333333*(Number(gid('date-select').value)));
+    }else{
+      var start_date = new Date(1601276400000);
+      }
+  }else{
+      var start_date = (new Date(gid('start-date-picker').value)).getTime();
+      var end_date = (new Date(gid('end-date-picker').value)).getTime() + 3600000*24;
+  }
+  if(start_date > end_date){
+    showAlert("Invalid Dates", "End date must be after start date");
+    return;
+  }
+  gid("insights_main").style.display = "none";
+  gid("insights_missed").style.display = "none";
+  gid("insights_loader").style.display = "block";
+
+  generateMostFrequentlyMissedQuestions(function(res){
+    gid("insights_loader").style.display = "none";
+    gid("insights_missed").style.display = "block";
+
+    var pendhtml = "";
+    pendhtml += (gid('include_anonymous').checked ? 'Including anonymous users' : 'Not including anonymous users');
+    gid('includes_anon').innerHTML = pendhtml;
+    pendhtml = "";
+    pendhtml += 'Including data from ' + toDateString(start_date) + ' to ' + toDateString(end_date);
+    gid('date_range').innerHTML = pendhtml;
+    pendhtml = "";
+
+    for(var i=0;i<res.length;i++){//for each question...
+      pendhtml += '<div>'+ res[i]['where'] +'</div><div style="font-size: 22px;">'+ (res[i]['question']['en'].length == 0 ? res[i]['question']['es'] : res[i]['question']['en']) +'</div>'
+      for(var e=0;e<Object.keys(res[i][Object.keys(res[i])[3]]).length;e++){//for each answer...
+        var answer = res[i]['answers'][Object.keys(res[i]['answers'])[e]];
+        var border_color = (answer['correct'] ? '#66bb6a': '#ef5350');
+        var main_color = (answer['correct'] ? '#c8e6c9': '#ffcdd2');
+        var percent = (answer['percent_chosen'])*100;
+        pendhtml += '<div class="answer_bar" style="border:2px solid '+ border_color +';background: linear-gradient(to right, '+ main_color +' '+ percent +'%, #f5f5f5 0%)"><div class="answer">'+ (answer['answer']['en'].length == 0 ? answer['answer']['es'] : answer['answer']['en']) +'</div><div style="float:right;font-size:18px;">'+ Math.round(percent) +'%</div></div></div>'
+      }
+      pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.round(100-(100*res[i]['percent_correct'])) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
+    }
+    gid('question_report').innerHTML = pendhtml;
+    report_json = res;
+  },gid('include_anonymous').checked, start_date - 3600000*24, end_date + 3600000*24);
+}
+
+
 var userlist = [];
 
 function loadUsers() {
@@ -1467,3 +1739,27 @@ function nth(d) {
         default: return "th";
     }
 }
+
+function randomFromSeed(seed) {
+	var x = Math.sin(seed) * 10000;
+	return x - Math.floor(x);
+  }
+  
+  function shuffleArray(a,seed) {
+  
+  var calls = 0;
+  
+  var randy = function() {return Math.random()};
+  if (seed) {
+  randy = function() {calls += 1; return randomFromSeed(seed+calls || 1)};
+  }
+  
+	var j, x, i;
+	for (i = a.length - 1; i > 0; i--) {
+		j = Math.floor(randy() * (i + 1));
+		x = a[i];
+		a[i] = a[j];
+		a[j] = x;
+	}
+  return a;
+  }

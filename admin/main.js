@@ -851,7 +851,7 @@ function exportLessons() {
 }
 
 function importLessons() {
-  showAlert("Import Lesson Data",  '<input type="file"id="lesson_import" accept="application/json"> <div id="import_lesson_error" class="input_error">Please select a JSON file</div>', "submit", function(){
+  showAlert("Import Lesson Data",  'Please choose a .JSON file<br><br><input type="file"id="lesson_import" accept="application/json"> <div id="import_lesson_error" class="input_error">Please select a JSON file</div>', "submit", function(){
     if(!gid("lesson_import").files[0]) {
       gid("import_lesson_error").style.display = "block";
       return;
@@ -868,7 +868,7 @@ function importLessons() {
 			return;
 		}
 
-		showAlert("Are you sure you want to overwrite the existing lesson data?", "Importing this file will irriversably overwrite the existing lesson data. You should probably download a backup of the existing lesson data first. Click \"CONFIRM\" to continue.","confirm",function() {
+		showAlert("Are you sure you want to overwrite the existing lesson data?", "Importing this file will irriversably overwrite the existing lesson data. You should probably download a backup of the existing lesson data first.<br><br>This will NOT check if the data is properly formatted. Improperly formatted data will break everything. Only proceed if you are importing a valid .JSON file previously exported from here.<br><br>Click \"CONFIRM\" to continue.","confirm",function() {
 
 			createPostProgress("Importing");
 			firebase.database().ref("lessons").set(parsed_lesson_data).then(function() {

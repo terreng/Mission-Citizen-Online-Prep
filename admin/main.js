@@ -832,6 +832,60 @@ showAlert("Export Users","This will export all account users into a .CSV file. Y
 });
 }
 
+function exportLessons() {
+  showAlert("Export Lesson Data","This will export lesson data into a .JSON file for backup purposes.","submit",function() {
+    firebase.database().ref("lessons").once("value").then(function(snapshot) {
+      lessons = snapshot.val();
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lessons));
+      var downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "lesson_data.json");
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      hideAlert();
+    }).catch(function(error) {
+      showAlert("Error",error.message);
+    });
+  });
+}
+
+function importLessons() {
+  showAlert("Import Lesson Data",  'Please choose a .JSON file<br><br><input type="file"id="lesson_import" accept="application/json"> <div id="import_lesson_error" class="input_error">Please select a JSON file</div>', "submit", function(){
+    if(!gid("lesson_import").files[0]) {
+      gid("import_lesson_error").style.display = "block";
+      return;
+    }
+    var file = gid("lesson_import").files[0];
+    const reader = new FileReader();
+    reader.addEventListener('load', function(event) {
+	  var lesson_data = event.target.result;
+	  
+		try {
+			var parsed_lesson_data = JSON.parse(lesson_data);
+		} catch(error) {
+			showAlert("Error","Invalid JSON file.")
+			return;
+		}
+
+		showAlert("Are you sure you want to overwrite the existing lesson data?", "Importing this file will irriversably overwrite the existing lesson data. You should probably download a backup of the existing lesson data first.<br><br>This will NOT check if the data is properly formatted. Improperly formatted data will break everything. Only proceed if you are importing a valid .JSON file previously exported from here.<br><br>Click \"CONFIRM\" to continue.","confirm",function() {
+
+			createPostProgress("Importing");
+			firebase.database().ref("lessons").set(parsed_lesson_data).then(function() {
+
+				showAlert("Lesson data imported successfully","The JSON file was successfully imported. This change will take up to an hour to go live on the website.")
+
+			}).catch(function(error) {
+				showAlert("Error",error.message);
+			});
+
+		})
+
+    });
+    reader.readAsText(file);
+  })
+}
+
 var lessons;
 
 function loadLessons() {
@@ -1513,7 +1567,7 @@ hideAlert();
 function loadSettings() {
 gid("settings_main").style.display = "block";
 
-gid("ac_username").innerHTML = "Email: "+firebase.auth().currentUser.email;
+gid("ac_username").innerHTML = "Email: "+firebase.auth().currentUser.email+" (contact Terren to change)";
 gid("ac_uid").innerHTML = "Account ID: "+firebase.auth().currentUser.uid;
 
 gid("banner_loader").style.display = "block";

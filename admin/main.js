@@ -447,6 +447,20 @@ function nth(d) {
       }
 }
 
+var report_json;
+
+function exportInsights() {
+  showAlert("Export Insights","This will this insights report into a .JSON file.","submit",function() {
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report_json));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "most_frequently_missed_questions.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  });
+  }
+  
 function missedReport() {
 
   if(!isNaN(Number(gid('date-select').value))) {
@@ -492,6 +506,7 @@ function missedReport() {
       pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.round(100-(100*res[i]['percent_correct'])) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
+    report_json = res;
   },gid('include_anonymous').checked, start_date - 3600000*24, end_date + 3600000*24);
 }
 

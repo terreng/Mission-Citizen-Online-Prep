@@ -243,7 +243,6 @@ gid("content").scrollTop = 0;
 function loadInsights() {
   gid("insights_main").style.display = "block";
   gid("insights_missed").style.display = "none";
-  gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "none"
 }
 
@@ -467,7 +466,6 @@ function missedReport() {
   }
   gid("insights_main").style.display = "none";
   gid("insights_missed").style.display = "none";
-  gid("insights_time").style.display = "none";
   gid("insights_loader").style.display = "block";
 
   generateMostFrequentlyMissedQuestions(function(res){
@@ -497,14 +495,6 @@ function missedReport() {
   },gid('include_anonymous').checked, start_date - 3600000*24, end_date + 3600000*24);
 }
 
-
-function timeReport() {
-  gid("insights_main").style.display = "none";
-  gid("insights_missed").style.display = "none";
-  gid("insights_time").style.display = "none";
-  gid("insights_loader").style.display = "block";
-
-}
 
 var userlist = [];
 

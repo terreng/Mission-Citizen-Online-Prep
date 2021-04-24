@@ -420,6 +420,7 @@ function getDates() {
     gid('date-pickers').style.display = "block";
     gid('end-date-picker').value = end.toISOString().substring(0, 10);
     gid('end-date-picker').max = end.toISOString().substring(0, 10);
+    gid('start-date-picker').max = end.toISOString().substring(0, 10);
     gid('start-date-picker').value = start.toISOString().substring(0, 10);
   }else{
     gid('date-pickers').style.display = "none";
@@ -456,11 +457,11 @@ function missedReport() {
       var start_date = new Date(1601276400000);
       }
   }else{
-      var start_date = gid('start-date-picker').value;
-      var end_date = gid('end-date-picker').value;
+      var start_date = (new Date(gid('start-date-picker').value)).getTime();
+      var end_date = (new Date(gid('end-date-picker').value)).getTime() + 3600000*24;
   }
   if(start_date > end_date){
-    showAlert("Invalid Dates", "Please enter a valid date range");
+    showAlert("Invalid Dates", "End date must be after start date");
     return;
   }
   gid("insights_main").style.display = "none";
@@ -492,7 +493,7 @@ function missedReport() {
       pendhtml += '<div style="font-size:18px">Missed <b>'+ Math.round(100-(100*res[i]['percent_correct'])) +'%</b> of the time, answered <b>'+ res[i]['count'] +'</b> time'+(res[i]['count'] == 1 ? "" : "s")+'.</div><div style="padding:20px;"></div>'
     }
     gid('question_report').innerHTML = pendhtml;
-  },gid('include_anonymous').checked, start_date, end_date);
+  },gid('include_anonymous').checked, start_date - 3600000*24, end_date + 3600000*24);
 }
 
 

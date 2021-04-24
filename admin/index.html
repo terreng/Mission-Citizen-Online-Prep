@@ -495,86 +495,6 @@ Back
 </div>
 </div>
 
-
-<div class="tabcontent" id="feedback_content" style="display: none;">
-
-<div class="container" id="feedback_list">
-<div id="feedback_loader">
-<div class="real_spinner">
-<svg class="spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ><circle class="path" fill="none" stroke-width="10" stroke-linecap="butt" cx="50" cy="50" r="40"></circle></svg>
-</div>
-</div>
-<div id="feedback_content2" style="margin-bottom: -10px">
-<div class="buttons">
-<a onclick="loadFeedback()">
-<div class="button">
-Refresh
-</div>
-</a>
-<a onclick="viewResolvedFeedback()">
-<div class="button darkgray" style="float: right; margin-right: 0">
-View Resolved
-</div>
-</a>
-</div>
-<div class="padding"></div>
-<div style="font-size: 25px;">Feedback</div>
-<div class="padding"></div>
-<div id="feedbackr">
-
-</div>
-</div>
-<div id="feedback_content3" style="margin-bottom: -10px">
-<div class="buttons">
-<a onclick="backFeedback()">
-<div class="button" style="float: right; margin-right: 0">
-View Unresolved
-</div>
-</a>
-</div>
-<div class="padding"></div>
-<div style="font-size: 25px;">Resolved Feedback</div>
-<div class="padding"></div>
-<div id="resolvedr">
-
-</div>
-</div>
-<div id="feedback_content4" style="margin-bottom: -15px">
-<div id="fc_1">
-</diV>
-<div id='unres_fed'>
-<div class="padding"></div>
-<div class="buttons">
-<a onclick="unresolveFeedback(currentfeedback)">
-<div class="button">
-Mark as Unresolved
-</div>
-</a>
-</div>
-</div>
-<div class="padding"></div>
-<div class="buttons">
-<a onclick="backFeedback()">
-<div class="button gray">
-Back
-</div>
-</a>
-<a onclick="resolveFeedback(currentfeedback)" id="res_fed">
-<div class="button" style="float: right; margin-right: 0">
-Mark as Resolved
-</div>
-</a>
-<a onclick="deleteFeedback(currentfeedback)" id="del_fed">
-<div class="button red" style="float: right; margin-right: 0">
-Delete
-</div>
-</a>
-</div>
-<div class="padding"></div>
-</div>
-</div>
-
-</div>
 <div class="tabcontent" id="settings_content" style="display: none;">
 
 <div id="settings_main">
@@ -618,13 +538,25 @@ Save Changes
 Change Password
 </div>
 </a>
-<a onclick="closeAccount()" style="display: none;">
-<div class="button red" style="margin-right: 0" id="fjpo">
-Delete Account
-</div>
-</a>
 </div>
 </div>
+
+<div class="container" id="lessons_settings">
+    <div style="font-size: 25px;">Import/Export Lessons</div>
+    <div class="padding"></div>
+    <div class="buttons">
+    <a onclick="importLessons()">
+    <div class="button" id="import_lessons">
+    Import Lessons
+    </div>
+    </a>
+    <a onclick="exportLessons()" style="display: block;">
+    <div class="button" style="margin-right: 0" id="export_lessons">
+    Export Lessons
+    </div>
+    </a>
+    </div>
+    </div>    
 
 <div class="container" style="
     padding-left: 17px;
@@ -635,7 +567,6 @@ Delete Account
 
 </div>
 
-</div>
 </div>
 </div>
 </div>

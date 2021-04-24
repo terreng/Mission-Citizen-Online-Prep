@@ -450,14 +450,15 @@ function nth(d) {
 var report_json;
 
 function exportInsights() {
-  showAlert("Export Insights","This will this insights report into a .JSON file.","submit",function() {
+  showAlert("Export Insights","This will export this insights report into a .JSON file.","submit",function() {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report_json));
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", "most_frequently_missed_questions.json");
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+	downloadAnchorNode.remove();
+	hideAlert();
   });
   }
   

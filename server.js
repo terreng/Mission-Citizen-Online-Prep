@@ -1045,6 +1045,9 @@ doAuthentication(cookies,function(userdata) {
   var need_earned = lessons.length*2;
 
   for (var i = 1; i < lessons.length+1; i++) {
+  if ((lessons[i-1].questions || []).length == 0) {
+    need_earned -= 2;
+  }
   var earned_star = false;
   var earned_completion = false;
   if (userdata.quizzes && Object.keys(userdata.quizzes).length > 0) {
@@ -1063,9 +1066,8 @@ doAuthentication(cookies,function(userdata) {
   if (earned_completion) {
     things_earned++;
   }
-  if (!earned_completion) {
+  if (!earned_completion && !next_step) {
     next_step = [i,0];
-    break;
   }
   }
   if (!next_step) {

@@ -9,7 +9,8 @@ var inanim = false;
 
 var langs = {
   "en": "English",
-  "es": "Spanish"
+  "es": "Spanish",
+  "ar": "Arabic"
 }
 
 function initFunction() {

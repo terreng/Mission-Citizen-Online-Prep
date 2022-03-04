@@ -943,7 +943,7 @@ function editLesson(lessonindex,newlesson) {
   gid("lessons_edit").style.display = "block";
   gid("lesson_title").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a title in '+langs[Object.keys(langs)[i]]+'</div>';
+    gid("lesson_title").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Title'+(i == 0 ? "*" : "")+' ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Title" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a title in '+langs[Object.keys(langs)[i]]+'</div>';
   }
   gid("lesson_video").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -951,7 +951,7 @@ function editLesson(lessonindex,newlesson) {
   }
   gid("lesson_text").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("lesson_text").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Text/Description ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Optional text that shows below video"></textarea>';
+    gid("lesson_text").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Text/Description ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 130px;" placeholder="Optional text that shows below video"></textarea>';
   }
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value = ((lessons[lessonindex] && lessons[lessonindex].title) ? lessons[lessonindex].title[Object.keys(langs)[i]] || "" : "")
@@ -961,7 +961,7 @@ function editLesson(lessonindex,newlesson) {
 }
 
 function updateLesson() {
-for (var i = 0; i < Object.keys(langs).length; i++) {
+for (var i = 0; i < 1; i++) {//Object.keys(langs).length
   if(gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
     gid("lesson_title").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
@@ -1052,7 +1052,7 @@ function editQuestion(index) {
   answers = JSON.parse(JSON.stringify(((questions && questions[questionindex] && questions[questionindex].answers) ? questions[questionindex].answers : [])));
   gid("question_question").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a question in '+langs[Object.keys(langs)[i]]+'</div>';
+    gid("question_question").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Question'+(i == 0 ? "*" : "")+' ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Question?" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter a question in '+langs[Object.keys(langs)[i]]+'</div>';
   }
   gid("question_subtitle").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
@@ -1060,10 +1060,10 @@ function editQuestion(index) {
   }
   gid("question_reasoning").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("question_reasoning").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Correct answers justification"></textarea>';
+    gid("question_reasoning").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Reasoning ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 100px;" placeholder="Correct answers justification"></textarea>';
   }
 
-  gid("question_type").value = String(questions[questionindex].type || 1)
+  gid("question_type").value = String((questions[questionindex]) ? (questions[questionindex].type || 1) : 1)
 
   for (var i = 0; i < Object.keys(langs).length; i++) {
     gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value = ((questions[questionindex] && questions[questionindex].question) ? questions[questionindex].question[Object.keys(langs)[i]] || "" : "")
@@ -1093,14 +1093,14 @@ function editOption(index) {
 var pendhtml = "";
 
 for (var i = 0; i < Object.keys(langs).length; i++) {
-  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option* ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter an option in '+langs[Object.keys(langs)[i]]+'</div>';
+  pendhtml += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Option'+(i == 0 ? "*" : "")+' ('+langs[Object.keys(langs)[i]]+')</div><input type="text" class="c_text lang_'+Object.keys(langs)[i]+'" placeholder="Option" oninput="this.style.borderColor=\'\';this.nextElementSibling.style.display=\'none\'"><div class="input_error">Please enter an option in '+langs[Object.keys(langs)[i]]+'</div>';
 }
 
 pendhtml += '<select style="border-width: 2px;margin-top: 16px;font-size: 20px;"><option value="true">Correct</option><option value="false">Incorrect</option></select>'
 
 showAlert("Question Option",pendhtml,"submit",function() {
 
-  for (var i = 0; i < Object.keys(langs).length; i++) {
+  for (var i = 0; i < 1; i++) {//Object.keys(langs).length
     if(gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
       gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
       gid("panel-content").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
@@ -1169,7 +1169,7 @@ function backQuestion() {
 }
 
 function saveQuestionChanges() {
-  for (var i = 0; i < Object.keys(langs).length; i++) {
+  for (var i = 0; i < 1; i++) {//Object.keys(langs).length
     if(gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).value.length == 0){
       gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).style.borderColor = "red";
       gid("question_question").querySelector(".lang_"+Object.keys(langs)[i]).nextElementSibling.style.display = "block";
@@ -1583,7 +1583,7 @@ firebase.database().ref("banner").once("value").then(function(snapshot) {
 
   gid("banner_body").innerHTML = "";
   for (var i = 0; i < Object.keys(langs).length; i++) {
-    gid("banner_body").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Body ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 75px;" placeholder="Body (HTML enabled)"></textarea>';
+    gid("banner_body").innerHTML += '<div style="font-size: 18px; padding-top: 10px; padding-bottom: 7px;font-weight:bold;">Body ('+langs[Object.keys(langs)[i]]+')</div><textarea type="text" class="c_textarea lang_'+Object.keys(langs)[i]+'" style="height: 100px;" placeholder="Body (HTML enabled)"></textarea>';
   }
 
   for (var i = 0; i < Object.keys(langs).length; i++) {

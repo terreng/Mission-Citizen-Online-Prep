@@ -1066,7 +1066,7 @@ doAuthentication(cookies,function(userdata) {
   if (earned_completion) {
     things_earned++;
   }
-  if (!earned_completion && !next_step) {
+  if (!earned_completion && !next_step && !((lessons[i-1].questions || []).length == 0)) {
     next_step = [i,0];
   }
   }
@@ -1084,7 +1084,7 @@ doAuthentication(cookies,function(userdata) {
     }
   }
   }
-  if (!earned_star) {
+  if (!earned_star && !((lessons[i-1].questions || []).length == 0)) {
     next_step = [i,1];
     break;
   }

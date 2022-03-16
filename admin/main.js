@@ -10,7 +10,9 @@ var inanim = false;
 var langs = {
   "en": "English",
   "es": "Spanish",
-  "ar": "Arabic"
+  "ar": "Arabic",
+  "ko": "Korean",
+  "vi": "Vietnamese"
 }
 
 function initFunction() {

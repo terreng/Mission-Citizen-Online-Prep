@@ -1,0 +1,9 @@
+If not already installed, install Node.js version 18 (which will also install npm).
+
+Run `npm install` in the main directory to download dependencies.
+
+You'll need a .env file with the FIREBASE_ADMIN_SERVICE_ACCOUNT secret or it won't work. Ask Terren for this.
+
+To start the web server, run `npm run start`
+
+Once running locally, accesss at http://127.0.0.1:8873/

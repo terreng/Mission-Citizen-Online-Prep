@@ -36,9 +36,6 @@ admin.initializeApp({
   databaseURL: 'https://missioncitizenonline.firebaseio.com'
 });
 
-admin.firestore().settings({timestampsInSnapshots: true});
-//const timestamp = snapshot.get('created_at').toDate();
-
 var lessons;
 admin.database().ref("lessons").on("value",function(snapshot) {
   lessons = snapshot.val();

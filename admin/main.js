@@ -12,7 +12,8 @@ var langs = {
   "es": "Spanish",
   "ar": "Arabic",
   "ko": "Korean",
-  "vi": "Vietnamese"
+  "vi": "Vietnamese",
+  "zh": "Chinese"
 }
 
 function initFunction() {

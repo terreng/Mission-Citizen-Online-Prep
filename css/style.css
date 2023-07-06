@@ -158,7 +158,7 @@ nav {
 
 nav > a {
     height: 40px;
-    display: block;
+    display: inline-flex;
     color: black;
     padding: 1px 0px;
 }
